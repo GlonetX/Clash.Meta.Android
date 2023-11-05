@@ -239,7 +239,6 @@
     <string name="port_whitelist">Port Whitelist</string>
     <string name="geox_files" >Geo Files</string>
     <string name="import_geoip_file">导入 GeoIP 数据库</string>
-    <string name="press_to_import">Press to import...</string>
     <string name="import_geosite_file">导入 GeoSite 数据库</string>
     <string name="import_country_file">导入 Country 数据库</string>
     <string name="geofile_import_failed">导入失败</string>
