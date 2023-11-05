@@ -1,4 +1,6 @@
 name: Build Pre-Release
+permissions:
+  contents: write
 on:
   workflow_dispatch:
 
