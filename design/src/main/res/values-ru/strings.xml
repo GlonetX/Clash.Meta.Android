@@ -72,7 +72,6 @@
     <string name="exit_without_save">Выйти без сохранения</string>
     <string name="exit_without_save_warning">Все изменения будут ПОТЕРЯНЫ</string>
 
-    <string name="raw_cn" translatable="false">cn</string>
     <string name="disabled">Отключен</string>
     <string name="unavailable">Недоступен</string>
     <string name="empty_name">Пустое название</string>
@@ -207,14 +206,9 @@
     <string name="github_issues">Сообщения об ошибках на GitHub</string>
     <string name="google_play">Google Play</string>
     <string name="clash_meta_core">Ядро Clash Meta</string>
-    <string name="clash_wiki_url" translatable="false">https://github.com/Dreamacro/clash/wiki</string>
-    <string name="meta_github_url" translatable="false">https://github.com/MetaCubeX/ClashMetaForAndroid</string>
-    <string name="clash_meta_core_url" translatable="false">https://github.com/MetaCubeX/Clash.Meta</string>
 
     <string name="tips_properties"><![CDATA[Принимается только <strong>конфиг Clash</strong> (включая <strong>Прокси</strong>/<strong>Правила</strong>)]]></string>
     <string name="tips_help"><![CDATA[Clash Meta для Android — <strong>бесплатен</strong> и мы <strong>НЕ</strong> предоставляем по нему поддержку]]></string>
-
-    <string name="google_play_url" translatable="false">https://play.google.com/store/apps/details?id=com.github.kr328.clash</string>
 
     <string name="app">Приложение</string>
     <string name="service">Сервис</string>
@@ -277,7 +271,6 @@
     <string name="mode_switch_tips">Действует только для текущей сессии</string>
 
     <string name="clash_meta_wiki">Clash Meta Wiki</string>
-    <string name="clash_meta_wiki_url" translatable="false">https://docs.metacubex.one/</string>
 
     <string name="meta_features">Функции Meta</string>
     <string name="unified_delay">Унифицированная задержка</string>
@@ -299,12 +292,9 @@
     <string name="geox_geoip">GeoIP URL</string>
     <string name="geox_mmdb">MMDB URL</string>
     <string name="geox_geosite">Geosite URL</string>
-    <string name="geoip_url" translatable="false">https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geoip.dat</string>
-    <string name="mmdb_url" translatable="false">https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb</string>
-    <string name="geosite_url" translatable="false">https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosite.dat</string>
     <string name="geox_files" >Geo Files</string>
     <string name="import_geoip_file">Import GeoIP Database</string>
-    <string name="press_to_import">Press to import...</string>
+    <string name="press_to_import">Press to import …</string>
     <string name="import_geosite_file">Import GeoSite Database</string>
     <string name="import_country_file">Import Country Database</string>
     <string name="geofile_import_failed">Import failed</string>
