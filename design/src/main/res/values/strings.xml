@@ -305,7 +305,7 @@
     <string name="geosite_url" translatable="false">https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geosite.dat</string>
     <string name="geox_files" >Geo Files</string>
     <string name="import_geoip_file">Import GeoIP Database</string>
-    <string name="press_to_import">Press to import...</string>
+    <string name="press_to_import">Press to import …</string>
     <string name="import_geosite_file">Import GeoSite Database</string>
     <string name="import_country_file">Import Country Database</string>
     <string name="geofile_import_failed">Import failed</string>
@@ -320,4 +320,6 @@
     <string name="force_dns_mapping">Force DNS Mapping</string>
     <string name="parse_pure_ip">Parse Pure IP</string>
     <string name="override_destination">Override Destination</string>
+    <string name="glonetx_url" translatable="false">https://github.com/GlonetX</string>
+    <string name="reforged_by_glonetx" translatable="false">Reforged by GlonetX</string>
 </resources>
