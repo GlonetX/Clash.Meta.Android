@@ -111,13 +111,3 @@ jobs:
           tag_name: ${{ inputs.release-tag }}
           files: app/build/outputs/apk/meta/release/*
           generate_release_notes: true
-
-      - name: Release Changelog Builder
-        uses: mikepenz/release-changelog-builder-action@v3.6.0
-        with:
-          configurationJson: |
-            {
-              "ignore_labels": [
-                "Update"
-              ],
-            }
