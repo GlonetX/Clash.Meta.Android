@@ -17,14 +17,17 @@ jobs:
         run: |
           touch id_ed25519
           echo "$DEPLOY_KEY" > id_ed25519
-          echo "cat id_ed25519"
-          cat id_ed25519
+          echo "cat ./id_ed25519"
+          cat ./id_ed25519
           chmod 600 ./id_ed25519
           eval "$(ssh-agent -s)"
           ssh-add ./id_ed25519
+          ls -al
 
       - name: Checkout submodules
-        run: git submodule update --init --recursive --remote --force
+        run: |
+          ssh-add -l
+          git submodule update --init --recursive --remote --force
 
       - name: Setup Java
         uses: actions/setup-java@v3
