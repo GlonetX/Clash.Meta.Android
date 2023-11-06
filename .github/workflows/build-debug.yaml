@@ -26,6 +26,7 @@ jobs:
 
       - name: Checkout submodules
         run: |
+          eval "$(ssh-agent -s)"
           ssh-add -l
           git submodule update --init --recursive --remote --force
 
