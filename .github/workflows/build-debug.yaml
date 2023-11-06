@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup deploy key
+      - name: Checkout deploy key
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
@@ -20,13 +20,12 @@ jobs:
           echo "cat ./id_ed25519"
           cat ./id_ed25519
           chmod 600 ./id_ed25519
-          eval "$(ssh-agent -s)"
-          ssh-add ./id_ed25519
           ls -al
 
       - name: Checkout submodules
         run: |
           eval "$(ssh-agent -s)"
+          ssh-add ./id_ed25519
           ssh-add -l
           git submodule update --init --recursive --remote --force
 
