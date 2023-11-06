@@ -1,6 +1,7 @@
 name: Update Clash-Core and Go Modules
 
 permissions:
+  contents: write
   pull-requests: write
 
 on:
