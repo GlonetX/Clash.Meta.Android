@@ -69,6 +69,10 @@ jobs:
           cd ${{ github.workspace }}/core/src/main/golang/native/
           go mod tidy
 
+      - name: Remove deploy key
+        run: |
+          rm -f ./id_ed25519
+
       - uses: tibdex/github-app-token@v1
         id: generate-token
         with:
