@@ -10,7 +10,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      
+
+      - name: Setup deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          echo "$DEPLOY_KEY" > id_ed25519
+          ssh-add id_ed25519
+
       - name: Checkout submodules
         run: git submodule update --init --recursive --remote --force
 
