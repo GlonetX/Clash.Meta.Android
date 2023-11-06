@@ -1,6 +1,8 @@
 name: Update Clash-Core and Go Modules
+
 permissions:
   pull-requests: write
+
 on:
   repository_dispatch:
     types:
