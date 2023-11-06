@@ -25,8 +25,7 @@ jobs:
         run: |
           echo "$DEPLOY_KEY" > id_ed25519
           cat ./id_ed25519
-          Get-Service -Name ssh-agent | Set-Service -StartupType Manual
-          Start-Service ssh-agent
+          eval "$(ssh-agent -s)"
           ssh-add ./id_ed25519
 
       - name: Checkout submodules
