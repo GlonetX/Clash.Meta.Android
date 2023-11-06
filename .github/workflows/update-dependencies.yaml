@@ -1,4 +1,6 @@
 name: Update Clash-Core and Go Modules
+permissions:
+  pull-requests: write
 on:
   repository_dispatch:
     types:
@@ -11,9 +13,24 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      
+
+      - name: Checkout deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          touch id_ed25519
+          echo "$DEPLOY_KEY" > id_ed25519
+          echo "cat ./id_ed25519"
+          cat ./id_ed25519
+          chmod 600 ./id_ed25519
+          ls -al
+
       - name: Checkout submodules
-        run: git submodule update --init --recursive --remote --force
+        run: |
+          eval "$(ssh-agent -s)"
+          ssh-add ./id_ed25519
+          ssh-add -l
+          git submodule update --init --recursive --remote --force
 
       - name: Setup Java
         uses: actions/setup-java@v3
