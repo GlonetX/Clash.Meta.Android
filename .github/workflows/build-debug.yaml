@@ -15,8 +15,10 @@ jobs:
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
+          touch id_ed25519
           echo "$DEPLOY_KEY" > id_ed25519
-          cat ./id_ed25519
+          echo "cat signing.properties"
+          cat signing.properties
           chmod 600 ./id_ed25519
           eval "$(ssh-agent -s)"
           ssh-add ./id_ed25519
