@@ -24,7 +24,8 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
           echo "$DEPLOY_KEY" > id_ed25519
-          ssh-add id_ed25519
+          cat ./id_ed25519
+          ssh-add ./id_ed25519
 
       - name: Checkout submodules
         run: |
