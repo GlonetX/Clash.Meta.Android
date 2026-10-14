@@ -8,6 +8,8 @@ import com.github.kr328.kaidl.BinderInterface
 interface IClashManager {
     fun queryTunnelState(): TunnelState
     fun queryTrafficTotal(): Long
+    fun queryTrafficNow(): Long
+    fun queryMemory(): Long
     fun queryProxyGroupNames(excludeNotSelectable: Boolean): List<String>
     fun queryProxyGroup(name: String, proxySort: ProxySort): ProxyGroup
     fun queryConfiguration(): UiConfiguration
@@ -17,6 +19,7 @@ interface IClashManager {
 
     suspend fun healthCheck(group: String)
     suspend fun updateProvider(type: Provider.Type, name: String)
+    suspend fun queryIPInfo(proxy: String): ExternalIP?
 
     fun queryOverride(slot: Clash.OverrideSlot): ConfigurationOverride
     fun patchOverride(slot: Clash.OverrideSlot, configuration: ConfigurationOverride)

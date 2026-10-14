@@ -2,6 +2,7 @@ package com.github.kr328.clash.design.util
 
 import android.content.Context
 import com.github.kr328.clash.common.compat.preferredLocale
+import com.github.kr328.clash.core.model.ExternalIP
 import com.github.kr328.clash.core.model.Provider
 import com.github.kr328.clash.design.R
 import com.github.kr328.clash.service.model.Profile
@@ -80,4 +81,36 @@ fun Double.toProgress(): Int {
 fun Long.toDateStr(): String {
     val simpleDateFormat =SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     return simpleDateFormat.format(Date(this))
+}
+
+fun String?.toFlagEmoji(): String {
+    if (this == null || length != 2)
+        return ""
+
+    val first = codePointAt(0)
+    val second = codePointAt(1)
+
+    if (first !in 'A'.code..'Z'.code || second !in 'A'.code..'Z'.code)
+        return ""
+
+    return buildString {
+        append(Character.toChars(0x1F1E6 + (first - 'A'.code)))
+        append(Character.toChars(0x1F1E6 + (second - 'A'.code)))
+    }
+}
+
+fun ExternalIP?.toDisplayString(): String? {
+    if (this == null)
+        return null
+
+    val flag = countryCode.toFlagEmoji()
+    val region = listOfNotNull(
+        country?.takeIf { it.isNotBlank() },
+        city?.takeIf { it.isNotBlank() },
+    ).joinToString(separator = " · ")
+
+    return listOfNotNull(
+        flag.takeIf { it.isNotBlank() },
+        region.takeIf { it.isNotBlank() },
+    ).joinToString(separator = " ").takeIf { it.isNotBlank() }
 }

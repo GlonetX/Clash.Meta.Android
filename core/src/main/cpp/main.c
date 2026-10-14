@@ -68,6 +68,13 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryTrafficNow(JNIEnv *env
 }
 
 JNIEXPORT jlong JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryMemory(JNIEnv *env, jobject thiz) {
+    TRACE_METHOD();
+
+    return (jlong) queryMemory();
+}
+
+JNIEXPORT jlong JNICALL
 Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryTrafficTotal(JNIEnv *env, jobject thiz) {
     TRACE_METHOD();
 
@@ -176,6 +183,21 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryGroup(JNIEnv *env, job
     scoped_string _mode = get_string(mode);
 
     scoped_string response = queryGroup(_name, _mode);
+
+    if (response == NULL)
+        return NULL;
+
+    return new_string(response);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryIPInfo(JNIEnv *env, jobject thiz,
+                                                                 jstring proxy) {
+    TRACE_METHOD();
+
+    scoped_string _proxy = get_string(proxy);
+
+    scoped_string response = queryIPInfo(_proxy);
 
     if (response == NULL)
         return NULL;

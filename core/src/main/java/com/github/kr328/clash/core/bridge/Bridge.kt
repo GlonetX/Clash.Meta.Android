@@ -16,6 +16,7 @@ object Bridge {
     external fun nativeQueryTunnelState(): String
     external fun nativeQueryTrafficNow(): Long
     external fun nativeQueryTrafficTotal(): Long
+    external fun nativeQueryMemory(): Long
     external fun nativeNotifyDnsChanged(dnsList: String)
     external fun nativeNotifyTimeZoneChanged(name: String, offset: Int)
     external fun nativeNotifyInstalledAppChanged(uidList: String)
@@ -25,6 +26,7 @@ object Bridge {
     external fun nativeStopHttp()
     external fun nativeQueryGroupNames(excludeNotSelectable: Boolean): String
     external fun nativeQueryGroup(name: String, sort: String): String?
+    external fun nativeQueryIPInfo(proxy: String): String?
     external fun nativeHealthCheck(completable: CompletableDeferred<Unit>, name: String)
     external fun nativeHealthCheckAll()
     external fun nativePatchSelector(selector: String, name: String): Boolean

@@ -29,6 +29,11 @@ func queryNow(upload, download *C.uint64_t) {
 	*download = C.uint64_t(down)
 }
 
+//export queryMemory
+func queryMemory() C.uint64_t {
+	return C.uint64_t(tunnel.QueryMemory())
+}
+
 //export queryTotal
 func queryTotal(upload, download *C.uint64_t) {
 	up, down := tunnel.Total()
@@ -108,4 +113,16 @@ func updateProvider(completable unsafe.Pointer, pType C.c_string, name C.c_strin
 //export suspend
 func suspend(suspended C.int) {
 	tunnel.Suspend(suspended != 0)
+}
+
+//export queryIPInfo
+func queryIPInfo(proxy C.c_string) *C.char {
+	p := C.GoString(proxy)
+
+	response, err := tunnel.QueryIPInfo(p)
+	if err != nil {
+		return nil
+	}
+
+	return marshalString(response)
 }

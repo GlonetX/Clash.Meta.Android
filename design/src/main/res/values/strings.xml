@@ -375,4 +375,18 @@
     <string name="shortcut_stop_long">Stop Clash service</string>
     <string name="glonetx_url" translatable="false">https://github.com/GlonetX</string>
     <string name="reforged_by_glonetx" translatable="false">Reforged by GlonetX</string>
+    <string name="network_quality">Network Quality</string>
+    <string name="ip_info">IP Information</string>
+    <string name="exit_ip">Exit IP</string>
+    <string name="direct_ip">Direct IP</string>
+    <string name="ip_querying">Querying…</string>
+    <string name="ip_query_failed">Query failed, tap to retry</string>
+    <string name="unknown_ip">Unknown</string>
+    <string name="upload_speed">Upload</string>
+    <string name="download_speed">Download</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="outbound_mode">Outbound Mode</string>
+    <string name="memory_usage">Memory</string>
+    <string name="tun_mode">TUN (VPN) Mode</string>
+    <string name="tun_mode_summary">Route traffic through a virtual network interface</string>
 </resources>
