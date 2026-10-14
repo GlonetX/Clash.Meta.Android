@@ -54,7 +54,7 @@ class ProfileAdapter(
 
         // FlClash-style selected state: tonal background + primary stroke
         binding.rootView.apply {
-            strokeColor = if (current.active) ColorStateList.valueOf(primaryColor) else transparent
+            setStrokeColor(if (current.active) ColorStateList.valueOf(primaryColor) else transparent)
             strokeWidth = if (current.active) 2 else 0
             setCardBackgroundColor(groupBg)
             rippleColor = ColorStateList.valueOf(primaryColor)

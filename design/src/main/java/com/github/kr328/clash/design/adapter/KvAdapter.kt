@@ -1,9 +1,11 @@
 package com.github.kr328.clash.design.adapter
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.github.kr328.clash.design.R
 import com.github.kr328.clash.design.databinding.AdapterKvItemBinding
 import com.github.kr328.clash.design.databinding.AdapterSectionHeaderBinding
 import com.github.kr328.clash.design.util.resolveThemedColor

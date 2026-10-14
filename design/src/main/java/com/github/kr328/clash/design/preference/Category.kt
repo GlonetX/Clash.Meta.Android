@@ -24,7 +24,7 @@ fun PreferenceScreen.category(
         background = context.getDrawableCompat(R.drawable.bg_preference_group)
     }
 
-    val bottomMargin = (12 * density).toInt()
+    val bottomSpacing = (12 * density).toInt()
 
     addElement(
         object : Preference {
@@ -44,7 +44,7 @@ fun PreferenceScreen.category(
     ).apply {
         marginStart = (16 * density).toInt()
         marginEnd = (16 * density).toInt()
-        bottomMargin = bottomMargin
+        bottomMargin = bottomSpacing
     }
 
     root.addView(group, groupParams)
