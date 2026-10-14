@@ -134,8 +134,8 @@ class MainApplication : Application() {
             DarkMode.ForceLight -> false
             DarkMode.ForceDark, DarkMode.ForceBlack -> true
             DarkMode.Auto ->
-                (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
-                        == Configuration.UI_MODE_NIGHT_YES
+                (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                        Configuration.UI_MODE_NIGHT_YES
         }
 
         val dynamicOverlay = if (night) {
