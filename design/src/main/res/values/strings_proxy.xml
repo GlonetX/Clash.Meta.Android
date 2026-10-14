@@ -30,6 +30,9 @@
     <string name="proxy_node_icon_none">None</string>
     <string name="proxy_node_icon_flag">Country flag</string>
 
+    <!-- Layout: fourth column option (wide screens) -->
+    <string name="proxy_line_quadruple">Quadruple</string>
+
     <!-- Long-press node action sheet -->
     <string name="proxy_node_copy_name">Copy node name</string>
     <string name="proxy_node_detail_name">Name</string>

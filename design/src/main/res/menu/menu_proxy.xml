@@ -38,6 +38,9 @@
                 <item
                     android:id="@+id/multiple"
                     android:title="@string/multiple" />
+                <item
+                    android:id="@+id/quadruple"
+                    android:title="@string/proxy_line_quadruple" />
 
             </group>
         </menu>

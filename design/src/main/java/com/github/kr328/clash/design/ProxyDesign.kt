@@ -138,6 +138,9 @@ class ProxyDesign(
          * an app restart.
          */
         private var sessionKeyword: String = ""
+
+        /** Roots at least this wide are "wide" (tablet / landscape / unfolded). */
+        private const val WIDE_WIDTH_DP = 600
     }
 
     override val root: View = binding.root
@@ -281,6 +284,21 @@ class ProxyDesign(
 
             binding.groupStatusBar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
                 updateHeaderExtraPadding()
+            }
+
+            // first measure: a >=600dp root upgrades the untouched 2-column
+            // default to 4 columns, once per install. The guard flag keeps a
+            // user who deliberately picked another count on a wide screen
+            // from being overridden on every design rebuild.
+            binding.root.post {
+                if (rootWidthDp() >= WIDE_WIDTH_DP && !uiStore.proxyWideDefaultApplied) {
+                    uiStore.proxyWideDefaultApplied = true
+
+                    if (uiStore.proxyLine == 2)
+                        uiStore.proxyLine = 4
+                }
+
+                applyLayoutConfig()
             }
 
             // restore an in-flight search after a rebuild. Deliberately
@@ -444,13 +462,45 @@ class ProxyDesign(
      * asks the pages to re-measure. No reload: the node list did not change.
      */
     private fun applyLayoutConfig() {
-        config.proxyLine = uiStore.proxyLine
+        config.proxyLine = effectiveLineCount()
         config.density = uiStore.proxyDensity
         config.iconStyle = uiStore.proxyIconStyle
 
         adapter?.applyLayoutConfig()
 
         updateFilterStatus()
+    }
+
+    /**
+     * The stored column count, adjusted for the width the design root
+     * actually measured:
+     *
+     *  - a >=600dp root renders the untouched 2-column default as 4 columns
+     *    (see the first-layout upgrade in [init]);
+     *  - a stored 4 never renders below 600dp — a narrow screen that
+     *    inherited the preference (foldable closed, small window) falls
+     *    back to 3 instead of squeezing four cards into one column-width;
+     *  - everything else is honoured exactly as stored.
+     */
+    private fun effectiveLineCount(): Int {
+        val stored = uiStore.proxyLine
+
+        val widthDp = rootWidthDp()
+
+        return when {
+            widthDp >= WIDE_WIDTH_DP && stored == 2 -> 4
+            widthDp in 1 until WIDE_WIDTH_DP && stored == 4 -> 3
+            else -> stored
+        }
+    }
+
+    private fun rootWidthDp(): Int {
+        val width = binding.root.width
+
+        if (width <= 0)
+            return 0
+
+        return (width / context.resources.displayMetrics.density).toInt()
     }
 
     private fun toggleSearchBar() {
