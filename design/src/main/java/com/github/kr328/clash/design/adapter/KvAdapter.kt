@@ -76,10 +76,16 @@ class KvAdapter(
 
             binding.valueView.apply {
                 if (item.highlight) {
-                    setTextAppearance(context, R.style.TextAppearance_Material3_TitleMedium)
+                    setTextAppearance(
+                        context,
+                        com.google.android.material.R.style.TextAppearance_Material3_TitleMedium
+                    )
                     setTextColor(context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary))
                 } else {
-                    setTextAppearance(context, R.style.TextAppearance_Material3_BodyLarge)
+                    setTextAppearance(
+                        context,
+                        com.google.android.material.R.style.TextAppearance_Material3_BodyLarge
+                    )
                     setTextColor(context.resolveThemedColor(android.R.attr.textColor))
                 }
             }
