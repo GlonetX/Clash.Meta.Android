@@ -82,6 +82,19 @@ class ProxyDesign(
     private fun pageState(index: Int) =
         adapter?.states?.getOrNull(index)
 
+    companion object {
+        /**
+         * The node search keyword of the current app session.
+         *
+         * Deliberately not in [UiStore]: a search is a transient hunt for one
+         * node, not a preference. It only has to survive the page being
+         * rebuilt — the group list changes or the "hide not selectable"
+         * filter is toggled, both of which recreate the whole design — not
+         * an app restart.
+         */
+        private var sessionKeyword: String = ""
+    }
+
     override val root: View = binding.root
 
     suspend fun updateGroup(
@@ -139,6 +152,8 @@ class ProxyDesign(
 
             override fun afterTextChanged(s: Editable?) {
                 val text = s?.toString().orEmpty()
+
+                sessionKeyword = text
 
                 binding.clearKeywordView.visibility =
                     if (text.isEmpty()) View.GONE else View.VISIBLE
@@ -215,6 +230,19 @@ class ProxyDesign(
 
                 adapter?.extraTopPadding = bottom - top
             }
+
+            // restore an in-flight search after a rebuild. Deliberately
+            // without requestFocus: the user is watching the grid, not
+            // typing, and the keyboard must not pop open on its own.
+            if (sessionKeyword.isNotEmpty()) {
+                binding.searchBar.visibility = View.VISIBLE
+
+                binding.searchView.imageTintList = ColorStateList.valueOf(
+                    context.resolveThemedColor(MaterialR.attr.colorPrimary)
+                )
+
+                binding.keywordView.setText(sessionKeyword)
+            }
         }
     }
 
@@ -245,23 +273,41 @@ class ProxyDesign(
     }
 
     private fun toggleSearchBar() {
-        val visible = binding.searchBar.visibility == View.VISIBLE
+        if (binding.searchBar.visibility == View.VISIBLE)
+            hideSearchBar()
+        else
+            showSearchBar()
+    }
 
-        binding.searchBar.visibility = if (visible) View.GONE else View.VISIBLE
+    private fun showSearchBar() {
+        binding.searchBar.visibility = View.VISIBLE
 
         binding.searchView.imageTintList = ColorStateList.valueOf(
-            context.resolveThemedColor(
-                if (visible) MaterialR.attr.colorControlNormal else MaterialR.attr.colorPrimary
-            )
+            context.resolveThemedColor(MaterialR.attr.colorPrimary)
         )
 
-        if (visible) {
-            binding.keywordView.clearFocus()
+        binding.keywordView.requestFocus()
 
-            adapter?.extraTopPadding = 0
-        } else {
-            binding.keywordView.requestFocus()
-        }
+        updateFilterStatus()
+    }
+
+    /**
+     * Hiding the search row also drops the keyword: a filter the user can no
+     * longer see is a bug, not a feature.
+     */
+    private fun hideSearchBar() {
+        binding.searchBar.visibility = View.GONE
+
+        binding.searchView.imageTintList = ColorStateList.valueOf(
+            context.resolveThemedColor(MaterialR.attr.colorControlNormal)
+        )
+
+        binding.keywordView.clearFocus()
+
+        if (binding.keywordView.text?.isNotEmpty() == true)
+            binding.keywordView.setText("")
+
+        adapter?.extraTopPadding = 0
 
         updateFilterStatus()
     }

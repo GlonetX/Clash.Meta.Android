@@ -61,9 +61,14 @@ class ProxyAdapter(
         return filtered.indexOf(index)
     }
 
-    /** True when the filter hides everything in this group. */
+    /**
+     * True when the filter hides everything in this group. False while the
+     * group has not loaded yet, so restoring a session keyword during a page
+     * rebuild does not flash a "no match" notice before the first data
+     * arrives.
+     */
     val isFilteredEmpty: Boolean
-        get() = keyword.isNotEmpty() && filtered.isEmpty()
+        get() = keyword.isNotEmpty() && states.isNotEmpty() && filtered.isEmpty()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(ProxyView(config.context, config))
