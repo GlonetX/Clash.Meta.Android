@@ -82,6 +82,8 @@
     <dimen name="proxy_text_size_grid3">11sp</dimen>
     <dimen name="proxy_card_radius">5dp</dimen>
     <dimen name="proxy_card_offset">0dp</dimen>
+    <dimen name="proxy_chip_padding_horizontal">8dp</dimen>
+    <dimen name="proxy_chip_padding_vertical">3dp</dimen>
 
     <!-- Properties Design -->
     <dimen name="properties_element_margin_vertical">2.5dp</dimen>

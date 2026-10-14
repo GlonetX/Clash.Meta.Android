@@ -11,13 +11,13 @@ data class IPQuality(
     val asn: String? = null,
     @SerialName("scamalyticsScore") val scamalyticsScore: String? = null,
     @SerialName("scamalyticsRisk") val scamalyticsRisk: String? = null,
-    @SerialName("ipqsFraudScore") val ipqsFraudScore: String? = null,
-    @SerialName("ipqsProxy") val ipqsProxy: String? = null,
-    @SerialName("ipqsVpn") val ipqsVpn: String? = null,
-    @SerialName("abuseConfidence") val abuseConfidence: String? = null,
-    @SerialName("abuseUsageType") val abuseUsageType: String? = null,
-    @SerialName("ip2locationProxy") val ip2locationProxy: String? = null,
-    @SerialName("ip2locationUsage") val ip2locationUsage: String? = null,
+    @SerialName("proxyCheckRisk") val proxyCheckRisk: String? = null,
+    @SerialName("proxyCheckProxy") val proxyCheckProxy: String? = null,
+    @SerialName("proxyCheckType") val proxyCheckType: String? = null,
+    @SerialName("ipApiProxy") val ipApiProxy: String? = null,
+    @SerialName("ipApiHosting") val ipApiHosting: String? = null,
+    @SerialName("ipApiMobile") val ipApiMobile: String? = null,
+    @SerialName("ipApiISP") val ipApiISP: String? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
@@ -38,13 +38,13 @@ data class IPQuality(
         parcel.writeString(asn)
         parcel.writeString(scamalyticsScore)
         parcel.writeString(scamalyticsRisk)
-        parcel.writeString(ipqsFraudScore)
-        parcel.writeString(ipqsProxy)
-        parcel.writeString(ipqsVpn)
-        parcel.writeString(abuseConfidence)
-        parcel.writeString(abuseUsageType)
-        parcel.writeString(ip2locationProxy)
-        parcel.writeString(ip2locationUsage)
+        parcel.writeString(proxyCheckRisk)
+        parcel.writeString(proxyCheckProxy)
+        parcel.writeString(proxyCheckType)
+        parcel.writeString(ipApiProxy)
+        parcel.writeString(ipApiHosting)
+        parcel.writeString(ipApiMobile)
+        parcel.writeString(ipApiISP)
     }
 
     override fun describeContents(): Int {

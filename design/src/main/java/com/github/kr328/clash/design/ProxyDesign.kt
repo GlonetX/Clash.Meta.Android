@@ -98,10 +98,15 @@ class ProxyDesign(
             menu.show()
         }
 
+        binding.locateView.setOnClickListener {
+            requestLocate()
+        }
+
         if (groupNames.isEmpty()) {
             binding.emptyView.visibility = View.VISIBLE
 
             binding.urlTestView.visibility = View.GONE
+            binding.locateView.visibility = View.GONE
             binding.tabLayoutView.visibility = View.GONE
             binding.elevationView.visibility = View.GONE
             binding.pagesView.visibility = View.GONE
@@ -157,6 +162,10 @@ class ProxyDesign(
         requests.trySend(Request.UrlTest(binding.pagesView.currentItem))
 
         updateUrlTestButtonStatus()
+    }
+
+    fun requestLocate() {
+        adapter.scrollToSelected(binding.pagesView.currentItem)
     }
 
     private fun updateUrlTestButtonStatus() {

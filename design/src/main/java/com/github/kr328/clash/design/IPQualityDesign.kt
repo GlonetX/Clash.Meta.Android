@@ -59,32 +59,55 @@ class IPQualityDesign(context: Context) : Design<IPQualityDesign.Request>(contex
 
             entries.add(KvAdapter.Entry.Header(context.getString(R.string.ip_quality)))
 
-            quality.scamalyticsScore?.let {
+            if (quality.ip.isNotBlank()) {
+                entries.add(KvAdapter.Entry.Item(KvItem("IP", quality.ip)))
+            }
+
+            quality.asn?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem("ASN", it)))
+            }
+
+            quality.ipApiISP?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem("ISP", it)))
+            }
+
+            quality.scamalyticsScore?.takeIf { it.isNotBlank() }?.let {
                 entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (Scamalytics)", "$it / 100 ${quality.scamalyticsRisk ?: ""}")))
             }
-            quality.ipqsFraudScore?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (IPQualityScore)", "$it / 100")))
+
+            quality.proxyCheckRisk?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (proxycheck.io)", "$it / 100")))
             }
-            quality.ipqsProxy?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem(context.getString(R.string.is_proxy), it)))
+
+            quality.proxyCheckProxy?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem(context.getString(R.string.is_proxy), localizeBool(it))))
             }
-            quality.ipqsVpn?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("VPN", it)))
+
+            quality.proxyCheckType?.takeIf { it.isNotBlank() && it != "-" }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem(context.getString(R.string.proxy_type), it)))
             }
-            quality.abuseConfidence?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.abuse_score)} (AbuseIPDB)", "$it / 100")))
+
+            quality.ipApiProxy?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.is_proxy)} (ip-api)", localizeBool(it))))
             }
-            quality.abuseUsageType?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem(context.getString(R.string.usage_type), it)))
+
+            quality.ipApiHosting?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem(context.getString(R.string.datacenter), localizeBool(it))))
             }
-            quality.ip2locationProxy?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.proxy_type)} (IP2Location)", it)))
-            }
-            quality.ip2locationUsage?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.usage_type)} (IP2Location)", it)))
+
+            quality.ipApiMobile?.takeIf { it.isNotBlank() }?.let {
+                entries.add(KvAdapter.Entry.Item(KvItem(context.getString(R.string.mobile_network), localizeBool(it))))
             }
 
             adapter.submit(entries)
+        }
+    }
+
+    private fun localizeBool(value: String): String {
+        return when (value.lowercase()) {
+            "true", "yes" -> context.getString(R.string.value_yes)
+            "false", "no" -> context.getString(R.string.value_no)
+            else -> value
         }
     }
 }

@@ -205,6 +205,7 @@
     <string name="more">更多</string>
     <string name="save">保存</string>
     <string name="delay_test">延迟测试</string>
+    <string name="locate_node">定位选中节点</string>
     <string name="format_provider_type">%1$s(%2$s)</string>
     <string name="rule">规则</string>
     <string name="http">HTTP</string>
@@ -306,6 +307,10 @@
     <string name="update_downloading">正在下载更新…</string>
     <string name="update_download_failed">下载失败，请稍后重试</string>
     <string name="update_install_failed">无法启动安装器</string>
+    <string name="datacenter">数据中心</string>
+    <string name="mobile_network">移动网络</string>
+    <string name="value_yes">是</string>
+    <string name="value_no">否</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">内存</string>
 </resources>

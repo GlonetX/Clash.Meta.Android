@@ -1,6 +1,7 @@
 package com.github.kr328.clash.design.adapter
 
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kr328.clash.core.model.Proxy
 import com.github.kr328.clash.design.R
@@ -43,6 +44,7 @@ class ProxyPageAdapter(
         withContext(Dispatchers.Main) {
             adapters[position].apply {
                 this.selectable = selectable
+                this.now = parent.now
                 this.swapDataSet(this::states, states, false)
             }
 
@@ -53,6 +55,35 @@ class ProxyPageAdapter(
     fun requestRedrawVisible() {
         factory.fromRoot(parent?.firstVisibleView ?: return)
             .recyclerView.invalidateChildren()
+    }
+
+    /**
+     * Scroll the page at [position] so the currently selected proxy is visible.
+     * Returns false when nothing is selected or the page is not attached.
+     */
+    fun scrollToSelected(position: Int): Boolean {
+        val adapter = adapters.getOrNull(position) ?: return false
+
+        val index = adapter.states.indexOfFirst { it.proxy.name == adapter.now }
+        if (index < 0)
+            return false
+
+        val pager = parent ?: return false
+
+        val target = (0 until pager.childCount)
+            .asSequence()
+            .map { pager.getChildAt(it) }
+            .mapNotNull { it.tag as? ProxyPageFactory.Holder }
+            .map { it.recyclerView }
+            .firstOrNull { it.position == position }
+            ?: return false
+
+        target.post {
+            (target.layoutManager as? LinearLayoutManager)
+                ?.scrollToPositionWithOffset(index, target.height / 3)
+        }
+
+        return true
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProxyPageFactory.Holder {

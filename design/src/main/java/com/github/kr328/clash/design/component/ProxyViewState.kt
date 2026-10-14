@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import com.github.kr328.clash.core.model.Proxy
+import com.github.kr328.clash.design.R
 import com.github.kr328.clash.design.model.ProxyState
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -15,6 +16,10 @@ class ProxyViewState(
     private val parent: ProxyState,
     private val link: ProxyState?
 ) {
+    companion object {
+        // delays at or above this value are rendered with the "medium" color
+        const val DELAY_MEDIUM_THRESHOLD = 600
+    }
     val paint = Paint()
     val rect = Rect()
     val path = Path()
@@ -22,8 +27,12 @@ class ProxyViewState(
     var title: String = ""
     var subtitle: String = ""
     var delayText: String = ""
+    var delayColor: Int = config.unselectedControl
     var background: Int = config.unselectedBackground
     var controls: Int = config.unselectedControl
+
+    val isSelected: Boolean
+        get() = selected
 
     private var delay: Int = 0
     private var selected: Boolean = false
@@ -58,7 +67,26 @@ class ProxyViewState(
 
         if (delay != proxy.delay) {
             delay = proxy.delay
-            delayText = if (proxy.delay in 0..Short.MAX_VALUE) proxy.delay.toString() else ""
+
+            when {
+                // tested but timed out
+                proxy.delay < 0 && !proxy.isGroup -> {
+                    delayText = config.context.getString(R.string.timeout)
+                    delayColor = config.delayTimeout
+                }
+                proxy.delay in 1 until DELAY_MEDIUM_THRESHOLD -> {
+                    delayText = proxy.delay.toString()
+                    delayColor = config.delayGood
+                }
+                proxy.delay in DELAY_MEDIUM_THRESHOLD..Short.MAX_VALUE -> {
+                    delayText = proxy.delay.toString()
+                    delayColor = config.delayMedium
+                }
+                else -> {
+                    // never tested or group without delay
+                    delayText = ""
+                }
+            }
         }
 
         if (parentNow !== parent.now) {
