@@ -2,6 +2,8 @@ package com.github.kr328.clash.design
 
 import android.content.Context
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.github.kr328.clash.core.model.ExternalIP
 import com.github.kr328.clash.core.model.TunnelState
@@ -17,6 +19,7 @@ import com.github.kr328.clash.design.util.resolveThemedColor
 import com.github.kr328.clash.design.util.root
 import com.github.kr328.clash.design.util.toBytesString
 import com.github.kr328.clash.design.util.toDisplayString
+import com.google.android.material.button.MaterialButtonToggleGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -32,6 +35,7 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         OpenHelp,
         OpenAbout,
         RefreshIP,
+        PatchMode,
     }
 
     private val binding = DesignMainBinding
@@ -40,7 +44,8 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     override val root: View
         get() = binding.root
 
-    private val attachedPages = mutableListOf<View>()
+    // embedded tab pages, index 0 = proxy page, index 1 = settings page
+    private val pages = arrayOfNulls<View>(2)
 
     init {
         binding.self = this
@@ -51,28 +56,61 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.page_dashboard -> showPage(0)
-                R.id.page_profiles -> showPage(1)
+                R.id.page_proxy -> showPage(1)
                 R.id.page_settings -> showPage(2)
             }
             true
         }
+
+        binding.modeToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked)
+                return@addOnButtonCheckedListener
+
+            val mode = when (checkedId) {
+                R.id.mode_direct -> TunnelState.Mode.Direct
+                R.id.mode_global -> TunnelState.Mode.Global
+                R.id.mode_rule -> TunnelState.Mode.Rule
+                else -> return@addOnButtonCheckedListener
+            }
+
+            if (updatingMode)
+                return@addOnButtonCheckedListener
+
+            request(Request.PatchMode)
+        }
     }
 
-    fun attachPage(view: View, title: String) {
+    private var updatingMode = false
+
+    fun checkedOutboundMode(): TunnelState.Mode {
+        return when (binding.modeToggleGroup.checkedButtonId) {
+            R.id.mode_direct -> TunnelState.Mode.Direct
+            R.id.mode_global -> TunnelState.Mode.Global
+            else -> TunnelState.Mode.Rule
+        }
+    }
+
+    fun setPage(index: Int, view: View, title: String) {
+        require(index in 1..2) { "page index must be 1 (proxy) or 2 (settings)" }
+
+        pages[index - 1]?.let { old ->
+            binding.pagesContainer.removeView(old)
+        }
+
+        pages[index - 1] = view
+
         binding.pagesContainer.addView(
             view,
-            binding.pagesContainer.childCount,
-            android.widget.FrameLayout.LayoutParams(
+            index,
+            FrameLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
             ),
         )
 
-        attachedPages.add(view)
-
         view.visibility = View.GONE
 
-        view.findViewById<android.widget.TextView>(R.id.activity_bar_title_view)?.text = title
+        view.findViewById<TextView>(R.id.activity_bar_title_view)?.text = title
 
         // embedded pages navigate back to the dashboard instead of finishing the activity
         view.findViewById<View>(R.id.activity_bar_close_view)?.setOnClickListener {
@@ -83,13 +121,13 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     private fun showPage(index: Int) {
         binding.dashboardPage.visibility = if (index == 0) View.VISIBLE else View.GONE
 
-        attachedPages.forEachIndexed { i, page ->
-            page.visibility = if (index == i + 1) View.VISIBLE else View.GONE
+        pages.forEachIndexed { i, page ->
+            page?.visibility = if (index == i + 1) View.VISIBLE else View.GONE
         }
     }
 
-    fun showProfilesPage() {
-        binding.bottomNavigation.selectedItemId = R.id.page_profiles
+    fun showProxyPage() {
+        binding.bottomNavigation.selectedItemId = R.id.page_proxy
     }
 
     fun showSettingsPage() {
@@ -172,6 +210,20 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     suspend fun setIPInfoFailed() {
         withContext(Dispatchers.Main) {
             binding.ipStatus = context.getString(R.string.ip_query_failed)
+        }
+    }
+
+    suspend fun setOutboundMode(mode: TunnelState.Mode) {
+        withContext(Dispatchers.Main) {
+            updatingMode = true
+
+            when (mode) {
+                TunnelState.Mode.Direct -> binding.modeToggleGroup.check(R.id.mode_direct)
+                TunnelState.Mode.Global -> binding.modeToggleGroup.check(R.id.mode_global)
+                else -> binding.modeToggleGroup.check(R.id.mode_rule)
+            }
+
+            updatingMode = false
         }
     }
 

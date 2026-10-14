@@ -5,9 +5,9 @@
         android:icon="@drawable/ic_baseline_speed"
         android:title="@string/dashboard" />
     <item
-        android:id="@+id/page_profiles"
-        android:icon="@drawable/ic_baseline_view_list"
-        android:title="@string/profiles" />
+        android:id="@+id/page_proxy"
+        android:icon="@drawable/ic_baseline_apps"
+        android:title="@string/proxy" />
     <item
         android:id="@+id/page_settings"
         android:icon="@drawable/ic_baseline_settings"

@@ -17,8 +17,10 @@ import com.github.kr328.clash.common.util.intent
 import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.ticker
 import com.github.kr328.clash.core.bridge.Bridge
+import com.github.kr328.clash.core.Clash
+import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.design.MainDesign
-import com.github.kr328.clash.design.ProfilesDesign
+import com.github.kr328.clash.design.ProxyDesign
 import com.github.kr328.clash.design.SettingsDesign
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.design.util.toBytesString
@@ -33,7 +35,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -44,12 +49,15 @@ class MainActivity : BaseActivity<MainDesign>() {
         private const val IP_REFRESH_INTERVAL = 5 * 60 * 1000L
     }
 
-    private var profilesDesign: ProfilesDesign? = null
     private var settingsDesign: SettingsDesign? = null
+    private var proxyDesign: ProxyDesign? = null
+    private var proxyGroupNames: List<String> = emptyList()
+    private var proxyStates: List<com.github.kr328.clash.design.model.ProxyState> = emptyList()
+    private val proxyReloadLock = Semaphore(10)
 
     override fun onDestroy() {
-        profilesDesign?.cancel()
         settingsDesign?.cancel()
+        proxyDesign?.cancel()
 
         super.onDestroy()
     }
@@ -63,22 +71,18 @@ class MainActivity : BaseActivity<MainDesign>() {
 
     override suspend fun main() {
         val design = MainDesign(this)
-        val profilesDesign = ProfilesDesign(this)
         val settingsDesign = SettingsDesign(this)
 
-        this.profilesDesign = profilesDesign
         this.settingsDesign = settingsDesign
 
-        design.attachPage(profilesDesign.root, getString(DesignR.string.profiles))
-        design.attachPage(settingsDesign.root, getString(DesignR.string.settings))
+        design.setPage(2, settingsDesign.root, getString(DesignR.string.settings))
 
         setContentDesign(design)
 
         design.fetch()
-        profilesDesign.fetch()
+        design.fetchProxyPage()
 
         val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
-        val minuteTicker = ticker(TimeUnit.MINUTES.toMillis(1))
 
         var lastIPRefresh = 0L
 
@@ -91,7 +95,7 @@ class MainActivity : BaseActivity<MainDesign>() {
                         Event.ClashStop, Event.ClashStart,
                         Event.ProfileLoaded, Event.ProfileChanged -> {
                             design.fetch()
-                            profilesDesign.fetch()
+                            design.fetchProxyPage()
 
                             if (clashRunning && System.currentTimeMillis() - lastIPRefresh > IP_REFRESH_INTERVAL) {
                                 lastIPRefresh = System.currentTimeMillis()
@@ -123,9 +127,9 @@ class MainActivity : BaseActivity<MainDesign>() {
                             }
                         }
                         MainDesign.Request.OpenProxy ->
-                            startActivity(ProxyActivity::class.intent)
+                            design.showProxyPage()
                         MainDesign.Request.OpenProfiles ->
-                            design.showProfilesPage()
+                            startActivity(ProfilesActivity::class.intent)
                         MainDesign.Request.OpenProviders ->
                             startActivity(ProvidersActivity::class.intent)
                         MainDesign.Request.OpenLogs -> {
@@ -146,46 +150,84 @@ class MainActivity : BaseActivity<MainDesign>() {
 
                             design.fetchIPInfo(force = true)
                         }
+                        MainDesign.Request.PatchMode -> {
+                            val mode = design.checkedOutboundMode()
+
+                            withClash {
+                                val o = queryOverride(Clash.OverrideSlot.Session)
+
+                                o.mode = mode
+
+                                patchOverride(Clash.OverrideSlot.Session, o)
+                            }
+
+                            design.setOutboundMode(mode)
+                        }
                     }
                 }
-                profilesDesign.requests.onReceive {
-                    when (it) {
-                        ProfilesDesign.Request.Create ->
-                            startActivity(NewProfileActivity::class.intent)
-                        ProfilesDesign.Request.UpdateAll ->
-                            withProfile {
-                                try {
-                                    queryAll().forEach { p ->
-                                        if (p.imported && p.type != Profile.Type.File)
-                                            update(p.uuid)
-                                    }
-                                } finally {
-                                    withContext(Dispatchers.Main) {
-                                        profilesDesign.finishUpdateAll()
-                                    }
+                proxyDesign?.let { current ->
+                    current.requests.onReceive {
+                        when (it) {
+                            ProxyDesign.Request.ReLaunch ->
+                                design.fetchProxyPage(force = true)
+                            ProxyDesign.Request.ReloadAll -> {
+                                proxyGroupNames.indices.forEach { idx ->
+                                    current.requests.trySend(ProxyDesign.Request.Reload(idx))
                                 }
                             }
-                        is ProfilesDesign.Request.Update ->
-                            withProfile { update(it.profile.uuid) }
-                        is ProfilesDesign.Request.Delete ->
-                            withProfile { delete(it.profile.uuid) }
-                        is ProfilesDesign.Request.Edit ->
-                            startActivity(PropertiesActivity::class.intent.setUUID(it.profile.uuid))
-                        is ProfilesDesign.Request.Active -> {
-                            withProfile {
-                                if (it.profile.imported)
-                                    setActive(it.profile)
-                                else
-                                    profilesDesign.requestSave(it.profile)
+                            is ProxyDesign.Request.Reload -> {
+                                launch {
+                                    val group = proxyReloadLock.withPermit {
+                                        withClash {
+                                            queryProxyGroup(proxyGroupNames[it.index], uiStore.proxySort)
+                                        }
+                                    }
+
+                                    val state = proxyStates[it.index]
+
+                                    state.now = group.now
+
+                                    proxyDesign?.updateGroup(
+                                        it.index,
+                                        group.proxies,
+                                        group.type == "Selector",
+                                        state,
+                                        proxyStates.mapIndexed { idx, s -> proxyGroupNames[idx] to s }.toMap()
+                                    )
+                                }
+                            }
+                            is ProxyDesign.Request.Select -> {
+                                withClash {
+                                    patchSelector(proxyGroupNames[it.index], it.name)
+                                }
+
+                                proxyStates[it.index].now = it.name
+
+                                proxyDesign?.requestRedrawVisible()
+                            }
+                            is ProxyDesign.Request.UrlTest -> {
+                                launch {
+                                    withClash {
+                                        healthCheck(proxyGroupNames[it.index])
+                                    }
+
+                                    proxyDesign?.requests?.trySend(ProxyDesign.Request.Reload(it.index))
+                                }
+                            }
+                            is ProxyDesign.Request.PatchMode -> {
+                                proxyDesign?.showModeSwitchTips()
+
+                                withClash {
+                                    val o = queryOverride(Clash.OverrideSlot.Session)
+
+                                    o.mode = it.mode
+
+                                    patchOverride(Clash.OverrideSlot.Session, o)
+                                }
+
+                                design.setOutboundMode(it.mode ?: TunnelState.Mode.Rule)
                             }
                         }
-                        is ProfilesDesign.Request.Duplicate -> {
-                            val uuid = withProfile { clone(it.profile.uuid) }
-
-                            startActivity(PropertiesActivity::class.intent.setUUID(uuid))
-                        }
-                        is ProfilesDesign.Request.ShareQrCode ->
-                            profilesDesign.showProfileQrCode(it.profile)
                     }
                 }
                 settingsDesign.requests.onReceive {
@@ -205,11 +247,6 @@ class MainActivity : BaseActivity<MainDesign>() {
                         design.fetchTraffic()
                     }
                 }
-                if (activityStarted) {
-                    minuteTicker.onReceive {
-                        profilesDesign.updateElapsed()
-                    }
-                }
             }
         }
     }
@@ -226,6 +263,7 @@ class MainActivity : BaseActivity<MainDesign>() {
         }
 
         setMode(state.mode)
+        setOutboundMode(state.mode)
         setHasProviders(providers.isNotEmpty())
 
         val profile = withProfile {
@@ -234,6 +272,38 @@ class MainActivity : BaseActivity<MainDesign>() {
 
         setProfileName(profile?.name)
         setProfileSummary(profile?.summary())
+    }
+
+    private suspend fun MainDesign.fetchProxyPage(force: Boolean = false) {
+        val names = withClash {
+            queryProxyGroupNames(uiStore.proxyExcludeNotSelectable)
+        }
+
+        if (!force && names == proxyGroupNames && proxyDesign != null)
+            return
+
+        proxyGroupNames = names
+        proxyStates = List(names.size) { com.github.kr328.clash.design.model.ProxyState("?") }
+
+        val mode = withClash { queryOverride(Clash.OverrideSlot.Session).mode }
+
+        val old = proxyDesign
+        proxyDesign = null
+
+        val newDesign = ProxyDesign(
+            this@MainActivity,
+            mode,
+            names,
+            uiStore
+        )
+
+        proxyDesign = newDesign
+
+        setPage(1, newDesign.root, getString(DesignR.string.proxy))
+
+        old?.cancel()
+
+        newDesign.requests.trySend(ProxyDesign.Request.ReloadAll)
     }
 
     private suspend fun MainDesign.fetchTraffic() {
@@ -290,7 +360,7 @@ class MainActivity : BaseActivity<MainDesign>() {
         if (active == null || !active.imported) {
             showToast(DesignR.string.no_profile_selected, ToastDuration.Long) {
                 setAction(DesignR.string.profiles) {
-                    showProfilesPage()
+                    startActivity(ProfilesActivity::class.intent)
                 }
             }
 
