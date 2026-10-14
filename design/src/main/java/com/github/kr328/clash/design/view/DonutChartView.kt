@@ -44,7 +44,11 @@ class DonutChartView @JvmOverloads constructor(
     private var upload = 0L
     private var download = 0L
 
-    private var progress = 0f
+    /** Fraction of the circle the download arc currently occupies. */
+    private var drawnDownload = 0f
+
+    /** Fraction of the circle the upload arc currently occupies. */
+    private var drawnUpload = 0f
 
     private var animator: ValueAnimator? = null
 
@@ -63,7 +67,13 @@ class DonutChartView @JvmOverloads constructor(
         uploadPaint.color = context.resolveThemedColor(R.attr.delayMedium)
     }
 
-    /** New totals in bytes; animates from whatever is currently drawn. */
+    /**
+     * New totals in bytes; animates from whatever is currently drawn.
+     *
+     * The fractions animate, not a full re-sweep: the totals move once a
+     * second while the core runs, and restarting from zero every tick would
+     * read as flicker rather than motion.
+     */
     fun setTraffic(upload: Long, download: Long) {
         if (upload == this.upload && download == this.download)
             return
@@ -71,12 +81,24 @@ class DonutChartView @JvmOverloads constructor(
         this.upload = upload.coerceAtLeast(0)
         this.download = download.coerceAtLeast(0)
 
+        val total = (this.upload + this.download).toFloat()
+
+        val targetDownload = if (total > 0f) this.download / total else 0f
+        val targetUpload = if (total > 0f) this.upload / total else 0f
+
+        val startDownload = drawnDownload
+        val startUpload = drawnUpload
+
         animator?.cancel()
 
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = 420
             addUpdateListener {
-                progress = it.animatedValue as Float
+                val t = it.animatedValue as Float
+
+                drawnDownload = startDownload + (targetDownload - startDownload) * t
+                drawnUpload = startUpload + (targetUpload - startUpload) * t
+
                 invalidate()
             }
             start()
@@ -110,16 +132,13 @@ class DonutChartView @JvmOverloads constructor(
 
         canvas.drawArc(bounds, 0f, 360f, false, trackPaint)
 
-        val total = (upload + download).toFloat()
+        val downloadSweep = 360f * drawnDownload
+        val uploadSweep = 360f * drawnUpload
 
-        if (total <= 0f || progress <= 0f)
+        if (downloadSweep + uploadSweep <= 0f)
             return
 
         val gap = 4f
-        val sweep = 360f * progress
-
-        val downloadSweep = (download / total) * sweep
-        val uploadSweep = (upload / total) * sweep
 
         var start = -90f
 
