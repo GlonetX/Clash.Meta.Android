@@ -26,9 +26,15 @@ import kotlinx.coroutines.withContext
 class LogcatDesign(
     context: Context,
     private val streaming: Boolean,
+    initialLevel: LogMessage.Level = LogMessage.Level.Debug,
 ) : Design<LogcatDesign.Request>(context) {
-    enum class Request {
-        Close, Delete, Export
+    sealed class Request {
+        object Close : Request()
+        object Delete : Request()
+        object Export : Request()
+
+        /** Patches the core's session log-level override (streaming only). */
+        data class SetLevel(val level: LogMessage.Level) : Request()
     }
 
     private val binding = DesignLogcatBinding
@@ -54,7 +60,7 @@ class LogcatDesign(
     private var clearMarker: Int = 0
 
     /** Messages with a lower level are hidden. Debug shows everything. */
-    private var levelThreshold: LogMessage.Level = LogMessage.Level.Debug
+    private var levelThreshold: LogMessage.Level = initialLevel
 
     /** Case-insensitive substring filter over the message text. */
     private var query: String = ""
@@ -134,15 +140,24 @@ class LogcatDesign(
         }
     }
 
-    /** Opens the runtime log level selector (no config edit needed). */
+    /**
+     * Opens the log level selector. In streaming mode the chosen level is
+     * also pushed to the core as a *session* override (Request.SetLevel —
+     * see LogcatActivity), so the core stops *emitting* lower-severity
+     * lines instead of the viewer merely hiding them. No config file is
+     * touched; the override dies with the core process. On top of that,
+     * the viewer keeps its own threshold so lines already sitting in the
+     * 128-entry cache are hidden immediately.
+     */
     fun showLevelSelector() {
         val levels = arrayOf(
             LogMessage.Level.Debug,
             LogMessage.Level.Info,
             LogMessage.Level.Warning,
             LogMessage.Level.Error,
+            LogMessage.Level.Silent,
         )
-        val names = levels.map { it.name }.toTypedArray()
+        val names = levels.map { it.localized(context) }.toTypedArray()
         val selected = levels.indexOf(levelThreshold).coerceAtLeast(0)
 
         MaterialAlertDialogBuilder(context)
@@ -153,6 +168,10 @@ class LogcatDesign(
                 dialog.dismiss()
 
                 applyFilters()
+
+                if (streaming) {
+                    requests.trySend(Request.SetLevel(levels[which]))
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -246,5 +265,19 @@ class LogcatDesign(
 
     companion object {
         private const val SEARCH_DEBOUNCE_MS = 250L
+
+        /** Localized level names for the selector dialog. */
+        private fun LogMessage.Level.localized(context: Context): String {
+            val res = when (this) {
+                LogMessage.Level.Debug -> R.string.debug
+                LogMessage.Level.Info -> R.string.info
+                LogMessage.Level.Warning -> R.string.warning
+                LogMessage.Level.Error -> R.string.error
+                LogMessage.Level.Silent -> R.string.silent
+                LogMessage.Level.Unknown -> R.string.debug
+            }
+
+            return context.getString(res)
+        }
     }
 }

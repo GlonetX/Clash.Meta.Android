@@ -94,7 +94,15 @@ class LogcatActivity : BaseActivity<LogcatDesign>() {
     }
 
     private suspend fun mainStreaming() {
-        val design = LogcatDesign(this, true)
+        // Effective core log level: the session override (what this page's
+        // own selector writes) first, then the persisted one from the
+        // Override settings page, else the core emits everything.
+        val currentLevel = withClash {
+            queryOverride(Clash.OverrideSlot.Session).logLevel
+                ?: queryOverride(Clash.OverrideSlot.Persist).logLevel
+        } ?: LogMessage.Level.Debug
+
+        val design = LogcatDesign(this, streaming = true, initialLevel = currentLevel)
 
         setContentDesign(design)
 
@@ -116,6 +124,18 @@ class LogcatActivity : BaseActivity<LogcatDesign>() {
                             stopService(LogcatService::class.intent)
                             startActivity(LogsActivity::class.intent)
                             finish()
+                        }
+                        is LogcatDesign.Request.SetLevel -> {
+                            // Live, session-scoped: like the ProxyDesign mode
+                            // switch, this patches the in-memory override and
+                            // never touches the YAML files.
+                            withClash {
+                                val o = queryOverride(Clash.OverrideSlot.Session)
+
+                                o.logLevel = it.level
+
+                                patchOverride(Clash.OverrideSlot.Session, o)
+                            }
                         }
                         else -> Unit
                     }
