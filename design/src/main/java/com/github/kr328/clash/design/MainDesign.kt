@@ -6,16 +6,22 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.design.dashboard.DashboardAdapter
+import com.github.kr328.clash.design.dashboard.DashboardEditAdapter
 import com.github.kr328.clash.design.dashboard.DashboardState
 import com.github.kr328.clash.design.dashboard.DashboardWidget
+import com.github.kr328.clash.design.dashboard.DashboardWidgetPickerAdapter
 import com.github.kr328.clash.design.dashboard.TrafficHistory
 import com.github.kr328.clash.design.databinding.DesignAboutBinding
 import com.github.kr328.clash.design.databinding.DesignMainBinding
 import com.github.kr328.clash.design.store.UiStore
 import com.github.kr328.clash.design.util.layoutInflater
 import com.github.kr328.clash.design.util.root
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -297,58 +303,117 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
 
     // ----------------------------------------------------------------- about
 
-    /** Placeholder list dialog; replaced by drag-to-reorder in the edit pass. */
+    /**
+     * "Customise dashboard".
+     *
+     * Drag to reorder, switch to hide. The order lives in the same
+     * `UiStore.dashboardCardOrder` string it always did — only the editing
+     * mechanism changed, from a hand-rolled dialog with per-row arrow buttons
+     * to an `ItemTouchHelper`.
+     */
     suspend fun showEditCardsDialog() {
         withContext(Dispatchers.Main) {
-            val list = android.widget.LinearLayout(context).apply {
-                orientation = android.widget.LinearLayout.VERTICAL
+            val editAdapter = DashboardEditAdapter(
+                context = context,
+                hidden = uiStore.dashboardCardHidden,
+                onHiddenChanged = { key, hidden ->
+                    setDashboardWidgetHidden(key, hidden)
+                    editAdapter.notifyDataSetChanged()
+                },
+            ).apply {
+                submit(placedWidgets())
             }
 
-            rebuildEditList(list)
+            val list = RecyclerView(context).apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = editAdapter
+                layoutParams = android.widget.FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    (context.resources.displayMetrics.heightPixels * 0.5f).toInt(),
+                )
+            }
 
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                0,
+            ) {
+                override fun isLongPressDragEnabled(): Boolean = true
+
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder,
+                ): Boolean {
+                    val from = viewHolder.bindingAdapterPosition
+                    val to = target.bindingAdapterPosition
+
+                    if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION)
+                        return false
+
+                    editAdapter.items.add(to, editAdapter.items.removeAt(from))
+                    editAdapter.notifyItemMoved(from, to)
+
+                    return true
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) = Unit
+
+                override fun clearView(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                ) {
+                    super.clearView(recyclerView, viewHolder)
+
+                    persistWidgetOrder(editAdapter.items)
+                }
+            }).attachToRecyclerView(list)
+
+            MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.edit_dashboard_cards)
                 .setView(list)
-                .setPositiveButton(android.R.string.ok, null)
+                .setNeutralButton(R.string.dashboard_add_widget) { _, _ -> showAddWidgetSheet() }
+                .setPositiveButton(R.string.dashboard_edit_done, null)
                 .show()
         }
     }
 
-    private fun rebuildEditList(list: android.widget.LinearLayout) {
-        list.removeAllViews()
-
-        val inflater = android.view.LayoutInflater.from(context)
-        val hidden = uiStore.dashboardCardHidden
-        val order = placedWidgets()
-
-        order.forEachIndexed { index, widget ->
-            val row = com.github.kr328.clash.design.databinding.DialogDashboardCardBinding
-                .inflate(inflater, list, false)
-
-            row.titleView.text = context.getString(widget.titleRes)
-            row.visibilityView.isChecked = widget.key !in hidden
-
-            row.visibilityView.setOnCheckedChangeListener { _, checked ->
-                setDashboardWidgetHidden(widget.key, !checked)
-            }
-
-            row.moveUpView.isEnabled = index > 0
-            row.moveUpView.alpha = if (index > 0) 1.0f else 0.4f
-            row.moveUpView.setOnClickListener {
-                moveDashboardWidget(index, index - 1)
-                rebuildEditList(list)
-            }
-
-            val last = order.size - 1
-            row.moveDownView.isEnabled = index < last
-            row.moveDownView.alpha = if (index < last) 1.0f else 0.4f
-            row.moveDownView.setOnClickListener {
-                moveDashboardWidget(index, index + 1)
-                rebuildEditList(list)
-            }
-
-            list.addView(row.root)
+    /** Bottom sheet listing every placeable widget not currently on the grid. */
+    private fun showAddWidgetSheet() {
+        val pickerAdapter = DashboardWidgetPickerAdapter(context) { widget ->
+            showDashboardWidget(widget)
+        }.apply {
+            submit(unplacedWidgets())
         }
+
+        val list = RecyclerView(context).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = pickerAdapter
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+        }
+
+        val sheet = com.google.android.material.bottomsheet.BottomSheetDialog(context)
+
+        sheet.setContentView(list)
+        sheet.show()
+
+        if (pickerAdapter.itemCount == 0) {
+            sheet.setOnShowListener {
+                com.google.android.material.snackbar.Snackbar.make(
+                    list,
+                    R.string.dashboard_widgets_empty,
+                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT,
+                ).show()
+            }
+        }
+    }
+
+    private fun persistWidgetOrder(widgets: List<DashboardWidget>) {
+        uiStore.dashboardCardOrder = widgets.joinToString(",") { it.key }
+
+        applyDashboardWidgets()
     }
 
     suspend fun showAbout(versionName: String) {

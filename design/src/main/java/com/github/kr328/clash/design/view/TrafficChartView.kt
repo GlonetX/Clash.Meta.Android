@@ -230,7 +230,7 @@ class TrafficChartView @JvmOverloads constructor(
 
         for (column in 0 until columns) {
             val from = (column * perColumn).toInt().coerceIn(0, samples - 1)
-            val to = (((column + 1) * perColumn).toInt().coerceIn(from + 1, samples)
+            val to = ((column + 1) * perColumn).toInt().coerceIn(from + 1, samples)
 
             var peak = 0L
 

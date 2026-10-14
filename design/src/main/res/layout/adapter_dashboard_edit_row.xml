@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One row of the dashboard edit list: drag handle, title, visibility. -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/app_space_lg"
+        android:paddingVertical="@dimen/app_space_md">
+
+        <ImageView
+            android:id="@+id/drag_handle"
+            android:layout_width="@dimen/app_icon_glyph_size_small"
+            android:layout_height="@dimen/app_icon_glyph_size_small"
+            android:contentDescription="@string/dashboard_reorder_hint"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_dashboard_drag"
+            android:tint="?attr/colorOutline" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_space_lg"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.App.Body" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/visibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_space_md" />
+    </LinearLayout>
+</layout>
