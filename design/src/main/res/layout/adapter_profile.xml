@@ -14,7 +14,11 @@
         <variable
             name="menu"
             type="android.view.View.OnClickListener" />
+        <variable
+            name="update"
+            type="android.view.View.OnClickListener" />
         <import type="android.view.View" />
+        <import type="com.github.kr328.clash.service.model.Profile.Type" />
         <import type="com.github.kr328.clash.design.util.I18nKt" />
         <import type="com.github.kr328.clash.design.util.IntervalKt" />
     </data>
@@ -74,6 +78,17 @@
                     android:text="@{IntervalKt.elapsedIntervalString(currentTime.value - profile.updatedAt, context)}"
                     android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
                     android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <ImageButton
+                    android:id="@+id/update_view"
+                    android:layout_width="@dimen/item_tailing_component_size"
+                    android:layout_height="@dimen/item_tailing_component_size"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/update"
+                    android:onClick="@{update}"
+                    android:padding="@dimen/toolbar_image_action_padding"
+                    android:src="@drawable/ic_baseline_update"
+                    android:visibility="@{profile.imported &amp;&amp; profile.type != Type.File ? View.VISIBLE : View.GONE}" />
 
                 <ImageButton
                     android:id="@+id/menu_view"

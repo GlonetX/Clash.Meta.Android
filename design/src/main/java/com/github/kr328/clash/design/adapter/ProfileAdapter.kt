@@ -15,6 +15,7 @@ class ProfileAdapter(
     private val context: Context,
     private val onClicked: (Profile) -> Unit,
     private val onMenuClicked: (Profile) -> Unit,
+    private val onUpdateClicked: (Profile) -> Unit,
 ) : RecyclerView.Adapter<ProfileAdapter.Holder>() {
     class Holder(val binding: AdapterProfileBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -64,6 +65,9 @@ class ProfileAdapter(
         }
         binding.setMenu {
             onMenuClicked(current)
+        }
+        binding.setUpdate {
+            onUpdateClicked(current)
         }
     }
 
