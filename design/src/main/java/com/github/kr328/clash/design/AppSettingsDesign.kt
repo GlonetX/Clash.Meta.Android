@@ -56,7 +56,8 @@ class AppSettingsDesign(
                 valuesText = arrayOf(
                     R.string.follow_system_android_10,
                     R.string.always_light,
-                    R.string.always_dark
+                    R.string.always_dark,
+                    R.string.always_black
                 ),
                 icon = R.drawable.ic_baseline_brightness_4,
                 title = R.string.dark_mode
