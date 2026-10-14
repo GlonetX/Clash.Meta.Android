@@ -12,6 +12,7 @@ import com.github.kr328.clash.common.log.Log
 import com.github.kr328.clash.common.util.fileName
 import com.github.kr328.clash.common.util.intent
 import com.github.kr328.clash.common.util.ticker
+import com.github.kr328.clash.core.Clash
 import com.github.kr328.clash.core.model.LogMessage
 import com.github.kr328.clash.design.LogcatDesign
 import com.github.kr328.clash.design.dialog.withModelProgressBar
@@ -21,6 +22,7 @@ import com.github.kr328.clash.design.util.showExceptionToast
 import com.github.kr328.clash.log.LogcatFilter
 import com.github.kr328.clash.log.LogcatReader
 import com.github.kr328.clash.util.logsDir
+import com.github.kr328.clash.util.withClash
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
@@ -92,14 +94,22 @@ class LogcatActivity : BaseActivity<LogcatDesign>() {
     }
 
     private suspend fun mainStreaming() {
-        val design = LogcatDesign(this, true)
+        // Effective core log level: the session override (what this page's
+        // own selector writes) first, then the persisted one from the
+        // Override settings page, else the core emits everything.
+        val currentLevel = withClash {
+            queryOverride(Clash.OverrideSlot.Session).logLevel
+                ?: queryOverride(Clash.OverrideSlot.Persist).logLevel
+        } ?: LogMessage.Level.Debug
+
+        val design = LogcatDesign(this, streaming = true, initialLevel = currentLevel)
 
         setContentDesign(design)
 
         startForegroundServiceCompat(LogcatService::class.intent)
 
         val logcat = bindLogcatService()
-        val ticker = ticker(500)
+        val ticker = ticker(300)
 
         var initial = true
 
@@ -114,6 +124,18 @@ class LogcatActivity : BaseActivity<LogcatDesign>() {
                             stopService(LogcatService::class.intent)
                             startActivity(LogsActivity::class.intent)
                             finish()
+                        }
+                        is LogcatDesign.Request.SetLevel -> {
+                            // Live, session-scoped: like the ProxyDesign mode
+                            // switch, this patches the in-memory override and
+                            // never touches the YAML files.
+                            withClash {
+                                val o = queryOverride(Clash.OverrideSlot.Session)
+
+                                o.logLevel = it.level
+
+                                patchOverride(Clash.OverrideSlot.Session, o)
+                            }
                         }
                         else -> Unit
                     }

@@ -1,13 +1,16 @@
 package com.github.kr328.clash.design
 
 import android.app.Dialog
+import android.content.ClipData
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.core.content.FileProvider
 import com.github.kr328.clash.design.adapter.ProfileAdapter
 import com.github.kr328.clash.design.databinding.DesignProfilesBinding
 import com.github.kr328.clash.design.databinding.DialogProfilesMenuBinding
@@ -22,14 +25,19 @@ import com.google.zxing.EncodeHintType
 import com.google.zxing.WriterException
 import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
 class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context) {
     sealed class Request {
         object UpdateAll : Request()
         object Create : Request()
+        object Configure : Request()
         data class Active(val profile: Profile) : Request()
         data class Update(val profile: Profile) : Request()
         data class Edit(val profile: Profile) : Request()
@@ -120,6 +128,10 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
         requests.trySend(Request.Create)
     }
 
+    fun requestConfigure() {
+        requests.trySend(Request.Configure)
+    }
+
     private fun requestActive(profile: Profile) {
         requests.trySend(Request.Active(profile))
     }
@@ -181,13 +193,66 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
                 val dialog = MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.share_qr_code)
                     .setView(binding.root)
-                    .setPositiveButton(R.string.close) { _, _ -> }
+                    .setPositiveButton(R.string.share) { _, _ ->
+                        launch {
+                            shareQrCodeBitmap(bitmap)
+                        }
+                    }
+                    .setNegativeButton(R.string.close) { _, _ -> }
                     .setOnDismissListener {
                         if (continuation.isActive) continuation.resume(Unit)
                     }
                     .show()
 
                 continuation.invokeOnCancellation { dialog.dismiss() }
+            }
+        }
+    }
+
+    /**
+     * Shares the QR code bitmap via the existing FileProvider
+     * (`${packageName}.update.provider`, whose cache-path covers the whole
+     * cacheDir). The dialog stays open so the user can share again or
+     * close it manually.
+     */
+    private fun shareQrCodeBitmap(bitmap: Bitmap) {
+        launch(Dispatchers.Default) {
+            try {
+                val dir = File(context.cacheDir, "shared").apply { mkdirs() }
+                val file = File(dir, "qr_code_${System.currentTimeMillis()}.png")
+
+                FileOutputStream(file).use {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.update.provider",
+                    file
+                )
+
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    clipData = ClipData.newRawUri(null, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                withContext(Dispatchers.Main) {
+                    context.startActivity(
+                        Intent.createChooser(intent, context.getString(R.string.share_qr_code))
+                    )
+                }
+            } catch (_: Exception) {
+                withContext(Dispatchers.Main) {
+                    showToast(R.string.share_failed, ToastDuration.Long)
+                }
+            } finally {
+                // no need to keep the temp file around forever
+                File(context.cacheDir, "shared")
+                    .takeIf { it.isDirectory }
+                    ?.listFiles()
+                    ?.forEach { if (it.lastModified() < System.currentTimeMillis() - TimeUnit.HOURS.toMillis(24)) it.delete() }
             }
         }
     }

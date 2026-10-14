@@ -1,11 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--
+      ===================================================================
+      Theme architecture (phase D — dynamic colour)
+
+      *AppTheme{Light,Dark,Black}* — activity themes. BaseActivity
+      force-applies one of these in onCreate (applyDayNight).
+      MainApplication then re-applies a dynamic colour overlay from
+      onActivityCreated (after applyDayNight, before the first view
+      inflation), so on API 31+ the wallpaper palette wins. On API < 31,
+      or when the user opts out of dynamic colour, the brand palette below
+      is what users see.
+
+      Dialog themes are split into a *Core style (window behaviour, no
+      colours) and a *Base style (colour palette). values-v31/themes.xml
+      redefines the *Base styles with the Material You palette so bottom
+      sheets and full screen dialogs match the dynamically coloured
+      activities. Dialog themes cannot receive the activity overlay, so
+      they must carry the dynamic palette themselves.
+
+      AMOLED "Pure Black" keeps its #FF000000 surfaces via
+      ThemeOverlay.App.PureBlack, applied by MainApplication after the
+      dynamic overlay on API 31+ (and via AppThemeBlackBase below on
+      API < 31).
+      ===================================================================
+    -->
+
     <style name="AppBottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
         <item name="android:background">@drawable/bg_bottom_sheet</item>
         <item name="android:backgroundTint">@null</item>
     </style>
 
-    <style name="AppFullScreenDialogLightBase" parent="Theme.Material3.Light.Dialog">
+    <!-- ==================== Full screen dialogs ==================== -->
+
+    <style name="AppFullScreenDialogLightCore" parent="Theme.Material3.Light.Dialog">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowNoTitle">true</item>
@@ -13,7 +41,19 @@
         <item name="paddingRightSystemWindowInsets">false</item>
         <item name="paddingBottomSystemWindowInsets">false</item>
         <item name="paddingLeftSystemWindowInsets">false</item>
+    </style>
 
+    <style name="AppFullScreenDialogDarkCore" parent="Theme.Material3.Dark.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="paddingRightSystemWindowInsets">false</item>
+        <item name="paddingBottomSystemWindowInsets">false</item>
+        <item name="paddingLeftSystemWindowInsets">false</item>
+    </style>
+
+    <style name="AppFullScreenDialogLightBase" parent="AppFullScreenDialogLightCore">
         <item name="colorPrimary">@color/color_clash_light</item>
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorPrimaryContainer">@color/color_clash_light</item>
@@ -25,7 +65,9 @@
         <item name="colorSurfaceVariant">#FFE7E0EC</item>
         <item name="colorOnSurfaceVariant">#FF49454F</item>
         <item name="colorOutline">#FF79747E</item>
-        <item name="colorControlNormal">@android:color/black</item>
+        <!-- Routed through an M3 role instead of hardcoded black so icons
+             follow the (possibly dynamic) palette and keep contrast. -->
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="colorClashStopped">@color/color_light_clash_stopped</item>
         <item name="colorControlDisabled">@color/color_light_control_disabled</item>
 
@@ -35,15 +77,7 @@
         <item name="android:windowBackground">@color/color_light_background</item>
     </style>
 
-    <style name="AppFullScreenDialogDarkBase" parent="Theme.Material3.Dark.Dialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowFullscreen">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="paddingRightSystemWindowInsets">false</item>
-        <item name="paddingBottomSystemWindowInsets">false</item>
-        <item name="paddingLeftSystemWindowInsets">false</item>
-
+    <style name="AppFullScreenDialogDarkBase" parent="AppFullScreenDialogDarkCore">
         <item name="colorPrimary">@color/color_clash_dark</item>
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorPrimaryContainer">#FF33465F</item>
@@ -56,6 +90,7 @@
         <item name="colorOnSurfaceVariant">#FFCAC4D0</item>
         <item name="colorOutline">#FF938F99</item>
         <item name="colorControlDisabled">@color/color_dark_control_disabled</item>
+
         <item name="android:windowBackground">@color/color_dark_background</item>
 
         <item name="colorPrimaryDark">?attr/colorPrimary</item>
@@ -74,12 +109,23 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="AppBottomSheetDialogLightBase" parent="Theme.Material3.Light.BottomSheetDialog">
+    <!-- ==================== Bottom sheet dialogs ==================== -->
+
+    <style name="AppBottomSheetDialogLightCore" parent="Theme.Material3.Light.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="paddingRightSystemWindowInsets">false</item>
         <item name="paddingBottomSystemWindowInsets">false</item>
         <item name="paddingLeftSystemWindowInsets">false</item>
+    </style>
 
+    <style name="AppBottomSheetDialogDarkCore" parent="Theme.Material3.Dark.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="paddingRightSystemWindowInsets">false</item>
+        <item name="paddingBottomSystemWindowInsets">false</item>
+        <item name="paddingLeftSystemWindowInsets">false</item>
+    </style>
+
+    <style name="AppBottomSheetDialogLightBase" parent="AppBottomSheetDialogLightCore">
         <item name="colorPrimary">@color/color_clash_light</item>
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorPrimaryContainer">@color/color_clash_light</item>
@@ -91,7 +137,8 @@
         <item name="colorSurfaceVariant">#FFE7E0EC</item>
         <item name="colorOnSurfaceVariant">#FF49454F</item>
         <item name="colorOutline">#FF79747E</item>
-        <item name="colorControlNormal">@android:color/black</item>
+        <!-- Routed through an M3 role instead of hardcoded black. -->
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="colorClashStopped">@color/color_light_clash_stopped</item>
         <item name="colorControlDisabled">@color/color_light_control_disabled</item>
 
@@ -102,12 +149,7 @@
         <item name="bottomSheetStyle">@style/AppBottomSheetStyle</item>
     </style>
 
-    <style name="AppBottomSheetDialogDarkBase" parent="Theme.Material3.Dark.BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="paddingRightSystemWindowInsets">false</item>
-        <item name="paddingBottomSystemWindowInsets">false</item>
-        <item name="paddingLeftSystemWindowInsets">false</item>
-
+    <style name="AppBottomSheetDialogDarkBase" parent="AppBottomSheetDialogDarkCore">
         <item name="colorPrimary">@color/color_clash_dark</item>
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorPrimaryContainer">#FF33465F</item>
@@ -119,6 +161,7 @@
         <item name="colorSurfaceVariant">#FF49454F</item>
         <item name="colorOnSurfaceVariant">#FFCAC4D0</item>
         <item name="colorOutline">#FF938F99</item>
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="colorControlDisabled">@color/color_dark_control_disabled</item>
 
         <item name="colorPrimaryDark">?attr/colorPrimary</item>
@@ -139,6 +182,8 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
+    <!-- ==================== Activity themes ==================== -->
+
     <style name="AppThemeLightBase" parent="Theme.Material3.Light.NoActionBar">
         <item name="android:windowBackground">@color/color_light_background</item>
         <item name="android:ambientShadowAlpha">0.08</item>
@@ -156,7 +201,8 @@
         <item name="colorOnTertiary">@android:color/white</item>
         <item name="delayGood">#FF2E7D32</item>
         <item name="delayMedium">#FFEF6C00</item>
-        <item name="colorDockBackground">#FFFFFFFF</item>
+        <!-- Follows colorSurface (white here, the dynamic surface on API 31+). -->
+        <item name="colorDockBackground">?attr/colorSurface</item>
         <item name="colorGroupBackground">#FFF2EEF6</item>
         <item name="colorGroupIconBackground">#FFDCE4F5</item>
         <item name="colorSurface">@android:color/white</item>
@@ -169,7 +215,9 @@
         <item name="colorSurfaceInverse">#FF322F35</item>
         <item name="colorOnSurfaceInverse">#FFF5EFF7</item>
         <item name="colorPrimaryInverse">@color/color_clash_dark</item>
-        <item name="colorControlNormal">@android:color/black</item>
+        <!-- Routed through an M3 role instead of hardcoded black so icons
+             follow the (possibly dynamic) palette and keep contrast. -->
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="colorClashStopped">@color/color_light_clash_stopped</item>
         <item name="colorControlDisabled">@color/color_light_control_disabled</item>
 
@@ -199,7 +247,9 @@
         <item name="colorOnTertiary">#FF003309</item>
         <item name="delayGood">#FF81C995</item>
         <item name="delayMedium">#FFFFB74D</item>
-        <item name="colorDockBackground">#FF202020</item>
+        <!-- Follows colorSurface (#FF202020 here, the dynamic surface on
+             API 31+). -->
+        <item name="colorDockBackground">?attr/colorSurface</item>
         <item name="colorGroupBackground">#FF262626</item>
         <item name="colorGroupIconBackground">#FF33465F</item>
         <item name="colorSurface">@color/color_dark_surface</item>
@@ -212,7 +262,9 @@
         <item name="colorSurfaceInverse">#FFF5EFF7</item>
         <item name="colorOnSurfaceInverse">#FF322F35</item>
         <item name="colorPrimaryInverse">@color/color_clash_light</item>
-        <item name="colorControlNormal">@android:color/white</item>
+        <!-- Routed through an M3 role instead of hardcoded white so icons
+             follow the (possibly dynamic) palette. -->
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="colorControlDisabled">@color/color_dark_control_disabled</item>
 
         <item name="colorPrimaryDark">?attr/colorPrimary</item>
@@ -272,5 +324,38 @@
     <style name="AppBottomSheetDialogBlack" parent="AppBottomSheetDialogBlackBase">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- ==================== Dynamic colour overlays ====================
+         Applied by MainApplication from onActivityCreated (AFTER
+         BaseActivity.applyDayNight force-applies the AppTheme* family, and
+         BEFORE the first view inflation), because Material's own
+         DynamicColors hook applies its overlay in onActivityPreCreated —
+         before onCreate — where applyDayNight would overwrite it.
+
+         Uses the public material_dynamic_* palette (the m3_sys_color_*
+         tokens are library-private). Surface neutrals use the standard
+         tonal steps (neutral99 / neutral10) instead of the library's
+         extended steps (neutral_variant98 / neutral_variant6), which are
+         not publicly exported; both are visually equivalent.
+         -->
+
+    <!-- Marks a row as destructive (e.g. the delete action in a menu).
+         Overrides the colour roles that AppRow and the App text
+         appearances actually resolve (colorOnSurface for text,
+         colorOnSurfaceVariant for the icon), following ?attr/colorError
+         so it adapts to dark themes. -->
+    <style name="ThemeOverlay.App.DestructiveRow" parent="">
+        <item name="colorOnSurface">?attr/colorError</item>
+        <item name="colorOnSurfaceVariant">?attr/colorError</item>
+        <item name="colorGroupIconBackground">?attr/colorErrorContainer</item>
+    </style>
+
+    <!-- Re-asserts the AMOLED surfaces after the dynamic overlay. -->
+    <style name="ThemeOverlay.App.PureBlack" parent="">
+        <item name="android:colorBackground">@color/color_black_background</item>
+        <item name="android:windowBackground">@color/color_black_background</item>
+        <item name="colorSurface">@color/color_black_surface</item>
+        <item name="colorSurfaceVariant">@color/color_black_surface_variant</item>
     </style>
 </resources>

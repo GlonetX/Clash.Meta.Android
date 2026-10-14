@@ -21,11 +21,10 @@ class ProfileAdapter(
 
     private val currentTime = ObservableCurrentTime()
 
-    private val groupBg by lazy {
-        ColorStateList.valueOf(context.resolveThemedColor(com.github.kr328.clash.design.R.attr.colorGroupBackground))
-    }
     private val primaryColor by lazy {
-        context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+        ColorStateList.valueOf(
+            context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+        )
     }
     private val transparent by lazy {
         ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
@@ -52,12 +51,13 @@ class ProfileAdapter(
 
         binding.profile = current
 
-        // FlClash-style selected state: tonal background + primary stroke
+        // FlClash-style selected state: primary stroke on the AppCard
+        // surface (AppCard already provides the shared radius, elevation
+        // and colorSurface background).
         binding.rootView.apply {
-            setStrokeColor(if (current.active) ColorStateList.valueOf(primaryColor) else transparent)
+            setStrokeColor(if (current.active) primaryColor else transparent)
             strokeWidth = if (current.active) 2 else 0
-            setCardBackgroundColor(groupBg)
-            rippleColor = ColorStateList.valueOf(primaryColor)
+            rippleColor = primaryColor
         }
 
         binding.setClicked {
