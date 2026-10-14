@@ -30,5 +30,6 @@
 
     <!-- Height of the service availability pager. -->
     <dimen name="dashboard_service_pager_height">112dp</dimen>
+    <dimen name="dashboard_service_dot_size">8dp</dimen>
 
 </resources>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Service availability. The seven streaming probes the latency screen already
-  performs, rendered as one swipeable card: a ViewPager of pages plus a dot
-  indicator. The service list itself is unchanged — it is owned by
+  performs, rendered as ONE flat card: every service in a compact row (dot +
+  name + status + latency). No pager — the point is seeing all of them at a
+  glance. The service list itself is unchanged — it is owned by
   LatencyActivity and is not duplicated here.
 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -45,10 +46,10 @@
                     android:src="@drawable/ic_baseline_refresh" />
             </LinearLayout>
 
-            <com.github.kr328.clash.design.view.ServiceStatusPagerView
+            <com.github.kr328.clash.design.view.ServiceStatusListView
                 android:id="@+id/services_pager"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dashboard_service_pager_height"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/app_space_md" />
         </LinearLayout>
     </com.github.kr328.clash.design.view.AppCard>

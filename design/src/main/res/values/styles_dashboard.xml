@@ -66,7 +66,10 @@
 
     <style name="DashboardCardBody">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
+        <!-- wrap_content: the parent card is wrap_content too, so
+             match_parent here would collapse to zero height inside a
+             wrap_content card during the first measure pass. -->
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
         <item name="android:padding">@dimen/app_space_lg</item>
     </style>
@@ -77,7 +80,12 @@
 
     <style name="DashboardUnitCard">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/dashboard_unit_height</item>
+        <!-- wrap + minHeight: the fixed 80dp unit height clipped any card
+             whose content ran taller (outbound mode needs ~100dp once the
+             36dp pill track is in). minHeight keeps the grid rhythm for
+             the genuinely short cells. -->
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/dashboard_unit_height</item>
         <item name="android:layout_margin">@dimen/dashboard_cell_margin</item>
     </style>
 

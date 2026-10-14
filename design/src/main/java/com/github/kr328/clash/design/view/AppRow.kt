@@ -13,6 +13,7 @@ import com.github.kr328.clash.design.databinding.ComponentAppRowBinding
 import com.github.kr328.clash.design.util.layoutInflater
 import com.github.kr328.clash.design.util.resolveClickableAttrs
 import com.github.kr328.clash.design.util.resolveThemedColor
+import com.github.kr328.clash.design.util.selectableItemBackground
 import com.google.android.material.R as MaterialR
 
 /**
@@ -107,7 +108,7 @@ class AppRow @JvmOverloads constructor(
         context.resolveClickableAttrs(attributeSet, defStyleAttr) {
             isFocusable = focusable(true)
             isClickable = clickable(true)
-            foreground = foreground()
+            background = background() ?: context.selectableItemBackground
         }
 
         context.theme.obtainStyledAttributes(

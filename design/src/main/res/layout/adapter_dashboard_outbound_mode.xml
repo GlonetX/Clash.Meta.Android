@@ -12,7 +12,8 @@
 
     <com.github.kr328.clash.design.view.AppCard
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dashboard_unit_height"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dashboard_unit_height"
         android:layout_margin="@dimen/dashboard_cell_margin">
 
         <LinearLayout
