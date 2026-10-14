@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/group_by_process"
+        android:checkable="true"
+        android:title="@string/conn_group_by_process" />
+    <item
+        android:id="@+id/close_all"
+        android:title="@string/close_all_connections" />
+</menu>

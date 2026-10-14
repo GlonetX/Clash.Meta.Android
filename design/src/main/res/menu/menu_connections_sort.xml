@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/connections_sort_group">
+        <item
+            android:id="@+id/sort_size"
+            android:title="@string/conn_sort_size" />
+        <item
+            android:id="@+id/sort_duration"
+            android:title="@string/conn_sort_duration" />
+        <item
+            android:id="@+id/sort_process"
+            android:title="@string/conn_sort_process" />
+        <item
+            android:id="@+id/sort_rule"
+            android:title="@string/conn_sort_rule" />
+        <item
+            android:id="@+id/sort_host"
+            android:title="@string/conn_sort_host" />
+    </group>
+    <item
+        android:id="@+id/sort_reversed"
+        android:checkable="true"
+        android:title="@string/reverse" />
+</menu>

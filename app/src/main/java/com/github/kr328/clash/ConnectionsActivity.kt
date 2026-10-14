@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 
 class ConnectionsActivity : BaseActivity<ConnectionsDesign>() {
     override suspend fun main() {
-        val design = ConnectionsDesign(this)
+        val design = ConnectionsDesign(this, uiStore)
 
         setContentDesign(design)
 

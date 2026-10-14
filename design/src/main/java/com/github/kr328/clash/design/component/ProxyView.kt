@@ -6,7 +6,6 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.view.View
 import com.github.kr328.clash.common.compat.getDrawableCompat
-import com.github.kr328.clash.design.store.UiStore
 
 class ProxyView(
     context: Context,
@@ -75,7 +74,7 @@ class ProxyView(
 
         // draw background
         canvas.apply {
-            if (state.config.proxyLine==1) {
+            if (state.config.proxyLine == 1) {
                 drawRect(0f, 0f, width, height, paint)
             } else {
                 val path = state.path
@@ -100,7 +99,6 @@ class ProxyView(
                 )
 
                 drawPath(path, paint)
-
                 clipPath(path)
             }
         }
@@ -125,12 +123,24 @@ class ProxyView(
         val drawChip = state.isSelected && state.delayText.isNotEmpty()
         val chipPadH = if (drawChip) state.config.chipPaddingHorizontal else 0f
 
+        val padding = state.config.layoutPadding + state.config.contentPadding
+
+        // leading icon (country flag), measured once and reserved on the left
+        val icon = state.icon
+        val iconWidth = if (icon.isEmpty()) {
+            0f
+        } else {
+            paint.getTextBounds(icon, 0, icon.length, state.rect)
+
+            state.rect.width().toFloat()
+        }
+        val iconGap = if (iconWidth > 0f) state.config.iconMargin else 0f
+
         // measure delay text bounds
         val delayCount = paint.breakText(
             state.delayText,
             false,
-            (width - state.config.layoutPadding * 2 - state.config.contentPadding * 2 - chipPadH * 2)
-                .coerceAtLeast(0f),
+            (width - padding * 2 - chipPadH * 2).coerceAtLeast(0f),
             null
         )
 
@@ -139,8 +149,9 @@ class ProxyView(
         val delayWidth = state.rect.width()
 
         val mainTextWidth = (width -
-                state.config.layoutPadding * 2 -
-                state.config.contentPadding * 2 -
+                padding * 2 -
+                iconWidth -
+                iconGap -
                 delayWidth -
                 chipPadH * 2 -
                 state.config.textMargin * 2
@@ -176,7 +187,7 @@ class ProxyView(
             if (state.delayText.isEmpty())
                 return@apply
 
-            val right = width - state.config.layoutPadding - state.config.contentPadding
+            val right = width - padding
 
             if (drawChip) {
                 val chipHeight = state.config.textSize + state.config.chipPaddingVertical * 2
@@ -214,22 +225,32 @@ class ProxyView(
 
         paint.color = state.controls
 
+        val textX = padding + iconWidth + iconGap
+
         // draw title
         canvas.apply {
-            val x = state.config.layoutPadding + state.config.contentPadding
             val y = state.config.layoutPadding +
                     (height - state.config.layoutPadding * 2) / 3f - textOffset
 
-            drawText(state.title, 0, titleCount, x, y, paint)
+            drawText(state.title, 0, titleCount, textX, y, paint)
         }
 
         // draw subtitle
         canvas.apply {
-            val x = state.config.layoutPadding + state.config.contentPadding
             val y = state.config.layoutPadding +
                     (height - state.config.layoutPadding * 2) / 3f * 2 - textOffset
 
-            drawText(state.subtitle, 0, subtitleCount, x, y, paint)
+            drawText(state.subtitle, 0, subtitleCount, textX, y, paint)
+        }
+
+        // draw the leading icon last so it is never clipped by the title
+        if (icon.isNotEmpty()) {
+            paint.color = state.controls
+
+            val y = state.config.layoutPadding +
+                    (height - state.config.layoutPadding * 2) / 3f - textOffset
+
+            canvas.drawText(icon, 0, icon.length, padding, y, paint)
         }
     }
 }

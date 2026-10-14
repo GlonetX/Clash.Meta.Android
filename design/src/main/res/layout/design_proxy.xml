@@ -18,8 +18,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/app_space_xl"
             android:text="@string/proxy_empty_tips"
-            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textAppearance="@style/TextAppearance.App.Body"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/no_match_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/app_space_xl"
+            android:textAppearance="@style/TextAppearance.App.Body"
             android:visibility="gone" />
 
         <androidx.viewpager2.widget.ViewPager2
@@ -39,76 +51,139 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="@{self.surface.insets.top}">
 
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingEnd="@dimen/item_tailing_margin">
+                    android:orientation="vertical">
 
-                    <include
-                        layout="@layout/common_activity_bar"
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:layout_toStartOf="@id/locate_view" />
+                        android:paddingEnd="@dimen/item_tailing_margin">
 
-                    <ImageView
-                        android:id="@+id/locate_view"
-                        android:layout_width="@dimen/item_tailing_component_size"
-                        android:layout_height="@dimen/item_tailing_component_size"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="@dimen/item_tailing_margin"
-                        android:layout_toStartOf="@id/url_test_layout"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:contentDescription="@string/locate_node"
-                        android:focusable="true"
-                        android:padding="@dimen/toolbar_image_action_padding"
-                        android:src="@drawable/ic_baseline_my_location" />
-
-                    <FrameLayout
-                        android:id="@+id/url_test_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="@dimen/item_tailing_margin"
-                        android:layout_toStartOf="@id/menu_view">
+                        <include
+                            layout="@layout/common_activity_bar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_toStartOf="@id/search_view" />
 
                         <ImageView
-                            android:id="@+id/url_test_view"
+                            android:id="@+id/search_view"
                             android:layout_width="@dimen/item_tailing_component_size"
                             android:layout_height="@dimen/item_tailing_component_size"
-                            android:layout_gravity="center"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="@dimen/item_tailing_margin"
+                            android:layout_toStartOf="@id/locate_view"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
-                            android:contentDescription="@string/delay_test"
+                            android:contentDescription="@string/proxy_search"
                             android:focusable="true"
-                            android:onClick="@{() -> self.requestUrlTesting()}"
                             android:padding="@dimen/toolbar_image_action_padding"
-                            android:src="@drawable/ic_baseline_flash_on" />
+                            android:src="@drawable/ic_baseline_search" />
 
-                        <ProgressBar
-                            android:id="@+id/url_test_progress_view"
+                        <ImageView
+                            android:id="@+id/locate_view"
                             android:layout_width="@dimen/item_tailing_component_size"
                             android:layout_height="@dimen/item_tailing_component_size"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="@dimen/item_tailing_margin"
+                            android:layout_toStartOf="@id/url_test_layout"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/locate_node"
+                            android:focusable="true"
+                            android:padding="@dimen/toolbar_image_action_padding"
+                            android:src="@drawable/ic_baseline_my_location" />
+
+                        <FrameLayout
+                            android:id="@+id/url_test_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="@dimen/item_tailing_margin"
+                            android:layout_toStartOf="@id/menu_view">
+
+                            <ImageView
+                                android:id="@+id/url_test_view"
+                                android:layout_width="@dimen/item_tailing_component_size"
+                                android:layout_height="@dimen/item_tailing_component_size"
+                                android:layout_gravity="center"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:clickable="true"
+                                android:contentDescription="@string/delay_test"
+                                android:focusable="true"
+                                android:onClick="@{() -> self.requestUrlTesting()}"
+                                android:padding="@dimen/toolbar_image_action_padding"
+                                android:src="@drawable/ic_baseline_flash_on" />
+
+                            <ProgressBar
+                                android:id="@+id/url_test_progress_view"
+                                android:layout_width="@dimen/item_tailing_component_size"
+                                android:layout_height="@dimen/item_tailing_component_size"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <ImageView
+                            android:id="@+id/menu_view"
+                            android:layout_width="@dimen/item_tailing_component_size"
+                            android:layout_height="@dimen/item_tailing_component_size"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="@dimen/item_tailing_margin"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/more"
+                            android:focusable="true"
+                            android:padding="@dimen/toolbar_image_action_padding"
+                            android:src="@drawable/ic_baseline_more_vert" />
+
+                    </RelativeLayout>
+
+                    <!--
+                      Per-group node search. Its height is pushed into the page
+                      insets from ProxyDesign so the grid never slides under it.
+                    -->
+                    <LinearLayout
+                        android:id="@+id/search_bar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?android:windowBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/conn_row_padding_horizontal"
+                        android:paddingEnd="@dimen/conn_row_padding_horizontal"
+                        android:paddingBottom="@dimen/app_space_sm"
+                        android:visibility="gone">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/keyword_view"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:hint="@string/proxy_search_hint"
+                            android:imeOptions="actionSearch"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:singleLine="true"
+                            android:textAppearance="@style/TextAppearance.App.Body" />
+
+                        <ImageView
+                            android:id="@+id/clear_keyword_view"
+                            android:layout_width="@dimen/app_icon_glyph_size"
+                            android:layout_height="@dimen/app_icon_glyph_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/proxy_search_clear"
+                            android:focusable="true"
+                            android:padding="@dimen/app_space_xs"
+                            android:src="@drawable/ic_baseline_close"
                             android:visibility="gone" />
-                    </FrameLayout>
-
-                    <ImageView
-                        android:id="@+id/menu_view"
-                        android:layout_width="@dimen/item_tailing_component_size"
-                        android:layout_height="@dimen/item_tailing_component_size"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="@dimen/item_tailing_margin"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:contentDescription="@string/more"
-                        android:focusable="true"
-                        android:padding="@dimen/toolbar_image_action_padding"
-                        android:src="@drawable/ic_baseline_more_vert" />
-
-                </RelativeLayout>
+                    </LinearLayout>
+                </LinearLayout>
             </com.github.kr328.clash.design.view.ActivityBarLayout>
 
             <com.google.android.material.tabs.TabLayout

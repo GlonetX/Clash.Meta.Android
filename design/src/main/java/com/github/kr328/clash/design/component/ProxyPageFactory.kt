@@ -32,17 +32,8 @@ class ProxyPageFactory(private val config: ProxyViewConfig) {
         root.addView(recyclerView)
 
         recyclerView.apply {
-            layoutManager = GridLayoutManager(config.context, 6).apply {
-                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                    override fun getSpanSize(position: Int): Int {
-                        var grids:Int = 0
-                        when(config.proxyLine){
-                            2 -> grids = 3
-                            3 -> grids = 2
-                        }
-                        return if (config.proxyLine==1) 6 else grids
-                    }
-                }
+            layoutManager = GridLayoutManager(config.context, GRID_COLUMNS).apply {
+                spanSizeLookup = newSpanSizeLookup()
             }
 
             setRecycledViewPool(childrenPool)
@@ -57,5 +48,28 @@ class ProxyPageFactory(private val config: ProxyViewConfig) {
 
     fun fromRoot(root: View): Holder {
         return root.tag!! as Holder
+    }
+
+    /**
+     * The lookup reads [ProxyViewConfig.proxyLine] on every call instead of
+     * baking the column count in, so switching between the one-, two- and
+     * three-column layouts only needs the span assignments invalidated — the
+     * page does not have to be recreated.
+     */
+    fun newSpanSizeLookup(): GridLayoutManager.SpanSizeLookup {
+        return object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return when (config.proxyLine) {
+                    1 -> GRID_COLUMNS
+                    2 -> GRID_COLUMNS / 2
+                    else -> GRID_COLUMNS / 3
+                }
+            }
+        }
+    }
+
+    companion object {
+        /** Grid resolution: 6 spans => 1, 2 or 3 columns per row. */
+        const val GRID_COLUMNS = 6
     }
 }

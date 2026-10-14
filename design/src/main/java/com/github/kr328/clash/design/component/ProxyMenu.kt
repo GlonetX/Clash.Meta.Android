@@ -8,9 +8,25 @@ import com.github.kr328.clash.core.model.ProxySort
 import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.design.ProxyDesign
 import com.github.kr328.clash.design.R
+import com.github.kr328.clash.design.model.ProxyDensity
+import com.github.kr328.clash.design.model.ProxyIconStyle
 import com.github.kr328.clash.design.store.UiStore
 import kotlinx.coroutines.channels.Channel
 
+/**
+ * The proxy page overflow menu.
+ *
+ * Two kinds of item live here and they must be treated differently:
+ *   * items that change *what the core returns* (the node list and its order)
+ *     send [ProxyDesign.Request.ReloadAll];
+ *   * items that change *how a card is drawn* (column count, card density,
+ *     node icon) only re-run [updateConfig], because the node data is already
+ *     on screen and reloading would make the grid flicker.
+ *
+ * Items inside a `checkableBehavior="single"` group are never toggled by hand:
+ * the group already enforces exactly one checked item, and flipping the
+ * clicked item afterwards would leave nothing checked at all.
+ */
 class ProxyMenu(
     context: Context,
     menuView: View,
@@ -26,11 +42,11 @@ class ProxyMenu(
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
-        item.isChecked = !item.isChecked
-
         when (item.itemId) {
             R.id.not_selectable -> {
-                uiStore.proxyExcludeNotSelectable = item.isChecked
+                uiStore.proxyExcludeNotSelectable = !item.isChecked
+
+                item.isChecked = !item.isChecked
 
                 requests.trySend(ProxyDesign.Request.ReLaunch)
             }
@@ -54,6 +70,31 @@ class ProxyMenu(
                 updateConfig()
 
                 requests.trySend(ProxyDesign.Request.ReloadAll)
+            }
+            R.id.density_tight -> {
+                uiStore.proxyDensity = ProxyDensity.Tight
+
+                updateConfig()
+            }
+            R.id.density_standard -> {
+                uiStore.proxyDensity = ProxyDensity.Standard
+
+                updateConfig()
+            }
+            R.id.density_loose -> {
+                uiStore.proxyDensity = ProxyDensity.Loose
+
+                updateConfig()
+            }
+            R.id.icon_none -> {
+                uiStore.proxyIconStyle = ProxyIconStyle.None
+
+                updateConfig()
+            }
+            R.id.icon_flag -> {
+                uiStore.proxyIconStyle = ProxyIconStyle.Flag
+
+                updateConfig()
             }
             R.id.default_ -> {
                 uiStore.proxySort = ProxySort.Default
@@ -94,10 +135,21 @@ class ProxyMenu(
         menu.menu.apply {
             findItem(R.id.not_selectable).isChecked = uiStore.proxyExcludeNotSelectable
 
-            when (uiStore.proxyLine){
+            when (uiStore.proxyLine) {
                 1 -> findItem(R.id.single).isChecked = true
                 2 -> findItem(R.id.doubles).isChecked = true
                 3 -> findItem(R.id.multiple).isChecked = true
+            }
+
+            when (uiStore.proxyDensity) {
+                ProxyDensity.Tight -> findItem(R.id.density_tight).isChecked = true
+                ProxyDensity.Standard -> findItem(R.id.density_standard).isChecked = true
+                ProxyDensity.Loose -> findItem(R.id.density_loose).isChecked = true
+            }
+
+            when (uiStore.proxyIconStyle) {
+                ProxyIconStyle.None -> findItem(R.id.icon_none).isChecked = true
+                ProxyIconStyle.Flag -> findItem(R.id.icon_flag).isChecked = true
             }
 
             when (uiStore.proxySort) {

@@ -7,7 +7,10 @@ import com.github.kr328.clash.common.store.Store
 import com.github.kr328.clash.common.store.asStoreProvider
 import com.github.kr328.clash.core.model.ProxySort
 import com.github.kr328.clash.design.model.AppInfoSort
+import com.github.kr328.clash.design.model.ConnectionSort
 import com.github.kr328.clash.design.model.DarkMode
+import com.github.kr328.clash.design.model.ProxyDensity
+import com.github.kr328.clash.design.model.ProxyIconStyle
 
 class UiStore(context: Context) {
     private val store = Store(
@@ -60,6 +63,48 @@ class UiStore(context: Context) {
     var proxyLastGroup: String by store.string(
         key = "proxy_last_group",
         defaultValue = ""
+    )
+
+    /**
+     * Proxy node card density — see [com.github.kr328.clash.design.model.ProxyDensity].
+     * Orthogonal to [proxyLine], which only sets the column count.
+     */
+    var proxyDensity: ProxyDensity by store.enum(
+        key = "proxy_density",
+        defaultValue = ProxyDensity.Standard,
+        values = ProxyDensity.values(),
+    )
+
+    /** Leading glyph drawn on a node card — see [com.github.kr328.clash.design.model.ProxyIconStyle]. */
+    var proxyIconStyle: ProxyIconStyle by store.enum(
+        key = "proxy_icon_style",
+        defaultValue = ProxyIconStyle.None,
+        values = ProxyIconStyle.values(),
+    )
+
+    /** Connections page ordering. */
+    var connectionsSort: ConnectionSort by store.enum(
+        key = "connections_sort",
+        defaultValue = ConnectionSort.Size,
+        values = ConnectionSort.values(),
+    )
+
+    /** Flips [connectionsSort] on every poll. */
+    var connectionsSortReversed: Boolean by store.boolean(
+        key = "connections_sort_reversed",
+        defaultValue = false,
+    )
+
+    /** Collapses the connections list into one section per process. */
+    var connectionsGroupByProcess: Boolean by store.boolean(
+        key = "connections_group_by_process",
+        defaultValue = false,
+    )
+
+    /** Keys of the collapsed process groups, see [connectionsGroupByProcess]. */
+    var connectionsCollapsedGroups: Set<String> by store.stringSet(
+        key = "connections_collapsed_groups",
+        defaultValue = emptySet(),
     )
 
     /**

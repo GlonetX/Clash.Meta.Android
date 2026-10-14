@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Strings owned by worktree C (Proxy + Connections).
+
+  OVERHAUL_WORKTREES.md forbids editing values/strings.xml, so every string
+  introduced by the proxy / connections work lives here. Resource merging makes
+  this equivalent to editing strings.xml.
+
+  Naming: proxy_* for the proxy page, conn_* for the connections page.
+-->
+<resources>
+
+    <!-- ==================== Proxy page ==================== -->
+
+    <string name="proxy_search">Search nodes</string>
+    <string name="proxy_search_hint">Find a node</string>
+    <string name="proxy_search_clear">Clear search</string>
+    <string name="proxy_no_match">No node in this group matches \"%1$s\"</string>
+
+    <string name="proxy_card_density">Card density</string>
+    <string name="proxy_density_tight">Tight</string>
+    <string name="proxy_density_standard">Standard</string>
+    <string name="proxy_density_loose">Loose</string>
+
+    <string name="proxy_node_icon">Node icon</string>
+    <string name="proxy_node_icon_none">None</string>
+    <string name="proxy_node_icon_flag">Country flag</string>
+
+    <!-- ==================== Connections page ==================== -->
+
+    <string name="conn_search">Search connections</string>
+    <string name="conn_search_hint">Search host, app, rule, chain</string>
+    <string name="conn_search_clear">Clear search</string>
+    <string name="conn_filter">Filter connections</string>
+    <string name="conn_sort">Sort connections</string>
+
+    <string name="conn_filter_all">All</string>
+    <string name="conn_filter_unknown_app">No app</string>
+    <string name="conn_no_match">No connection matches the current filter</string>
+
+    <string name="conn_sort_size">Size</string>
+    <string name="conn_sort_duration">Duration</string>
+    <string name="conn_sort_process">App</string>
+    <string name="conn_sort_rule">Rule</string>
+    <string name="conn_sort_host">Host</string>
+
+    <string name="conn_group_by_process">Group by app</string>
+
+    <string name="conn_summary">%1$d active · ↓%2$s ↑%3$s</string>
+    <string name="conn_summary_filtered">%1$d of %2$d · ↓%3$s ↑%4$s</string>
+
+    <string name="conn_close_all_confirm_title">Close all connections?</string>
+    <string name="conn_close_all_confirm_message">%1$d active connections will be closed. Traffic in progress is dropped.</string>
+
+    <string name="conn_close_process_confirm_title">Close connections from %1$s?</string>
+    <string name="conn_close_process_confirm_message">%1$d connections started by this app will be closed.</string>
+
+    <string name="conn_group_count">%1$d connections</string>
+    <string name="conn_group_count_one">1 connection</string>
+    <string name="conn_group_toggle">Expand or collapse this group</string>
+
+    <string name="conn_detail_title">Connection detail</string>
+    <string name="conn_detail_started">Started</string>
+    <string name="conn_detail_network">Network</string>
+    <string name="conn_detail_type">Protocol</string>
+    <string name="conn_detail_process">App / process</string>
+    <string name="conn_detail_rule">Matched rule</string>
+    <string name="conn_detail_payload">Rule payload</string>
+    <string name="conn_detail_source">Source</string>
+    <string name="conn_detail_destination">Destination</string>
+    <string name="conn_detail_remote">Remote destination</string>
+    <string name="conn_detail_chain">Proxy chain</string>
+    <string name="conn_detail_no_chain">Direct — no proxy chain</string>
+    <string name="conn_detail_unknown">Unknown</string>
+    <string name="conn_detail_close">Close connection</string>
+    <string name="conn_detail_close_process">Close all from this app</string>
+    <string name="conn_detail_no_process">No app or process information for this connection</string>
+
+    <string name="conn_speed">%1$s/s</string>
+</resources>
