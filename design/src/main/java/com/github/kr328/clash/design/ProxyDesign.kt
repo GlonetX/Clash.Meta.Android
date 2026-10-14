@@ -51,7 +51,7 @@ import com.google.android.material.R as MaterialR
 class ProxyDesign(
     context: Context,
     overrideMode: TunnelState.Mode?,
-    groupNames: List<String>,
+    private val groupNames: List<String>,
     private val uiStore: UiStore,
 ) : Design<ProxyDesign.Request>(context) {
     sealed class Request {
