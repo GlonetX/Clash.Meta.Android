@@ -122,6 +122,9 @@ private val REQUEST_TYPES = setOf("HTTP", "TLS", "QUIC")
 class MainActivity : BaseActivity<MainDesign>() {
     companion object {
         private const val IP_REFRESH_INTERVAL = 5 * 60 * 1000L
+
+        /** Service probes are network requests; one burst per 5 minutes. */
+        private const val SERVICE_PROBE_INTERVAL = 5 * 60 * 1000L
     }
 
     private var settingsDesign: SettingsDesign? = null
@@ -135,6 +138,9 @@ class MainActivity : BaseActivity<MainDesign>() {
 
     /** `SystemClock.elapsedRealtime()` when this screen last saw the core start. */
     private var coreStartedAt = 0L
+
+    /** `SystemClock.elapsedRealtime()` of the last service probe burst. */
+    private var lastServiceProbeAt = 0L
 
     override fun onDestroy() {
         settingsDesign?.cancel()
@@ -247,7 +253,7 @@ class MainActivity : BaseActivity<MainDesign>() {
                         MainDesign.Request.EditCards ->
                             design.showEditCardsDialog()
                         MainDesign.Request.RefreshServices ->
-                            design.probeServices()
+                            design.probeServices(force = true)
                         MainDesign.Request.PatchMode -> {
                             val mode = design.checkedOutboundMode()
 
@@ -405,13 +411,24 @@ class MainActivity : BaseActivity<MainDesign>() {
      * dashboard. Results are collected before the state is published so
      * concurrent probes cannot interleave partial updates.
      */
-    private suspend fun MainDesign.probeServices() {
+    private suspend fun MainDesign.probeServices(force: Boolean = false) {
         if (!clashRunning) {
+            // Results are stale the moment the core stops; forget the gate
+            // so the next start probes immediately.
+            lastServiceProbeAt = 0L
+
             if (dashboard.services.isNotEmpty())
                 pushState(dashboard.copy(services = emptyList()))
 
             return
         }
+
+        // fetch() runs on every ActivityStart, which would otherwise fire
+        // seven network probes each time the app comes to the foreground.
+        if (!force && SystemClock.elapsedRealtime() - lastServiceProbeAt < SERVICE_PROBE_INTERVAL)
+            return
+
+        lastServiceProbeAt = SystemClock.elapsedRealtime()
 
         val results = coroutineScope {
             SERVICES.map { service ->

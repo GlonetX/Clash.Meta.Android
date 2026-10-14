@@ -84,12 +84,15 @@ class ServiceStatusPagerView @JvmOverloads constructor(
 
         this.services = services
 
-        // The page contents are baked into the views, so the adapter has to be
-        // detached and reattached rather than merely notified.
+        // The page contents are baked into the views, so the adapter has to
+        // be detached and reattached rather than merely notified. Keep the
+        // page the user was on instead of snapping back to the first.
+        val current = pager.currentItem.coerceIn(0, (services.size - 1).coerceAtLeast(0))
+
         pager.adapter = null
         pagerAdapter.services = services
         pager.adapter = pagerAdapter
-        pager.currentItem = 0
+        pager.currentItem = current
 
         rebuildIndicator()
     }
