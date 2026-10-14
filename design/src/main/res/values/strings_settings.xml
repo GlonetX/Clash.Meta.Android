@@ -18,6 +18,7 @@
 
     <!-- Shared formats -->
     <string name="settings_format_not_set">Not set</string>
+    <string name="settings_format_percent">%d%%</string>
     <string name="settings_format_seconds">%d s</string>
     <string name="settings_format_minutes">%d min</string>
     <string name="settings_format_hours">%d h</string>
@@ -84,12 +85,14 @@
     <string name="settings_webdav_directory">Directory</string>
     <string name="settings_webdav_username">Username</string>
     <string name="settings_webdav_password">Password</string>
+    <string name="settings_password_set">Set</string>
     <string name="settings_webdav_backup">Back Up Now</string>
     <string name="settings_webdav_restore">Restore From Backup</string>
     <string name="settings_webdav_last_backup">Last backup: %s</string>
     <string name="settings_webdav_never">never</string>
     <string name="settings_webdav_backup_ok">Backup uploaded (%d KB)</string>
     <string name="settings_webdav_backup_failed">Backup failed: %s</string>
+    <string name="settings_webdav_url_required">Set the WebDAV server URL first</string>
     <string name="settings_webdav_restore_ok">Restored %s. Restart the app to apply it.</string>
     <string name="settings_webdav_restore_failed">Restore failed: %s</string>
     <string name="settings_webdav_restore_confirm">Restoring replaces your current profiles and settings. Continue?</string>
@@ -98,6 +101,7 @@
 
     <string name="settings_user_agent">Global User-Agent</string>
     <string name="settings_user_agent_summary">Sent when fetching subscriptions and rules</string>
+    <string name="settings_default_user_agent">Default</string>
 
     <string name="settings_subscription_meta">Subscription Tags</string>
     <string name="settings_subscription_meta_summary">Category and notes for each subscription</string>
@@ -135,6 +139,7 @@
     <string name="settings_wifi_action_pause">Pause Clash</string>
     <string name="settings_wifi_action_direct">Connect Directly</string>
     <string name="settings_wifi_networks">Wi-Fi Network Names</string>
+    <string name="settings_wifi_networks_empty">No networks added</string>
     <string name="settings_wifi_networks_placeholder">My Home Wi-Fi, Office</string>
 
     <string name="settings_permission_location">Location Permission</string>

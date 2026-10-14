@@ -81,9 +81,9 @@ object WebDav {
 
             val code = connection.responseCode
 
-            if (code == HttpURLConnection.HTTP_NOT_FOUND
-                || code == HttpURLConnection.HTTP_CLIENT_ERROR
-            ) {
+            // 404 and friends: the directory is not there yet (or this server
+            // does not implement PROPFIND), so create it and report empty.
+            if (code in 400..499) {
                 connection.disconnect()
 
                 ensureDirectory(config)
@@ -179,13 +179,13 @@ object WebDav {
             probe.disconnect()
         }
 
-        // 405 means the server refuses PROPFIND but the collection is there.
+        // 405 means the server refuses MKCOL because the collection is there.
         val connection = open(config, URL(config.directoryUrl()), "MKCOL")
 
         try {
             val code = connection.responseCode
 
-            if (code !in 200..299 && code != HttpURLConnection.HTTP_CLIENT_ERROR)
+            if (code !in 200..299 && code != HttpURLConnection.HTTP_BAD_METHOD)
                 throw WebDavException("MKCOL failed with HTTP $code")
         } finally {
             connection.disconnect()
