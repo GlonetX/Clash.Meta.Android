@@ -107,9 +107,13 @@ class ProxyPageAdapter(
             val manager = holder.recyclerView.layoutManager
 
             if (manager is GridLayoutManager) {
+                // A fresh lookup instance carries an empty span cache, so
+                // swapping it in is the public-API equivalent of
+                // invalidateSpanAssignments(), which recyclerview 1.2.x hides
+                // from third-party code. The lookup reads
+                // ProxyViewConfig.proxyLine on every call, so the relayout
+                // below picks up the new column count.
                 manager.spanSizeLookup = factory.newSpanSizeLookup()
-                manager.invalidateSpanAssignments()
-                manager.requestLayout()
             }
 
             holder.recyclerView.requestLayout()
