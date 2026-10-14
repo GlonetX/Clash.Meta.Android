@@ -249,7 +249,14 @@ class DashboardAdapter(
 
             val selected = history.window == window
 
-            chip.isSelected = selected
+            // The chips have no state-list colour of their own; the selected
+            // window is called out with the primary colour and full alpha.
+            chip.setTextColor(
+                context.resolveThemedColor(
+                    if (selected) MaterialR.attr.colorPrimary
+                    else MaterialR.attr.colorOnSurfaceVariant
+                )
+            )
             chip.alpha = if (selected) 1f else 0.55f
 
             chip.setOnClickListener {
