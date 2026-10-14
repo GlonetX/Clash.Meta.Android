@@ -340,6 +340,17 @@
          not publicly exported; both are visually equivalent.
          -->
 
+    /** Marks a row as destructive (e.g. the delete action in a menu).
+     *  Overrides the colour roles that AppRow and the App text
+     *  appearances actually resolve (colorOnSurface for text,
+     *  colorOnSurfaceVariant for the icon), following ?attr/colorError
+     *  so it adapts to dark themes. */
+    <style name="ThemeOverlay.App.DestructiveRow" parent="">
+        <item name="colorOnSurface">?attr/colorError</item>
+        <item name="colorOnSurfaceVariant">?attr/colorError</item>
+        <item name="colorGroupIconBackground">?attr/colorErrorContainer</item>
+    </style>
+
     <!-- Re-asserts the AMOLED surfaces after the dynamic overlay. -->
     <style name="ThemeOverlay.App.PureBlack" parent="">
         <item name="android:colorBackground">@color/color_black_background</item>

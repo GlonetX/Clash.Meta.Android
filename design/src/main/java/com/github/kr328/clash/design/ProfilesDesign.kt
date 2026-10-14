@@ -242,7 +242,7 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
                         Intent.createChooser(intent, context.getString(R.string.share_qr_code))
                     )
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 withContext(Dispatchers.Main) {
                     showToast(R.string.share_failed, ToastDuration.Long)
                 }
