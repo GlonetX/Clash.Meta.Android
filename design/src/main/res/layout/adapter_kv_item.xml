@@ -9,20 +9,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="@dimen/main_card_content_padding"
         android:paddingVertical="@dimen/main_kv_row_padding_vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/title_view"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@{value.title}"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
+            android:id="@+id/value_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/item_tailing_margin"
             android:text="@{value.value ?? @string/unknown_ip}"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </LinearLayout>

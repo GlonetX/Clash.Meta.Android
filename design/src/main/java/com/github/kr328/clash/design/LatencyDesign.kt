@@ -2,13 +2,16 @@ package com.github.kr328.clash.design
 
 import android.content.Context
 import android.view.View
-import com.github.kr328.clash.design.adapter.KvAdapter
+import com.github.kr328.clash.design.adapter.ServiceStatusAdapter
 import com.github.kr328.clash.design.databinding.DesignLatencyBinding
-import com.github.kr328.clash.design.model.KvItem
+import com.github.kr328.clash.design.model.ServiceAvailability
+import com.github.kr328.clash.design.model.ServiceStatus
+import com.github.kr328.clash.design.model.ServiceStatusColors
 import com.github.kr328.clash.design.util.applyFrom
 import com.github.kr328.clash.design.util.applyLinearAdapter
 import com.github.kr328.clash.design.util.bindAppBarElevation
 import com.github.kr328.clash.design.util.layoutInflater
+import com.github.kr328.clash.design.util.resolveThemedColor
 import com.github.kr328.clash.design.util.root
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,8 +30,24 @@ class LatencyDesign(
     override val root: View
         get() = binding.root
 
-    private val adapter = KvAdapter(context)
-    private val results = arrayOfNulls<String>(services.size)
+    private val adapter = ServiceStatusAdapter(context)
+
+    private val colors = ServiceStatusColors(
+        good = context.resolveThemedColor(R.attr.delayGood),
+        medium = context.resolveThemedColor(R.attr.delayMedium),
+        error = context.resolveThemedColor(com.google.android.material.R.attr.colorError),
+        neutral = context.resolveThemedColor(com.google.android.material.R.attr.colorOnSurfaceVariant),
+        checkingText = context.getString(R.string.status_checking),
+        okText = context.getString(R.string.status_ok),
+        restrictedText = context.getString(R.string.status_restricted),
+        blockedText = context.getString(R.string.status_blocked),
+        timeoutText = context.getString(R.string.status_timeout),
+        failedText = context.getString(R.string.status_failed),
+    )
+
+    private val statuses = services.map {
+        ServiceStatus(it, colors)
+    }
 
     init {
         binding.self = this
@@ -38,34 +57,39 @@ class LatencyDesign(
         binding.mainList.recyclerList.bindAppBarElevation(binding.activityBarLayout)
         binding.mainList.recyclerList.applyLinearAdapter(context, adapter)
 
-        showLoading()
+        showChecking()
     }
 
     fun requestRefresh() {
         requests.trySend(Request.Refresh)
     }
 
-    private fun showLoading() {
-        results.fill(null)
+    private fun showChecking() {
+        statuses.forEach {
+            it.availability = ServiceAvailability.CHECKING
+            it.latencyMs = -1
+        }
 
-        adapter.submit(
-            services.map { KvAdapter.Entry.Item(KvItem(it, context.getString(R.string.ip_querying))) },
-        )
+        refresh()
     }
 
     fun resetAll() {
-        showLoading()
+        showChecking()
     }
 
-    suspend fun update(index: Int, latencyMs: Long) {
+    suspend fun update(index: Int, availability: ServiceAvailability, latencyMs: Long) {
         withContext(Dispatchers.Main) {
-            results[index] = if (latencyMs >= 0) "$latencyMs ms" else context.getString(R.string.timeout)
+            statuses[index].let {
+                it.availability = availability
+                it.latencyMs = latencyMs
+            }
 
-            adapter.submit(
-                services.mapIndexed { i, name ->
-                    KvAdapter.Entry.Item(KvItem(name, results[i] ?: context.getString(R.string.ip_querying)))
-                },
-            )
+            refresh()
         }
+    }
+
+    private fun refresh() {
+        adapter.services = statuses.toList()
+        adapter.notifyDataSetChanged()
     }
 }

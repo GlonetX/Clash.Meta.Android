@@ -13,6 +13,10 @@ interface PreferenceScreen : CoroutineScope {
     val root: ViewGroup
 }
 
+internal interface PreferenceScreenImpl : PreferenceScreen {
+    var groupContainer: LinearLayout?
+}
+
 fun CoroutineScope.preferenceScreen(
     context: Context,
     configure: PreferenceScreen.() -> Unit
@@ -21,11 +25,12 @@ fun CoroutineScope.preferenceScreen(
         orientation = LinearLayout.VERTICAL
     }
 
-    val impl = object : PreferenceScreen, CoroutineScope by this {
+    val impl = object : PreferenceScreenImpl, CoroutineScope by this {
         override val context: Context
             get() = context
         override val root: ViewGroup
             get() = root
+        override var groupContainer: LinearLayout? = null
     }
 
     impl.configure()
@@ -34,5 +39,10 @@ fun CoroutineScope.preferenceScreen(
 }
 
 fun PreferenceScreen.addElement(preference: Preference) {
-    root.addView(preference.view, LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+    val target: ViewGroup = if (this is PreferenceScreenImpl)
+        groupContainer ?: root
+    else
+        root
+
+    target.addView(preference.view, LayoutParams(MATCH_PARENT, WRAP_CONTENT))
 }

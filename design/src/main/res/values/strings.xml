@@ -413,6 +413,12 @@
     <string name="edit_dashboard_cards">Customize dashboard</string>
     <string name="move_up">Move up</string>
     <string name="move_down">Move down</string>
+    <string name="status_checking">Checking…</string>
+    <string name="status_ok">Available</string>
+    <string name="status_restricted">Restricted</string>
+    <string name="status_blocked">Blocked</string>
+    <string name="status_timeout">Timed out</string>
+    <string name="status_failed">Failed</string>
     <string name="outbound_mode">Outbound Mode</string>
     <string name="memory_usage">Memory</string>
 </resources>

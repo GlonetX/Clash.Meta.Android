@@ -7,6 +7,7 @@ import androidx.annotation.StringRes
 import com.github.kr328.clash.common.compat.getDrawableCompat
 import com.github.kr328.clash.design.databinding.PreferenceSwitchBinding
 import com.github.kr328.clash.design.util.layoutInflater
+import com.github.kr328.clash.design.util.resolveThemedColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,6 +37,13 @@ fun PreferenceScreen.switch(
             get() = binding.iconView.background
             set(value) {
                 binding.iconView.background = value
+                // FlClash-style tinted icon inside a tonal container
+                binding.iconView.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(
+                        context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+                    )
+                binding.iconView.visibility = if (value == null) View.GONE else View.VISIBLE
+                binding.iconContainer.visibility = if (value == null) View.GONE else View.VISIBLE
             }
         override var title: CharSequence?
             get() = binding.titleView.text

@@ -7,6 +7,7 @@ import androidx.annotation.StringRes
 import com.github.kr328.clash.common.compat.getDrawableCompat
 import com.github.kr328.clash.design.databinding.PreferenceClickableBinding
 import com.github.kr328.clash.design.util.layoutInflater
+import com.github.kr328.clash.design.util.resolveThemedColor
 
 interface ClickablePreference : Preference {
     var title: CharSequence
@@ -31,7 +32,14 @@ fun PreferenceScreen.clickable(
             get() = binding.iconView.background
             set(value) {
                 binding.iconView.background = value
-                binding.iconView.visibility = if (value == null) View.GONE else View.VISIBLE
+                // FlClash-style tinted icon inside a tonal container
+                binding.iconView.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(
+                        context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+                    )
+                val visible = value != null
+                binding.iconView.visibility = if (visible) View.VISIBLE else View.GONE
+                binding.iconContainer.visibility = if (visible) View.VISIBLE else View.GONE
             }
         override var title: CharSequence
             get() = binding.titleView.text

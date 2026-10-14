@@ -40,7 +40,9 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
 
     private val binding = DesignProfilesBinding
         .inflate(context.layoutInflater, context.root, false)
-    private val adapter = ProfileAdapter(context, this::requestActive, this::showMenu)
+    private val adapter = ProfileAdapter(context, this::requestActive, this::showMenu) {
+        requests.trySend(Request.Update(it))
+    }
 
     private var allUpdating: Boolean
         get() = adapter.states.allUpdating;

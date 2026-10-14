@@ -157,6 +157,13 @@ object Clash {
         Bridge.nativeCloseConnection(id)
     }
 
+    suspend fun probeUrl(url: String): ProbeResult? {
+        return withContext(Dispatchers.IO) {
+            Bridge.nativeProbeUrl(url)
+                ?.let { Json.Default.decodeFromString(ProbeResult.serializer(), it) }
+        }
+    }
+
     suspend fun testLatency(url: String): Long {
         return withContext(Dispatchers.IO) {
             Bridge.nativeTestLatency(url)

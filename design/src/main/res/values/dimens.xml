@@ -68,6 +68,12 @@
     <dimen name="main_dock_margin_bottom">12dp</dimen>
     <dimen name="main_dock_elevation">8dp</dimen>
     <dimen name="main_dock_content_clearance">100dp</dimen>
+    <dimen name="preference_group_margin_horizontal">16dp</dimen>
+    <dimen name="preference_group_corner_radius">20dp</dimen>
+    <dimen name="preference_icon_container_size">40dp</dimen>
+    <dimen name="preference_icon_container_radius">12dp</dimen>
+    <dimen name="status_pill_padding_horizontal">10dp</dimen>
+    <dimen name="status_pill_padding_vertical">3dp</dimen>
     <dimen name="main_tun_row_padding_vertical">12dp</dimen>
     <dimen name="main_icon_button_size">40dp</dimen>
     <dimen name="main_card_icon_size">24dp</dimen>

@@ -11,11 +11,19 @@
         android:orientation="horizontal"
         android:paddingVertical="@dimen/item_padding_vertical">
 
-        <View
-            android:id="@+id/icon_view"
-            android:layout_width="@dimen/item_header_component_size"
-            android:layout_height="@dimen/item_header_component_size"
-            android:layout_marginHorizontal="@dimen/item_header_margin" />
+        <FrameLayout
+            android:id="@+id/icon_container"
+            android:layout_width="@dimen/preference_icon_container_size"
+            android:layout_height="@dimen/preference_icon_container_size"
+            android:layout_marginHorizontal="@dimen/item_header_margin"
+            android:background="@drawable/bg_preference_icon">
+
+            <View
+                android:id="@+id/icon_view"
+                android:layout_width="@dimen/item_header_component_size"
+                android:layout_height="@dimen/item_header_component_size"
+                android:layout_gravity="center" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,7 +41,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_text_margin"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
     </LinearLayout>
 </layout>
