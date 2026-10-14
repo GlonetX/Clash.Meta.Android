@@ -84,6 +84,17 @@ jobs:
         if: success()
         run: ./gradlew --no-daemon app:assembleAlphaRelease
 
+      # One `<apk>.sha256` file next to each APK, in `sha256sum` format.
+      # The in-app updater downloads the matching file and refuses to
+      # install an APK whose digest does not match.
+      - name: Generate APK checksums
+        if: success()
+        run: |
+          cd app/build/outputs/apk/alpha/release
+          for apk in *.apk; do
+            sha256sum "$apk" > "$apk.sha256"
+          done
+
       # Delete old Prerelease-alpha
       - uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
