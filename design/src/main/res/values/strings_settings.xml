@@ -88,6 +88,7 @@
     <string name="settings_password_set">Set</string>
     <string name="settings_webdav_backup">Back Up Now</string>
     <string name="settings_webdav_restore">Restore From Backup</string>
+    <string name="settings_webdav_restore_summary">Download a backup from the server and restore it</string>
     <string name="settings_webdav_last_backup">Last backup: %s</string>
     <string name="settings_webdav_never">never</string>
     <string name="settings_webdav_backup_ok">Backup uploaded (%d KB)</string>

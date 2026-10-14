@@ -90,7 +90,7 @@ class NetworkSettingsDesign(
 
         val dependent = uiStore.enableVpn && !locked
 
-        val rows = mutableListOf(
+        val rows = mutableListOf<SettingRow>(
             SettingRow.Switch(
                 id = "enable_vpn",
                 title = R.string.route_system_traffic,
@@ -617,7 +617,7 @@ class NetworkSettingsDesign(
 
     private fun accessControlModeText(mode: AccessControlMode): Int = when (mode) {
         AccessControlMode.AcceptAll -> R.string.allow_all_apps
-        AccessControlMode.AllowSelected -> R.string.allow_selected_apps
+        AccessControlMode.AcceptSelected -> R.string.allow_selected_apps
         AccessControlMode.DenySelected -> R.string.deny_selected_apps
     }
 

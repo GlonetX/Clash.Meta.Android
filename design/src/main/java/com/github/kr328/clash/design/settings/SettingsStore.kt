@@ -227,7 +227,7 @@ class SettingsStore(context: Context) {
         return known + catalog.filter { it !in known }
     }
 
-    fun dashboardWidgetOrder(order: List<String>) {
+    fun setDashboardWidgetOrder(order: List<String>) {
         dashboardWidgetOrderRaw = order.joinToString(",")
     }
 
@@ -282,7 +282,7 @@ class SettingsStore(context: Context) {
         return known + catalog.filter { it !in known }
     }
 
-    fun probeServiceOrder(order: List<String>) {
+    fun setProbeServiceOrder(order: List<String>) {
         probeServiceOrderRaw = order.joinToString(",")
     }
 

@@ -421,7 +421,7 @@ class AppSettingsDesign(
                 initial = initial,
             ) ?: return@launch
 
-            settings.dashboardWidgetOrder(edited.map { it.key })
+            settings.setDashboardWidgetOrder(edited.map { it.key })
 
             for (entry in edited) {
                 if (entry is SettingEntry.Sized)
@@ -450,7 +450,7 @@ class AppSettingsDesign(
                 initial = initial,
             ) ?: return@launch
 
-            settings.probeServiceOrder(edited.map { it.key })
+            settings.setProbeServiceOrder(edited.map { it.key })
 
             settings.probeServiceEnabled = edited
                 .filterIsInstance<SettingEntry.Enabled>()

@@ -586,7 +586,7 @@ class OverrideSettingsDesign(
             id = id,
             title = title,
             enabled = enabled,
-            summary = texts.getOrElse(selected) ?: context.getString(R.string.dont_modify),
+            summary = texts.getOrNull(selected) ?: context.getString(R.string.dont_modify),
             onClick = { anchor ->
                 choose(anchor, texts, values, values.getOrNull(selected)) { picked ->
                     apply(picked)

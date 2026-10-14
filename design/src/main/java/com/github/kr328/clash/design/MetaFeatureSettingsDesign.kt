@@ -15,6 +15,7 @@ import com.github.kr328.clash.design.settings.SettingItem
 import com.github.kr328.clash.design.settings.SettingPage
 import com.github.kr328.clash.design.settings.SettingRow
 import com.github.kr328.clash.design.settings.TextAdapter
+import com.github.kr328.clash.design.settings.editSettingText
 import com.github.kr328.clash.design.settings.editSettingTextList
 import com.github.kr328.clash.design.settings.selectSetting
 import com.github.kr328.clash.design.ui.ToastDuration
@@ -409,7 +410,7 @@ class MetaFeatureSettingsDesign(
             id = id,
             title = title,
             enabled = enabled,
-            summary = texts.getOrElse(selected) ?: context.getString(R.string.dont_modify),
+            summary = texts.getOrNull(selected) ?: context.getString(R.string.dont_modify),
             onClick = { anchor ->
                 choose(anchor, texts, values, values.getOrNull(selected)) { picked ->
                     apply(picked)

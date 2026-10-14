@@ -85,7 +85,7 @@ suspend fun Context.editSettingEntries(
     initial: List<SettingEntry>,
 ): List<SettingEntry>? {
     return suspendCancellableCoroutine { ctx ->
-        val entries = initial.map { it.copy() }
+        val entries = initial.map { it.copy() }.toMutableList()
 
         val dialog = FullScreenDialog(this)
 
@@ -205,7 +205,7 @@ private class SettingEntryAdapter(
                 binding.root.setOnClickListener {
                     entry.checked = !entry.checked
 
-                    val index = bindingAdapterPosition
+                    val index = holder.bindingAdapterPosition
 
                     if (index != RecyclerView.NO_POSITION)
                         notifyItemChanged(index)
@@ -216,7 +216,7 @@ private class SettingEntryAdapter(
         binding.moveUpView.isEnabled = position > 0
         binding.moveUpView.alpha = if (position > 0) 1.0f else 0.33f
         binding.moveUpView.setOnClickListener {
-            val index = bindingAdapterPosition
+            val index = holder.bindingAdapterPosition
 
             if (index > 0) {
                 entries.add(index - 1, entries.removeAt(index))
@@ -228,7 +228,7 @@ private class SettingEntryAdapter(
         binding.moveDownView.isEnabled = position < entries.size - 1
         binding.moveDownView.alpha = if (position < entries.size - 1) 1.0f else 0.33f
         binding.moveDownView.setOnClickListener {
-            val index = bindingAdapterPosition
+            val index = holder.bindingAdapterPosition
 
             if (index in 0 until entries.size - 1) {
                 entries.add(index + 1, entries.removeAt(index))

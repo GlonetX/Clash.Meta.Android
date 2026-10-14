@@ -23,6 +23,7 @@ import com.github.kr328.clash.design.util.measureWidth
 import com.github.kr328.clash.design.util.requestTextInput
 import com.github.kr328.clash.design.util.root
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -315,49 +316,51 @@ private suspend fun Context.requestSettingListOverlay(
     title: CharSequence,
     adapter: RecyclerView.Adapter<*>,
     addNewItem: suspend () -> Unit,
-): SettingListResult = suspendCancellableCoroutine { ctx ->
-    val dialog = FullScreenDialog(this)
+): SettingListResult = coroutineScope {
+    suspendCancellableCoroutine { ctx ->
+        val dialog = FullScreenDialog(this)
 
-    val binding = DialogSettingListBinding.inflate(layoutInflater, root, false)
+        val binding = DialogSettingListBinding.inflate(layoutInflater, root, false)
 
-    binding.surface = dialog.surface
-    binding.titleView.text = title
-    binding.mainList.applyLinearAdapter(this, adapter)
+        binding.surface = dialog.surface
+        binding.titleView.text = title
+        binding.mainList.applyLinearAdapter(this, adapter)
 
-    binding.newView.setOnClickListener {
-        launch {
-            addNewItem()
+        binding.newView.setOnClickListener {
+            launch {
+                addNewItem()
+            }
         }
+
+        binding.okView.setOnClickListener {
+            ctx.resume(SettingListResult.Apply)
+
+            dialog.dismiss()
+        }
+
+        binding.cancelView.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        binding.resetView.setOnClickListener {
+            ctx.resume(SettingListResult.Reset)
+
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(binding.root)
+
+        dialog.setOnDismissListener {
+            if (!ctx.isCompleted)
+                ctx.resume(SettingListResult.Cancel)
+        }
+
+        ctx.invokeOnCancellation {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
-
-    binding.okView.setOnClickListener {
-        ctx.resume(SettingListResult.Apply)
-
-        dialog.dismiss()
-    }
-
-    binding.cancelView.setOnClickListener {
-        dialog.dismiss()
-    }
-
-    binding.resetView.setOnClickListener {
-        ctx.resume(SettingListResult.Reset)
-
-        dialog.dismiss()
-    }
-
-    dialog.setContentView(binding.root)
-
-    dialog.setOnDismissListener {
-        if (!ctx.isCompleted)
-            ctx.resume(SettingListResult.Cancel)
-    }
-
-    ctx.invokeOnCancellation {
-        dialog.dismiss()
-    }
-
-    dialog.show()
 }
 
 private suspend fun Context.requestSettingMapEntry(
