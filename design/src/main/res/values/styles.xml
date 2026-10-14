@@ -12,7 +12,7 @@
 
     <style name="AppNavigationBar.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:backgroundTint">?attr/colorPrimaryContainer</item>
-        <item name="android:shapeAppearanceOverlay">@style/ShapeAppearance.App.Pill</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Pill</item>
     </style>
 
     <style name="ShapeAppearance.App.Pill" parent="">
