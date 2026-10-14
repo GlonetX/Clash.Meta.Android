@@ -211,6 +211,12 @@
     <string name="edit_dashboard_cards">自定義儀表盤</string>
     <string name="move_up">上移</string>
     <string name="move_down">下移</string>
+    <string name="status_checking">檢測中…</string>
+    <string name="status_ok">可用</string>
+    <string name="status_restricted">受限</string>
+    <string name="status_blocked">被攔截</string>
+    <string name="status_timeout">逾時</string>
+    <string name="status_failed">失敗</string>
     <string name="format_provider_type">%1$s(%2$s)</string>
     <string name="rule">規則</string>
     <string name="http">HTTP</string>

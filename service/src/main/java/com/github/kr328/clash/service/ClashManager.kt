@@ -100,6 +100,10 @@ class ClashManager(private val context: Context) : IClashManager,
         Clash.closeConnection(id)
     }
 
+    override suspend fun probeUrl(url: String): ProbeResult? {
+        return Clash.probeUrl(url)
+    }
+
     override suspend fun testLatency(url: String): Long {
         return Clash.testLatency(url)
     }

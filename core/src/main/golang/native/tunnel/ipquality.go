@@ -287,3 +287,40 @@ func TestLatency(url string) int64 {
 
 	return time.Since(start).Milliseconds()
 }
+
+// ProbeResult describes the HTTP status and latency of a probed URL.
+type ProbeResult struct {
+	Code    int   `json:"code"`    // HTTP status code; -1 on connection error
+	Latency int64 `json:"latency"` // round-trip in ms; -1 on failure
+}
+
+// ProbeURL performs an HTTP GET through the tunnel and reports the final
+// status code (after redirects) with the round-trip latency.
+func ProbeURL(url string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	start := time.Now()
+
+	result := ProbeResult{Code: -1, Latency: -1}
+
+	response, err := clashHttp.HttpRequest(ctx, url, http.MethodGet,
+		http.Header{"User-Agent": {browserUserAgent}}, nil)
+	if err != nil {
+		data, _ := json.Marshal(result)
+		return string(data), nil
+	}
+
+	defer response.Body.Close()
+	io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
+
+	result.Code = response.StatusCode
+	result.Latency = time.Since(start).Milliseconds()
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}

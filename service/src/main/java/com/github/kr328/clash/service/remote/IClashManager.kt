@@ -23,6 +23,7 @@ interface IClashManager {
     suspend fun queryIPQuality(ip: String): IPQuality?
     suspend fun queryConnections(): ConnectionList
     fun closeConnection(id: String)
+    suspend fun probeUrl(url: String): ProbeResult?
     suspend fun testLatency(url: String): Long
 
     fun queryOverride(slot: Clash.OverrideSlot): ConfigurationOverride

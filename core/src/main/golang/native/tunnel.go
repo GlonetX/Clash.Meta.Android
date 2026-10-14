@@ -154,6 +154,16 @@ func closeConnection(id C.c_string) {
 	tunnel.CloseConnection(C.GoString(id))
 }
 
+//export probeUrl
+func probeUrl(url C.c_string) *C.char {
+	response, err := tunnel.ProbeURL(C.GoString(url))
+	if err != nil {
+		return nil
+	}
+
+	return marshalString(response)
+}
+
 //export testLatency
 func testLatency(url C.c_string) C.int64_t {
 	u := C.GoString(url)
