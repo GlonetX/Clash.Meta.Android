@@ -195,6 +195,38 @@
                 app:tabBackground="@android:color/transparent"
                 app:tabMode="scrollable" />
 
+            <!--
+              Group live status: the node the displayed group currently
+              routes through, plus its delay. Tapping it scrolls the grid to
+              that node (same affordance as the locate button above). Its
+              height is pushed into the page insets from ProxyDesign so the
+              grid never slides under it.
+            -->
+            <LinearLayout
+                android:id="@+id/group_status_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:windowBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/app_space_lg"
+                android:paddingEnd="@dimen/app_space_lg"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/group_status_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/proxy_status_bar_min_height"
+                    android:onClick="@{() -> self.requestLocate()}"
+                    android:textAppearance="@style/TextAppearance.App.Label" />
+            </LinearLayout>
+
             <View
                 android:id="@+id/elevation_view"
                 android:layout_width="match_parent"

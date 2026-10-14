@@ -19,6 +19,9 @@
 -->
 <resources>
 
+    <!-- ============ group live-status bar under the tab row ============ -->
+    <dimen name="proxy_status_bar_min_height">32dp</dimen>
+
     <!-- ============ outer gap between cards ============ -->
     <dimen name="proxy_gap_tight">2dp</dimen>
     <dimen name="proxy_gap_standard">4dp</dimen>

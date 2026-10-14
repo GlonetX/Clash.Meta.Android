@@ -3,7 +3,10 @@ package com.github.kr328.clash.design
 import android.content.Context
 import android.content.res.ColorStateList
 import android.text.Editable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
@@ -13,6 +16,7 @@ import com.github.kr328.clash.design.adapter.ProxyAdapter
 import com.github.kr328.clash.design.adapter.ProxyPageAdapter
 import com.github.kr328.clash.design.component.ProxyMenu
 import com.github.kr328.clash.design.component.ProxyViewConfig
+import com.github.kr328.clash.design.component.ProxyViewState
 import com.github.kr328.clash.design.databinding.DesignProxyBinding
 import com.github.kr328.clash.design.model.ProxyState
 import com.github.kr328.clash.design.store.UiStore
@@ -58,6 +62,30 @@ class ProxyDesign(
         uiStore.proxyDensity,
         uiStore.proxyIconStyle,
     )
+
+    /**
+     * The node each group currently routes through, as of the last reload
+     * (or the last tap, which updates it optimistically).
+     */
+    private class GroupStatus(val name: String, val delay: Int)
+
+    private val groupStatus: Array<GroupStatus?> = arrayOfNulls(groupNames.size)
+
+    /** One adapter per group, also kept directly so taps can read them. */
+    private val groupAdapters: List<ProxyAdapter> = List(groupNames.size) { index ->
+        ProxyAdapter(config) { name ->
+            // optimistic header update: Request.Select patches the core and
+            // redraws the cards, but no group reload follows a selection, so
+            // without this the status line would go stale until the next
+            // reload or URL test
+            groupStatus[index] = GroupStatus(name, groupAdapters.getOrNull(index)?.delayOf(name) ?: 0)
+
+            if (index == binding.pagesView.currentItem)
+                renderGroupStatus()
+
+            requests.trySend(Request.Select(index, name))
+        }
+    }
 
     private val menu: ProxyMenu by lazy {
         ProxyMenu(context, binding.menuView, overrideMode, uiStore, requests) {
@@ -107,6 +135,13 @@ class ProxyDesign(
         adapter?.updateAdapter(position, proxies, selectable, parent, links)
 
         pageState(position)?.urlTesting = false
+
+        groupStatus[position] = proxies
+            .firstOrNull { it.name == parent.now }
+            ?.let { GroupStatus(it.name, it.delay) }
+
+        if (position == binding.pagesView.currentItem)
+            renderGroupStatus()
 
         updateUrlTestButtonStatus()
         updateFilterStatus()
@@ -172,6 +207,7 @@ class ProxyDesign(
             binding.urlTestView.visibility = View.GONE
             binding.locateView.visibility = View.GONE
             binding.tabLayoutView.visibility = View.GONE
+            binding.groupStatusBar.visibility = View.GONE
             binding.elevationView.visibility = View.GONE
             binding.pagesView.visibility = View.GONE
             binding.urlTestFloatView.visibility = View.GONE
@@ -184,11 +220,7 @@ class ProxyDesign(
                 adapter = ProxyPageAdapter(
                     surface,
                     config,
-                    List(groupNames.size) { index ->
-                        ProxyAdapter(config) { name ->
-                            requests.trySend(Request.Select(index, name))
-                        }
-                    }
+                    groupAdapters
                 ) {
                     if (it == currentItem)
                         updateUrlTestButtonStatus()
@@ -207,6 +239,8 @@ class ProxyDesign(
                         groupNames.getOrNull(position)?.let { uiStore.proxyLastGroup = it }
 
                         updateFilterStatus()
+
+                        renderGroupStatus()
                     }
                 })
             }
@@ -222,13 +256,14 @@ class ProxyDesign(
                     binding.pagesView.setCurrentItem(initialPosition, false)
             }
 
-            // the search bar grows the bar, so its height has to become part of
-            // the grid's top inset
-            binding.searchBar.addOnLayoutChangeListener { view, _, top, _, bottom, _, _, _, _ ->
-                if (view.visibility != View.VISIBLE)
-                    return@addOnLayoutChangeListener
+            // the search row and the group status row grow the header, so
+            // their heights have to become part of the grid's top inset
+            binding.searchBar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                updateHeaderExtraPadding()
+            }
 
-                adapter?.extraTopPadding = bottom - top
+            binding.groupStatusBar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                updateHeaderExtraPadding()
             }
 
             // restore an in-flight search after a rebuild. Deliberately
@@ -307,9 +342,78 @@ class ProxyDesign(
         if (binding.keywordView.text?.isNotEmpty() == true)
             binding.keywordView.setText("")
 
-        adapter?.extraTopPadding = 0
+        updateHeaderExtraPadding()
 
         updateFilterStatus()
+    }
+
+    /**
+     * Total height of the header rows below the tab row (the per-group search
+     * box and the group live-status line), pushed into the grid's top inset
+     * so the grid never slides under them.
+     */
+    private fun updateHeaderExtraPadding() {
+        val search = if (binding.searchBar.visibility == View.VISIBLE) binding.searchBar.height else 0
+        val status = if (binding.groupStatusBar.visibility == View.VISIBLE) binding.groupStatusBar.height else 0
+
+        adapter?.extraTopPadding = search + status
+    }
+
+    /**
+     * Renders the live-status line of the group currently displayed: the
+     * node it routes through and that node's delay, colour-coded with the
+     * same delay tiers as the node cards. Tapping the line locates the node.
+     */
+    private fun renderGroupStatus() {
+        val index = binding.pagesView.currentItem
+
+        val status = groupStatus.getOrNull(index)
+
+        if (status == null || status.name.isEmpty()) {
+            binding.groupStatusBar.visibility = View.GONE
+
+            updateHeaderExtraPadding()
+
+            return
+        }
+
+        binding.groupStatusBar.visibility = View.VISIBLE
+
+        val builder = SpannableStringBuilder()
+
+        builder.append(context.getString(R.string.proxy_group_status_name, status.name))
+
+        when (status.delay) {
+            in 1 until ProxyViewState.DELAY_MEDIUM_THRESHOLD ->
+                appendStatusDelay(builder, "${status.delay}ms", config.delayGood)
+
+            in ProxyViewState.DELAY_MEDIUM_THRESHOLD..Short.MAX_VALUE ->
+                appendStatusDelay(builder, "${status.delay}ms", config.delayMedium)
+
+            else -> {
+                if (status.delay < 0)
+                    appendStatusDelay(builder, context.getString(R.string.timeout), config.delayTimeout)
+                // never tested: the name alone
+            }
+        }
+
+        binding.groupStatusView.text = builder
+
+        updateHeaderExtraPadding()
+    }
+
+    private fun appendStatusDelay(builder: SpannableStringBuilder, text: String, color: Int) {
+        val start = builder.length
+
+        builder.append("  ·  ")
+        builder.append(text)
+
+        builder.setSpan(
+            ForegroundColorSpan(color),
+            start,
+            builder.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
     }
 
     private fun updateFilterStatus() {
