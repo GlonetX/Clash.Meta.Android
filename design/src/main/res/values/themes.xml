@@ -161,9 +161,9 @@
         <item name="colorOutline">#FF79747E</item>
         <item name="colorError">@color/color_error</item>
         <item name="colorOnError">@android:color/white</item>
-        <item name="colorInverseSurface">#FF322F35</item>
-        <item name="colorInverseOnSurface">#FFF5EFF7</item>
-        <item name="colorInversePrimary">@color/color_clash_dark</item>
+        <item name="colorSurfaceInverse">#FF322F35</item>
+        <item name="colorOnSurfaceInverse">#FFF5EFF7</item>
+        <item name="colorPrimaryInverse">@color/color_clash_dark</item>
         <item name="colorControlNormal">@android:color/black</item>
         <item name="colorClashStopped">@color/color_light_clash_stopped</item>
         <item name="colorControlDisabled">@color/color_light_control_disabled</item>
@@ -199,9 +199,9 @@
         <item name="colorOutline">#FF938F99</item>
         <item name="colorError">#FFF2B8B5</item>
         <item name="colorOnError">#FF601410</item>
-        <item name="colorInverseSurface">#FFF5EFF7</item>
-        <item name="colorInverseOnSurface">#FF322F35</item>
-        <item name="colorInversePrimary">@color/color_clash_light</item>
+        <item name="colorSurfaceInverse">#FFF5EFF7</item>
+        <item name="colorOnSurfaceInverse">#FF322F35</item>
+        <item name="colorPrimaryInverse">@color/color_clash_light</item>
         <item name="colorControlNormal">@android:color/white</item>
         <item name="colorControlDisabled">@color/color_dark_control_disabled</item>
 
