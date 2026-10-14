@@ -79,6 +79,7 @@
                 android:scrollbars="none">
 
                 <LinearLayout
+                    android:id="@+id/dashboard_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:animateLayoutChanges="true"
@@ -107,10 +108,23 @@
                         </FrameLayout>
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/application_name"
                             android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
+
+                        <ImageView
+                            android:id="@+id/edit_cards_view"
+                            android:layout_width="@dimen/item_tailing_component_size"
+                            android:layout_height="@dimen/item_tailing_component_size"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/edit_dashboard_cards"
+                            android:focusable="true"
+                            android:onClick="@{() -> self.request(Request.EditCards)}"
+                            android:padding="@dimen/toolbar_image_action_padding"
+                            android:src="@drawable/ic_baseline_edit" />
                     </LinearLayout>
 
                     <com.github.kr328.clash.design.view.LargeActionCard
@@ -126,11 +140,17 @@
                         <requestFocus />
                     </com.github.kr328.clash.design.view.LargeActionCard>
 
-                    <com.google.android.material.card.MaterialCardView
+                    <FrameLayout
+                        android:id="@+id/slot_outbound_mode"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginVertical="@dimen/main_card_margin_vertical"
-                        android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/card_outbound_mode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginVertical="@dimen/main_card_margin_vertical"
+                            android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -191,8 +211,15 @@
                             </com.google.android.material.button.MaterialButtonToggleGroup>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/slot_proxy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                     <com.github.kr328.clash.design.view.LargeActionCard
+                        android:id="@+id/card_proxy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
@@ -201,8 +228,15 @@
                         app:icon="@drawable/ic_baseline_apps"
                         app:subtext="@{mode}"
                         app:text="@string/proxy" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/slot_network_quality"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_network_quality"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
@@ -293,8 +327,15 @@
                                 android:layout_marginTop="@dimen/main_card_section_margin_vertical" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/slot_connections"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_connections"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
@@ -332,8 +373,15 @@
                                 android:src="@drawable/ic_baseline_more_vert" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/slot_ip_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_ip_info"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
@@ -429,8 +477,15 @@
                             </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/slot_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                     <com.github.kr328.clash.design.view.LargeActionCard
+                        android:id="@+id/card_profile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
@@ -438,6 +493,7 @@
                         app:icon="@drawable/ic_baseline_view_list"
                         app:subtext="@{profileSummary ?? @string/not_selected}"
                         app:text="@string/profile" />
+                    </FrameLayout>
 
                     <com.github.kr328.clash.design.view.LargeActionLabel
                         android:layout_width="match_parent"
@@ -479,7 +535,16 @@
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/main_dock_margin_horizontal"
+            android:layout_marginBottom="@dimen/main_dock_margin_bottom"
+            android:background="@drawable/bg_dock"
+            android:backgroundTint="@null"
+            android:elevation="@dimen/main_dock_elevation"
             android:paddingBottom="@{self.surface.insets.bottom}"
+            app:activeIndicatorStyle="@style/AppNavigationBar.ActiveIndicator"
+            app:itemBackground="@null"
+            app:itemIconTint="@color/dock_item_color"
+            app:itemTextColor="@color/dock_item_color"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_main_tabs" />
     </LinearLayout>

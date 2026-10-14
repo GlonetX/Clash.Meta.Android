@@ -62,6 +62,21 @@ class UiStore(context: Context) {
         defaultValue = ""
     )
 
+    /**
+     * Dashboard card order: comma-separated card ids. Unknown ids are
+     * ignored; missing ids are appended in default order at the end.
+     */
+    var dashboardCardOrder: String by store.string(
+        key = "dashboard_card_order",
+        defaultValue = ""
+    )
+
+    /** Hidden dashboard card ids. */
+    var dashboardCardHidden: Set<String> by store.stringSet(
+        key = "dashboard_card_hidden",
+        defaultValue = emptySet()
+    )
+
     var accessControlSort: AppInfoSort by store.enum(
         key = "access_control_sort",
         defaultValue = AppInfoSort.Label,

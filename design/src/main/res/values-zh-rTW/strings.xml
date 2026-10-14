@@ -297,6 +297,9 @@
     <string name="close_connection">關閉連接</string>
     <string name="close_all_connections">關閉全部連接</string>
     <string name="no_connections">暫無活躍連接</string>
+    <string name="edit_dashboard_cards">自定義儀表盤</string>
+    <string name="move_up">上移</string>
+    <string name="move_down">下移</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">記憶體</string>
 </resources>

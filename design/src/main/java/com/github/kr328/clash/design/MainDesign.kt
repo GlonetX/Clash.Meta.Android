@@ -1,8 +1,11 @@
 package com.github.kr328.clash.design
 
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import com.github.kr328.clash.core.model.ExternalIP
 import com.github.kr328.clash.core.model.TunnelState
@@ -11,6 +14,7 @@ import com.github.kr328.clash.core.util.trafficDownloadValue
 import com.github.kr328.clash.core.util.trafficTotal
 import com.github.kr328.clash.core.util.trafficUpload
 import com.github.kr328.clash.core.util.trafficUploadValue
+import com.github.kr328.clash.design.databinding.DialogDashboardCardBinding
 import com.github.kr328.clash.design.databinding.DesignAboutBinding
 import com.github.kr328.clash.design.databinding.DesignMainBinding
 import com.github.kr328.clash.design.util.layoutInflater
@@ -19,10 +23,11 @@ import com.github.kr328.clash.design.util.root
 import com.github.kr328.clash.design.util.toBytesString
 import com.github.kr328.clash.design.util.toDisplayString
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
+class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDesign.Request>(context) {
     enum class Request {
         ToggleStatus,
         OpenProxy,
@@ -37,6 +42,22 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         OpenIPQuality,
         OpenLatency,
         OpenConnections,
+        EditCards,
+    }
+
+    /** Manageable dashboard cards in default order. */
+    val dashboardCards = listOf(
+        DashboardCard(R.string.outbound_mode, R.id.slot_outbound_mode),
+        DashboardCard(R.string.proxy, R.id.slot_proxy),
+        DashboardCard(R.string.network_quality, R.id.slot_network_quality),
+        DashboardCard(R.string.connections, R.id.slot_connections),
+        DashboardCard(R.string.ip_info, R.id.slot_ip_info),
+        DashboardCard(R.string.profile, R.id.slot_profile),
+    )
+
+    data class DashboardCard(val titleRes: Int, val slotViewId: Int) {
+        val key: String
+            get() = slotViewId.toString()
     }
 
     private val binding = DesignMainBinding
@@ -79,9 +100,149 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
 
             request(Request.PatchMode)
         }
+
+        applyDashboardCards()
     }
 
     private var updatingMode = false
+
+    /** Card order + visibility from UiStore. */
+    fun dashboardCardOrder(): List<String> {
+        val stored = uiStore.dashboardCardOrder
+            .split(',')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
+        val known = stored.filter { id -> dashboardCards.any { it.key == id } }
+
+        // append missing cards in default order
+        return known + dashboardCards.map { it.key }.filter { it !in known }
+    }
+
+    fun dashboardCardHidden(): Set<String> {
+        return uiStore.dashboardCardHidden
+    }
+
+    fun moveDashboardCard(key: String, offset: Int) {
+        val order = dashboardCardOrder().toMutableList()
+
+        val index = order.indexOf(key)
+        if (index < 0)
+            return
+
+        val target = (index + offset).coerceIn(0, order.size - 1)
+
+        order.removeAt(index)
+        order.add(target, key)
+
+        uiStore.dashboardCardOrder = order.joinToString(",")
+
+        applyDashboardCards()
+    }
+
+    fun setDashboardCardHidden(key: String, hidden: Boolean) {
+        val hiddenSet = uiStore.dashboardCardHidden.toMutableSet()
+
+        if (hidden)
+            hiddenSet.add(key)
+        else
+            hiddenSet.remove(key)
+
+        uiStore.dashboardCardHidden = hiddenSet
+
+        applyDashboardCards()
+    }
+
+    suspend fun showEditCardsDialog() {
+        withContext(Dispatchers.Main) {
+            val list = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+            }
+
+            val rebuild: () -> Unit = {
+                list.removeAllViews()
+
+                val inflater = LayoutInflater.from(context)
+                val hidden = dashboardCardHidden()
+
+                dashboardCardOrder().forEachIndexed { index, key ->
+                    val card = dashboardCards.firstOrNull { it.key == key } ?: return@forEachIndexed
+
+                    val row = DialogDashboardCardBinding.inflate(inflater, list, false)
+
+                    row.titleView.text = context.getString(card.titleRes)
+                    row.visibilityView.isChecked = key !in hidden
+
+                    row.visibilityView.setOnCheckedChangeListener { _, checked ->
+                        setDashboardCardHidden(key, !checked)
+                    }
+
+                    row.moveUpView.isEnabled = index > 0
+                    row.moveUpView.alpha = if (index > 0) 1.0f else 0.4f
+                    row.moveUpView.setOnClickListener {
+                        moveDashboardCard(key, -1)
+                        rebuild()
+                    }
+
+                    val last = dashboardCardOrder().size - 1
+                    row.moveDownView.isEnabled = index < last
+                    row.moveDownView.alpha = if (index < last) 1.0f else 0.4f
+                    row.moveDownView.setOnClickListener {
+                        moveDashboardCard(key, 1)
+                        rebuild()
+                    }
+
+                    list.addView(row.root)
+                }
+            }
+
+            rebuild()
+
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.edit_dashboard_cards)
+                .setView(ScrollView(context).apply { addView(list) })
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+    }
+
+    private fun applyDashboardCards() {
+        val container = binding.dashboardContainer
+        val hidden = uiStore.dashboardCardHidden
+
+        // collect slot views
+        val slots = dashboardCards.mapNotNull { card ->
+            container.findViewById<View>(card.slotViewId)?.let { card to it }
+        }
+
+        if (slots.isEmpty())
+            return
+
+        // anchor: the view right before the first slot in XML order is the
+        // status card; re-attach slots right after it
+        val firstIndex = slots.minOf { container.indexOfChild(it.second) }
+        val anchorIndex = if (firstIndex > 0) firstIndex - 1 else -1
+
+        val ordered = dashboardCardOrder()
+
+        // detach all slots
+        slots.forEach { (_, view) -> container.removeView(view) }
+
+        // re-attach in stored order
+        var insertAt = anchorIndex + 1
+
+        ordered.forEach { key ->
+            val (card, view) = slots.firstOrNull { it.first.key == key } ?: return@forEach
+
+            container.addView(view, insertAt)
+
+            // slot visibility = user preference only; the inner card keeps
+            // its own clashRunning binding
+            view.visibility = if (key in hidden) View.GONE else View.VISIBLE
+
+            insertAt++
+        }
+    }
 
     fun checkedOutboundMode(): TunnelState.Mode {
         return when (binding.modeToggleGroup.checkedButtonId) {

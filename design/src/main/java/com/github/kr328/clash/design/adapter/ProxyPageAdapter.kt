@@ -91,8 +91,9 @@ class ProxyPageAdapter(
 
         val toolbarHeight = config.context.getPixels(R.dimen.toolbar_height)
         val tabHeight = config.context.getPixels(R.dimen.tab_layout_height)
+        val dockClearance = config.context.getPixels(R.dimen.main_dock_content_clearance)
 
-        holder.recyclerView.bindInsets(surface, toolbarHeight + tabHeight)
+        holder.recyclerView.bindInsets(surface, toolbarHeight + tabHeight, dockClearance)
         holder.recyclerView.addScrolledToBottomObserver { view, bottom ->
             val position = view.position
             val state = states[position]

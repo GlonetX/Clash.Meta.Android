@@ -410,6 +410,9 @@
     <string name="close_connection">Close connection</string>
     <string name="close_all_connections">Close all connections</string>
     <string name="no_connections">No active connections</string>
+    <string name="edit_dashboard_cards">Customize dashboard</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
     <string name="outbound_mode">Outbound Mode</string>
     <string name="memory_usage">Memory</string>
 </resources>

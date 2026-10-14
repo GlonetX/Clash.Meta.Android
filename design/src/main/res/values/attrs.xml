@@ -7,6 +7,7 @@
     <attr name="colorLogo" format="color" />
     <attr name="delayGood" format="color" />
     <attr name="delayMedium" format="color" />
+    <attr name="colorDockBackground" format="color" />
 
     <attr name="enabled" format="boolean" />
     <attr name="text" format="string" />
