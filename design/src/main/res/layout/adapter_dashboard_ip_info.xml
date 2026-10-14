@@ -2,19 +2,12 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="self"
-            type="com.github.kr328.clash.design.MainDesign" />
-
-        <import type="com.github.kr328.clash.design.MainDesign.Request" />
-    </data>
+    <data />
 
     <com.github.kr328.clash.design.view.AppCard
         style="@style/DashboardWideCard"
         android:clickable="true"
-        android:focusable="true"
-        android:onClick="@{() -> self.request(Request.OpenIPQuality)}">
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"

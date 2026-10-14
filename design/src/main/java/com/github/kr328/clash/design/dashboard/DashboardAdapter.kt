@@ -136,6 +136,8 @@ class DashboardAdapter(
     private fun bindStatus(binding: AdapterDashboardStatusBinding) {
         val running = state.clashRunning
 
+        binding.statusCard.setOnClickListener { onRequest(MainDesign.Request.ToggleStatus) }
+
         binding.statusCard.setCardBackgroundColor(
             context.resolveThemedColor(
                 if (running) MaterialR.attr.colorPrimary else R.attr.colorClashStopped
@@ -215,6 +217,8 @@ class DashboardAdapter(
     // ------------------------------------------------------------------ node
 
     private fun bindNode(binding: AdapterDashboardNodeBinding) {
+        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenProxy) }
+
         binding.nodeName.text =
             state.nodeName ?: context.getString(R.string.dashboard_node_unavailable)
 
@@ -279,6 +283,8 @@ class DashboardAdapter(
     // ------------------------------------------------------------ connections
 
     private fun bindConnections(binding: AdapterDashboardConnectionsBinding) {
+        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenConnections) }
+
         binding.connectionsValue.text = state.connectionCount.toString()
         binding.requestsValue.text = state.requestCount.toString()
         binding.dnsValue.text = state.dnsCount.toString()
@@ -311,6 +317,8 @@ class DashboardAdapter(
     // -------------------------------------------------------------- services
 
     private fun bindServices(binding: AdapterDashboardServicesBinding) {
+        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenLatency) }
+
         binding.servicesPager.setServices(state.services)
         binding.servicesRefresh.setOnClickListener {
             onRequest(MainDesign.Request.RefreshServices)
@@ -320,6 +328,8 @@ class DashboardAdapter(
     // --------------------------------------------------------------- ip info
 
     private fun bindIpInfo(binding: AdapterDashboardIpInfoBinding) {
+        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenIPQuality) }
+
         binding.ipStatus.text = state.ipStatus.orEmpty()
         binding.ipStatus.visibility = visible(state.ipStatus)
 
@@ -340,6 +350,8 @@ class DashboardAdapter(
     // --------------------------------------------------------------- profile
 
     private fun bindProfile(binding: AdapterDashboardProfileBinding) {
+        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenProfiles) }
+
         binding.profileName.text =
             state.profileName ?: context.getString(R.string.not_selected)
 

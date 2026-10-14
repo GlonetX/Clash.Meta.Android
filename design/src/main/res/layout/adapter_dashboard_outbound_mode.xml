@@ -8,13 +8,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="self"
-            type="com.github.kr328.clash.design.MainDesign" />
-
-        <import type="com.github.kr328.clash.design.MainDesign.Request" />
-    </data>
+    <data />
 
     <com.github.kr328.clash.design.view.AppCard
         android:layout_width="match_parent"
