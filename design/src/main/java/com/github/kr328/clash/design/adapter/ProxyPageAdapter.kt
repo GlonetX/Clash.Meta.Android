@@ -1,6 +1,7 @@
 package com.github.kr328.clash.design.adapter
 
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kr328.clash.core.model.Proxy
 import com.github.kr328.clash.design.R
@@ -78,7 +79,8 @@ class ProxyPageAdapter(
             ?: return false
 
         target.post {
-            target.layoutManager?.scrollToPositionWithOffset(index, target.height / 3)
+            (target.layoutManager as? LinearLayoutManager)
+                ?.scrollToPositionWithOffset(index, target.height / 3)
         }
 
         return true
