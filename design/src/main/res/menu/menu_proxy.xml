@@ -42,6 +42,38 @@
             </group>
         </menu>
     </item>
+    <!--
+      Card density and node icon are layout options, not filters: they change
+      how a card is drawn and never change which nodes the core returns, so they
+      do not trigger a reload — only a re-layout.
+    -->
+    <item android:title="@string/proxy_card_density">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/density_tight"
+                    android:title="@string/proxy_density_tight" />
+                <item
+                    android:id="@+id/density_standard"
+                    android:title="@string/proxy_density_standard" />
+                <item
+                    android:id="@+id/density_loose"
+                    android:title="@string/proxy_density_loose" />
+            </group>
+        </menu>
+    </item>
+    <item android:title="@string/proxy_node_icon">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/icon_none"
+                    android:title="@string/proxy_node_icon_none" />
+                <item
+                    android:id="@+id/icon_flag"
+                    android:title="@string/proxy_node_icon_flag" />
+            </group>
+        </menu>
+    </item>
     <item android:title="@string/sort">
         <menu>
             <group android:checkableBehavior="single">

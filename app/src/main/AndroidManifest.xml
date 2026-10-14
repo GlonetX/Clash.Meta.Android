@@ -130,11 +130,6 @@
             android:exported="false"
             android:label="@string/profile" />
         <activity
-            android:name=".ProxyActivity"
-            android:configChanges="uiMode"
-            android:exported="false"
-            android:label="@string/proxy" />
-        <activity
             android:name=".ProvidersActivity"
             android:configChanges="uiMode"
             android:exported="false"

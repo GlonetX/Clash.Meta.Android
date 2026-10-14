@@ -171,7 +171,7 @@ class ConnectionsDesign(
         val filtered = items.filter { matches(it) }
 
         if (!uiStore.connectionsGroupByProcess)
-            return filtered.sortedWith(order())
+            return filtered.sortedWith(order()).map { ConnectionRow.Item(it) }
 
         val collapsed = uiStore.connectionsCollapsedGroups
 

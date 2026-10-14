@@ -52,10 +52,6 @@
     <dimen name="proxy_text_grid_standard">12sp</dimen>
     <dimen name="proxy_text_grid_loose">14sp</dimen>
 
-    <!-- ============ delay chip ============ -->
-    <dimen name="proxy_chip_padding_horizontal_new">@dimen/app_space_sm</dimen>
-    <dimen name="proxy_chip_padding_vertical_new">@dimen/app_space_xs</dimen>
-
     <!-- ============ gap between a node flag icon and its title ============ -->
     <dimen name="proxy_icon_margin">@dimen/app_space_xs</dimen>
 
