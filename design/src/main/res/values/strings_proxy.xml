@@ -17,6 +17,10 @@
     <string name="proxy_search_clear">Clear search</string>
     <string name="proxy_no_match">No node in this group matches \"%1$s\"</string>
 
+    <!-- Group live status line under the tab row -->
+    <string name="proxy_group_status_name">→ %1$s</string>
+    <string name="proxy_url_testing">Testing delays…</string>
+
     <string name="proxy_card_density">Card density</string>
     <string name="proxy_density_tight">Tight</string>
     <string name="proxy_density_standard">Standard</string>
@@ -25,6 +29,16 @@
     <string name="proxy_node_icon">Node icon</string>
     <string name="proxy_node_icon_none">None</string>
     <string name="proxy_node_icon_flag">Country flag</string>
+
+    <!-- Layout: fourth column option (wide screens) -->
+    <string name="proxy_line_quadruple">Quadruple</string>
+
+    <!-- Long-press node action sheet -->
+    <string name="proxy_node_copy_name">Copy node name</string>
+    <string name="proxy_node_detail_name">Name</string>
+    <string name="proxy_node_detail_delay">Delay</string>
+    <string name="proxy_node_delay_with_unit">%1$dms</string>
+    <string name="proxy_node_delay_none">Not tested</string>
 
     <!-- ==================== Connections page ==================== -->
 

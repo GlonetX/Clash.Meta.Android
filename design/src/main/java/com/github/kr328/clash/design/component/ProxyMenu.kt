@@ -71,6 +71,13 @@ class ProxyMenu(
 
                 requests.trySend(ProxyDesign.Request.ReloadAll)
             }
+            R.id.quadruple -> {
+                uiStore.proxyLine = 4
+
+                updateConfig()
+
+                requests.trySend(ProxyDesign.Request.ReloadAll)
+            }
             R.id.density_tight -> {
                 uiStore.proxyDensity = ProxyDensity.Tight
 
@@ -139,6 +146,7 @@ class ProxyMenu(
                 1 -> findItem(R.id.single).isChecked = true
                 2 -> findItem(R.id.doubles).isChecked = true
                 3 -> findItem(R.id.multiple).isChecked = true
+                4 -> findItem(R.id.quadruple).isChecked = true
             }
 
             when (uiStore.proxyDensity) {

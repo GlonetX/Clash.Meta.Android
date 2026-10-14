@@ -52,9 +52,9 @@ class ProxyPageFactory(private val config: ProxyViewConfig) {
 
     /**
      * The lookup reads [ProxyViewConfig.proxyLine] on every call instead of
-     * baking the column count in, so switching between the one-, two- and
-     * three-column layouts only needs the span assignments invalidated — the
-     * page does not have to be recreated.
+     * baking the column count in, so switching between the one-, two-,
+     * three- and four-column layouts only needs the span assignments
+     * invalidated — the page does not have to be recreated.
      */
     fun newSpanSizeLookup(): GridLayoutManager.SpanSizeLookup {
         return object : GridLayoutManager.SpanSizeLookup() {
@@ -62,14 +62,18 @@ class ProxyPageFactory(private val config: ProxyViewConfig) {
                 return when (config.proxyLine) {
                     1 -> GRID_COLUMNS
                     2 -> GRID_COLUMNS / 2
-                    else -> GRID_COLUMNS / 3
+                    3 -> GRID_COLUMNS / 3
+                    else -> GRID_COLUMNS / 4
                 }
             }
         }
     }
 
     companion object {
-        /** Grid resolution: 6 spans => 1, 2 or 3 columns per row. */
-        const val GRID_COLUMNS = 6
+        /**
+         * Grid resolution: 12 spans => 1, 2, 3 or 4 columns per row (12 is
+         * the lowest common multiple of the four column counts).
+         */
+        const val GRID_COLUMNS = 12
     }
 }

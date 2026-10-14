@@ -54,6 +54,17 @@ class UiStore(context: Context) {
         defaultValue = 2
     )
 
+    /**
+     * Whether the wide-screen 4-column default has been applied once. Guards
+     * the upgrade so a user who explicitly picks another column count on a
+     * >=600dp screen is never overridden by it again. See
+     * [com.github.kr328.clash.design.ProxyDesign].
+     */
+    var proxyWideDefaultApplied by store.boolean(
+        key = "proxy_wide_default_applied",
+        defaultValue = false,
+    )
+
     var proxySort: ProxySort by store.enum(
         key = "proxy_sort",
         defaultValue = ProxySort.Default,

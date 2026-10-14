@@ -16,6 +16,7 @@ import com.github.kr328.clash.design.component.ProxyViewState
 class ProxyAdapter(
     private val config: ProxyViewConfig,
     private val clicked: (String) -> Unit,
+    private val longPressed: (ProxyViewState) -> Unit,
 ) : RecyclerView.Adapter<ProxyAdapter.Holder>() {
     class Holder(val view: ProxyView) : RecyclerView.ViewHolder(view)
 
@@ -62,6 +63,15 @@ class ProxyAdapter(
     }
 
     /**
+     * Last known delay of the node called [name], or 0 when it is not in the
+     * group. 0 is the model's "never tested" value, which is also the right
+     * answer for a node this adapter has no data for.
+     */
+    fun delayOf(name: String): Int {
+        return states.firstOrNull { it.proxy.name == name }?.proxy?.delay ?: 0
+    }
+
+    /**
      * True when the filter hides everything in this group. False while the
      * group has not loaded yet, so restoring a session keyword during a page
      * rebuild does not flash a "no match" notice before the first data
@@ -82,6 +92,12 @@ class ProxyAdapter(
 
             setOnClickListener {
                 clicked(current.proxy.name)
+            }
+
+            setOnLongClickListener {
+                longPressed(current)
+
+                true
             }
 
             val isSelector = selectable
