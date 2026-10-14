@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import com.github.kr328.clash.core.model.ExternalIP
 import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.core.util.trafficDownload
@@ -249,7 +248,7 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
                 this.versionName = versionName
             }
 
-            AlertDialog.Builder(context)
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
                 .setView(binding.root)
                 .show()
         }
