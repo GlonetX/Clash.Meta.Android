@@ -35,6 +35,12 @@
 
     <string name="dashboard_no_node">—</string>
     <string name="dashboard_delay_unknown">--</string>
+    <string name="dashboard_since_start">Since the core started</string>
+    <string name="dashboard_not_running">Core is not running</string>
+
+    <!-- uptime: d days h hours m minutes | h:mm:ss with tabular figures -->
+    <string name="dashboard_uptime_days">%1$dd %2$02d:%3$02d</string>
+    <string name="dashboard_uptime_clock">%1$02d:%2$02d:%3$02d</string>
 
     <!-- Card customisation -->
     <string name="dashboard_add_widget">Add widget</string>
@@ -47,5 +53,13 @@
 
     <string name="dashboard_probe_latency">%1$d ms</string>
     <string name="dashboard_refresh_services">Re-check</string>
+
+    <!-- Service probe availability -->
+    <string name="dashboard_status_ok">Available</string>
+    <string name="dashboard_status_restricted">Restricted</string>
+    <string name="dashboard_status_blocked">Blocked</string>
+    <string name="dashboard_status_timeout">Timed out</string>
+    <string name="dashboard_status_failed">Failed</string>
+    <string name="dashboard_status_checking">Checking…</string>
 
 </resources>

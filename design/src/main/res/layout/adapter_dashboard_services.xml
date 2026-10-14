@@ -52,23 +52,11 @@
                     android:src="@drawable/ic_baseline_refresh" />
             </LinearLayout>
 
-            <FrameLayout
+            <com.github.kr328.clash.design.view.ServiceStatusPagerView
+                android:id="@+id/services_pager"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dashboard_service_pager_height"
-                android:layout_marginTop="@dimen/app_space_md">
-
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/services_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/services_indicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:visibility="gone" />
-            </FrameLayout>
+                android:layout_marginTop="@dimen/app_space_md" />
         </LinearLayout>
     </com.github.kr328.clash.design.view.AppCard>
 </layout>

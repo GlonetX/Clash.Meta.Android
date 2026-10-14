@@ -20,8 +20,6 @@
                 android:id="@+id/row_providers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:paddingVertical="@dimen/app_space_sm"
                 app:icon="@drawable/ic_baseline_swap_vertical_circle"
                 app:text="@string/providers" />
 
@@ -29,8 +27,6 @@
                 android:id="@+id/row_logs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:paddingVertical="@dimen/app_space_sm"
                 app:icon="@drawable/ic_baseline_assignment"
                 app:text="@string/logs" />
 
@@ -38,8 +34,6 @@
                 android:id="@+id/row_help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:paddingVertical="@dimen/app_space_sm"
                 app:icon="@drawable/ic_baseline_help_center"
                 app:text="@string/help" />
 
@@ -47,8 +41,6 @@
                 android:id="@+id/row_about"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:paddingVertical="@dimen/app_space_sm"
                 app:icon="@drawable/ic_baseline_info"
                 app:text="@string/about" />
         </LinearLayout>

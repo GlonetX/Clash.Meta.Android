@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.os.SystemClock
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.core.app.ActivityCompat
@@ -18,13 +19,23 @@ import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.ticker
 import com.github.kr328.clash.core.bridge.Bridge
 import com.github.kr328.clash.core.Clash
+import com.github.kr328.clash.core.model.ProbeResult
 import com.github.kr328.clash.core.model.TunnelState
+import com.github.kr328.clash.core.util.trafficDownload
+import com.github.kr328.clash.core.util.trafficDownloadValue
+import com.github.kr328.clash.core.util.trafficTotal
+import com.github.kr328.clash.core.util.trafficUpload
+import com.github.kr328.clash.core.util.trafficUploadValue
 import com.github.kr328.clash.design.MainDesign
 import com.github.kr328.clash.design.ProxyDesign
 import com.github.kr328.clash.design.SettingsDesign
+import com.github.kr328.clash.design.dashboard.DashboardState
+import com.github.kr328.clash.design.dashboard.ServiceProbe
+import com.github.kr328.clash.design.model.ServiceAvailability
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.design.util.toBytesString
 import com.github.kr328.clash.design.util.toDateStr
+import com.github.kr328.clash.design.util.toDisplayString
 import com.github.kr328.clash.service.model.Profile
 import com.github.kr328.clash.util.AppUpdate
 import com.github.kr328.clash.util.startClashService
@@ -33,6 +44,7 @@ import com.github.kr328.clash.util.withClash
 import com.github.kr328.clash.util.withProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
@@ -45,6 +57,68 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R as DesignR
 
+
+/**
+ * The streaming services the dashboard reports on.
+ *
+ * This is the same set — and the same probe — that the latency screen
+ * uses, deliberately not widened. It is duplicated rather than shared
+ * only because `LatencyActivity` belongs to another worktree in this
+ * overhaul; extracting one shared list is the follow-up described in
+ * the dashboard PR.
+ */
+private class DashboardService(
+    val name: String,
+    val url: String,
+    val okCodes: Set<Int>,
+    val restrictedCodes: Set<Int> = emptySet(),
+)
+
+private val SERVICES = listOf(
+    DashboardService(
+        "Google",
+        "https://www.google.com/generate_204",
+        okCodes = setOf(204),
+    ),
+    DashboardService(
+        "Cloudflare",
+        "https://www.cloudflare.com/cdn-cgi/trace",
+        okCodes = setOf(200),
+    ),
+    DashboardService(
+        "GitHub",
+        "https://github.com/generate_204",
+        okCodes = setOf(204),
+    ),
+    DashboardService(
+        "YouTube",
+        "https://www.youtube.com/generate_204",
+        okCodes = setOf(204),
+    ),
+    DashboardService(
+        "ChatGPT",
+        "https://ios.chat.openai.com/public-api/mobile/server_status/v1",
+        okCodes = setOf(200),
+    ),
+    DashboardService(
+        "Netflix",
+        "https://www.netflix.com/title/81280792",
+        okCodes = setOf(200),
+        restrictedCodes = setOf(404),
+    ),
+    DashboardService(
+        "Disney+",
+        "https://www.disneyplus.com/",
+        okCodes = setOf(200),
+    ),
+)
+
+/**
+ * Connection metadata types that represent an HTTP-shaped request.
+ * Everything else in `QueryConnections()` is a transport or a lookup.
+ */
+private val REQUEST_TYPES = setOf("HTTP", "TLS", "QUIC")
+
 class MainActivity : BaseActivity<MainDesign>() {
     companion object {
         private const val IP_REFRESH_INTERVAL = 5 * 60 * 1000L
@@ -55,6 +129,12 @@ class MainActivity : BaseActivity<MainDesign>() {
     private var proxyGroupNames: List<String> = emptyList()
     private var proxyStates: List<com.github.kr328.clash.design.model.ProxyState> = emptyList()
     private val proxyReloadLock = Semaphore(10)
+
+    /** The one immutable snapshot the dashboard renders. */
+    private var dashboard = DashboardState()
+
+    /** `SystemClock.elapsedRealtime()` when this screen last saw the core start. */
+    private var coreStartedAt = 0L
 
     override fun onDestroy() {
         settingsDesign?.cancel()
@@ -106,6 +186,14 @@ class MainActivity : BaseActivity<MainDesign>() {
                         Event.ServiceRecreated,
                         Event.ClashStop, Event.ClashStart,
                         Event.ProfileLoaded, Event.ProfileChanged -> {
+                            when (it) {
+                                Event.ClashStart -> coreStartedAt = SystemClock.elapsedRealtime()
+                                Event.ClashStop -> coreStartedAt = 0L
+                                else -> if (clashRunning && coreStartedAt == 0L) {
+                                    coreStartedAt = SystemClock.elapsedRealtime()
+                                }
+                            }
+
                             design.fetch()
                             design.fetchProxyPage()
 
@@ -158,6 +246,8 @@ class MainActivity : BaseActivity<MainDesign>() {
                             startActivity(ConnectionsActivity::class.intent)
                         MainDesign.Request.EditCards ->
                             design.showEditCardsDialog()
+                        MainDesign.Request.RefreshServices ->
+                            design.probeServices()
                         MainDesign.Request.PatchMode -> {
                             val mode = design.checkedOutboundMode()
 
@@ -169,7 +259,7 @@ class MainActivity : BaseActivity<MainDesign>() {
                                 patchOverride(Clash.OverrideSlot.Session, o)
                             }
 
-                            design.setOutboundMode(mode)
+                            design.updateOutboundMode(mode)
                         }
                     }
                 }
@@ -233,7 +323,7 @@ class MainActivity : BaseActivity<MainDesign>() {
                                     patchOverride(Clash.OverrideSlot.Session, o)
                                 }
 
-                                design.setOutboundMode(it.mode ?: TunnelState.Mode.Rule)
+                                design.updateOutboundMode(it.mode ?: TunnelState.Mode.Rule)
                             }
                         }
                     }
@@ -260,25 +350,106 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     private suspend fun MainDesign.fetch() {
-        setClashRunning(clashRunning)
+        if (clashRunning && coreStartedAt == 0L)
+            coreStartedAt = SystemClock.elapsedRealtime()
 
-        val state = withClash {
+        val tunnel = withClash {
             queryTunnelState()
         }
         val providers = withClash {
             queryProviders()
         }
-
-        setMode(state.mode)
-        setOutboundMode(state.mode)
-        setHasProviders(providers.isNotEmpty())
-
         val profile = withProfile {
             queryActive()
         }
+        val node = fetchNode()
 
-        setProfileName(profile?.name)
-        setProfileSummary(profile?.summary())
+        pushState(
+            dashboard.copy(
+                clashRunning = clashRunning,
+                hasProviders = providers.isNotEmpty(),
+                mode = tunnel.mode,
+                profileName = profile?.name,
+                profileSummary = profile?.summary(),
+                nodeGroupName = node?.first,
+                nodeName = node?.second,
+                nodeDelay = node?.third ?: -1,
+            )
+        )
+
+        probeServices()
+    }
+
+    /** Group name, selected proxy and that proxy's last known delay. */
+    private suspend fun fetchNode(): Triple<String, String, Int>? {
+        if (!clashRunning)
+            return null
+
+        val name = withClash {
+            queryGroupNames(uiStore.proxyExcludeNotSelectable)
+        }.firstOrNull() ?: return null
+
+        val group = withClash {
+            queryGroup(name, uiStore.proxySort)
+        }
+
+        val delay = group.proxies.firstOrNull { it.name == group.now }?.delay ?: -1
+
+        return Triple(name, group.now, delay)
+    }
+
+    /**
+     * Probe the streaming services and fold the results into the state.
+     *
+     * The service list is unchanged; only the rendering moved to the
+     * dashboard. Results are collected before the state is published so
+     * concurrent probes cannot interleave partial updates.
+     */
+    private suspend fun MainDesign.probeServices() {
+        if (!clashRunning) {
+            if (dashboard.services.isNotEmpty())
+                pushState(dashboard.copy(services = emptyList()))
+
+            return
+        }
+
+        val results = coroutineScope {
+            SERVICES.map { service ->
+                async { withClash { probeUrl(service.url) } }
+            }.awaitAll()
+        }
+
+        pushState(
+            dashboard.copy(
+                services = SERVICES.mapIndexed { index, service ->
+                    ServiceProbe(
+                        name = service.name,
+                        availability = classify(service, results[index]),
+                        latencyMillis = results[index]?.latency ?: -1,
+                    )
+                }
+            )
+        )
+    }
+
+    private fun classify(service: DashboardService, result: ProbeResult?): ServiceAvailability {
+        if (result == null)
+            return ServiceAvailability.FAILED
+
+        if (result.code < 0)
+            return ServiceAvailability.TIMEOUT
+
+        return when (result.code) {
+            in service.okCodes -> ServiceAvailability.OK
+            in service.restrictedCodes -> ServiceAvailability.RESTRICTED
+            else -> ServiceAvailability.BLOCKED
+        }
+    }
+
+    private suspend fun MainDesign.pushState(state: DashboardState) {
+        dashboard = state
+
+        setDashboardState(state)
     }
 
     private suspend fun MainDesign.fetchProxyPage(force: Boolean = false) {
@@ -314,38 +485,86 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     private suspend fun MainDesign.fetchTraffic() {
-        withClash {
-            setForwarded(queryTrafficTotal())
+        val total = withClash {
+            queryTrafficTotal()
         }
-
         val traffic = withClash {
             queryTrafficNow()
         }
-
-        setNetworkSpeed(traffic)
-
         val memory = withClash {
             queryMemory()
         }
+        val connections = withClash {
+            queryConnections()
+        }
 
-        setMemoryUsage(memory)
+        trafficSamples.push(traffic.trafficUploadValue(), traffic.trafficDownloadValue())
+
+        pushState(
+            dashboard.copy(
+                forwarded = total.trafficTotal(),
+                speedUp = traffic.trafficUpload() + "/s",
+                speedDown = traffic.trafficDownload() + "/s",
+                memoryBytes = memory,
+                trafficTotalUp = total.trafficUploadValue(),
+                trafficTotalDown = total.trafficDownloadValue(),
+                connectionCount = connections.size,
+                requestCount = connections.count { it.type in REQUEST_TYPES },
+                dnsCount = connections.count { it.type == "DNS" },
+                uptimeMillis = if (coreStartedAt > 0L) {
+                    SystemClock.elapsedRealtime() - coreStartedAt
+                } else {
+                    0L
+                },
+            )
+        )
     }
 
     private suspend fun MainDesign.fetchIPInfo(force: Boolean) {
-        setIPInfoLoading()
+        pushState(
+            dashboard.copy(
+                ipStatus = getString(DesignR.string.ip_querying),
+                exitIP = null,
+                exitIPDisplay = null,
+                exitIPISP = null,
+                directIP = null,
+                directIPDisplay = null,
+            )
+        )
 
         try {
-            coroutineScope {
-                val exit = async { withClash { queryIPInfo("") } }
-                val direct = async { withClash { queryIPInfo("DIRECT") } }
+            val (exit, direct) = coroutineScope {
+                val e = async { withClash { queryIPInfo("") } }
+                val d = async { withClash { queryIPInfo("DIRECT") } }
 
-                setIPInfo(exit.await(), direct.await())
+                e.await() to d.await()
             }
+
+            pushState(
+                dashboard.copy(
+                    ipStatus = null,
+                    exitIP = exit?.ip,
+                    exitIPDisplay = exit?.toDisplayString(),
+                    exitIPISP = exit?.isp?.takeIf { it.isNotBlank() },
+                    directIP = direct?.ip,
+                    directIPDisplay = direct?.toDisplayString(),
+                )
+            )
         } catch (e: Exception) {
-            if (force)
-                setIPInfoFailed()
-            else
-                setIPInfo(null, null)
+            pushState(
+                dashboard.copy(
+                    ipStatus = if (force) {
+                        getString(DesignR.string.ip_query_failed)
+                    } else {
+                        null
+                    },
+                    exitIP = null,
+                    exitIPDisplay = null,
+                    exitIPISP = null,
+                    directIP = null,
+                    directIPDisplay = null,
+                )
+            )
         }
     }
 

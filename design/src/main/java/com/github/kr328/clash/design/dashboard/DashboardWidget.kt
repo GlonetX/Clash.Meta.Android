@@ -146,16 +146,13 @@ enum class DashboardWidget(
 
     companion object {
         /** Widgets the user may reorder and hide. */
-        val placeable: List<DashboardWidget> =
+        val placeableWidgets: List<DashboardWidget> =
             values().filter { it.placeable }.sortedBy { it.defaultOrder }
 
         /** Fixed widgets, always in their declared position. */
-        val fixed: List<DashboardWidget> =
+        val fixedWidgets: List<DashboardWidget> =
             values().filterNot { it.placeable }.sortedBy { it.defaultOrder }
 
         fun byKey(key: String): DashboardWidget? = values().firstOrNull { it.key == key }
-
-        fun defaultOrder(): List<DashboardWidget> =
-            values().sortedWith(compareBy({ it.placeable }, { it.defaultOrder }))
     }
 }
