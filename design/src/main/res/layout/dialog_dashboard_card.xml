@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingHorizontal="@dimen/main_card_content_padding"
-    android:paddingVertical="@dimen/main_kv_row_padding_vertical">
-
-    <TextView
-        android:id="@+id/title_view"
-        android:layout_width="0dp"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/main_card_content_padding"
+        android:paddingVertical="@dimen/main_kv_row_padding_vertical">
 
-    <ImageButton
-        android:id="@+id/move_up_view"
-        android:layout_width="@dimen/item_tailing_component_size"
-        android:layout_height="@dimen/item_tailing_component_size"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/move_up"
-        android:padding="@dimen/toolbar_image_action_padding"
-        android:src="@drawable/ic_baseline_arrow_upward" />
+        <TextView
+            android:id="@+id/title_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
-    <ImageButton
-        android:id="@+id/move_down_view"
-        android:layout_width="@dimen/item_tailing_component_size"
-        android:layout_height="@dimen/item_tailing_component_size"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/move_down"
-        android:padding="@dimen/toolbar_image_action_padding"
-        android:src="@drawable/ic_baseline_arrow_downward" />
+        <ImageButton
+            android:id="@+id/move_up_view"
+            android:layout_width="@dimen/item_tailing_component_size"
+            android:layout_height="@dimen/item_tailing_component_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/move_up"
+            android:padding="@dimen/toolbar_image_action_padding"
+            android:src="@drawable/ic_baseline_arrow_upward" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/visibility_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/item_tailing_margin" />
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/move_down_view"
+            android:layout_width="@dimen/item_tailing_component_size"
+            android:layout_height="@dimen/item_tailing_component_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/move_down"
+            android:padding="@dimen/toolbar_image_action_padding"
+            android:src="@drawable/ic_baseline_arrow_downward" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/visibility_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/item_tailing_margin" />
+    </LinearLayout>
+</layout>

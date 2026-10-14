@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import com.github.kr328.clash.design.store.UiStore
 import android.widget.ScrollView
 import android.widget.TextView
 import com.github.kr328.clash.core.model.ExternalIP
