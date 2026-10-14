@@ -16,6 +16,7 @@ import com.github.kr328.clash.design.component.ProxyViewState
 class ProxyAdapter(
     private val config: ProxyViewConfig,
     private val clicked: (String) -> Unit,
+    private val longPressed: (ProxyViewState) -> Unit,
 ) : RecyclerView.Adapter<ProxyAdapter.Holder>() {
     class Holder(val view: ProxyView) : RecyclerView.ViewHolder(view)
 
@@ -91,6 +92,12 @@ class ProxyAdapter(
 
             setOnClickListener {
                 clicked(current.proxy.name)
+            }
+
+            setOnLongClickListener {
+                longPressed(current)
+
+                true
             }
 
             val isSelector = selectable
