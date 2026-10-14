@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.github.kr328.clash.common.store.Store
 import com.github.kr328.clash.common.store.asStoreProvider
+import com.github.kr328.clash.design.store.DynamicColorsStore
 
 enum class UpdateChannel { Stable, Prerelease }
 
@@ -40,7 +41,7 @@ data class SubscriptionMeta(
  * See OVERHAUL notes; the mapping is one-to-one and listed in the phase-B
  * report.
  */
-class SettingsStore(context: Context) {
+class SettingsStore(private val context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
@@ -159,10 +160,17 @@ class SettingsStore(context: Context) {
 
     // ------------------------------------------------------------ appearance
 
-    var dynamicColor: Boolean by store.boolean(
-        key = "dynamic_color",
-        defaultValue = true,
-    )
+    /**
+     * Material You dynamic colour. Delegates to [DynamicColorsStore] so the
+     * settings-page switch and MainApplication's gate read/write the same
+     * `ui`-prefs key (`dynamic_colors_enabled`) instead of drifting apart on
+     * two keys in two files.
+     */
+    var dynamicColor: Boolean
+        get() = DynamicColorsStore(context).enabled
+        set(value) {
+            DynamicColorsStore(context).enabled = value
+        }
 
     var navigationBarStyle: NavigationBarStyle by store.enum(
         key = "navigation_bar_style",
