@@ -74,7 +74,8 @@ jobs:
           VERSION_TAG=${{ inputs.release-tag }}
           VERSION_TAG=${VERSION_TAG#v}                              # remove the 'v' prefix
           IFS='.' read -ra VERSION_PARTS <<< "$VERSION_TAG"         # split into array
-          VERSION_CODE=$(printf "%1d%02d%03d" "${VERSION_PARTS[0]}" "${VERSION_PARTS[1]}" "${VERSION_PARTS[2]}")
+          ITERATION=${VERSION_PARTS[3]:-01}                          # our own iteration (4th segment, default 01)
+          VERSION_CODE=$(printf "%1d%02d%03d%02d" "${VERSION_PARTS[0]}" "${VERSION_PARTS[1]}" "${VERSION_PARTS[2]}" "${ITERATION}")
 
           echo "versonName=$VERSION_TAG" >> $GITHUB_OUTPUT          # "1.2.3"
           echo "versonCode=$VERSION_CODE" >> $GITHUB_OUTPUT         # "102003"

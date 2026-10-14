@@ -8,6 +8,8 @@ import com.github.kr328.clash.design.model.KvItem
 import com.github.kr328.clash.design.util.applyFrom
 import com.github.kr328.clash.design.util.applyLinearAdapter
 import com.github.kr328.clash.design.util.bindAppBarElevation
+import com.github.kr328.clash.design.util.layoutInflater
+import com.github.kr328.clash.design.util.root
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

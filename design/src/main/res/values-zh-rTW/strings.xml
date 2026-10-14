@@ -281,6 +281,11 @@
     <string name="usage_type">使用類型</string>
     <string name="proxy_type">代理類型</string>
     <string name="timeout">逾時</string>
+    <string name="update_available_title">發現新版本：v%s</string>
+    <string name="update_available_summary">新版本已發布，是否立即更新？</string>
+    <string name="update_downloading">正在下載更新…</string>
+    <string name="update_download_failed">下載失敗，請稍後重試</string>
+    <string name="update_install_failed">無法啟動安裝器</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">記憶體</string>
 </resources>

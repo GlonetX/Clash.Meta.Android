@@ -301,6 +301,11 @@
     <string name="usage_type">使用类型</string>
     <string name="proxy_type">代理类型</string>
     <string name="timeout">超时</string>
+    <string name="update_available_title">发现新版本：v%s</string>
+    <string name="update_available_summary">新版本已发布，是否立即更新？</string>
+    <string name="update_downloading">正在下载更新…</string>
+    <string name="update_download_failed">下载失败，请稍后重试</string>
+    <string name="update_install_failed">无法启动安装器</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">内存</string>
 </resources>
