@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="PluralsCandidate">
+
+    <!-- ============================================================ -->
+    <!-- 设置页字符串，与 values/strings_settings.xml 对应。           -->
+    <!-- ============================================================ -->
+
+    <!-- 分组标题 -->
+    <string name="settings_group_dashboard">仪表盘</string>
+    <string name="settings_group_appearance">外观</string>
+    <string name="settings_group_config">配置管理</string>
+    <string name="settings_group_core">核心</string>
+    <string name="settings_group_logging">日志</string>
+    <string name="settings_group_wifi">Wi-Fi 网络</string>
+
+    <!-- 通用格式 -->
+    <string name="settings_format_not_set">未设置</string>
+    <string name="settings_format_percent">%d%%</string>
+    <string name="settings_format_seconds">%d 秒</string>
+    <string name="settings_format_minutes">%d 分钟</string>
+    <string name="settings_format_hours">%d 小时</string>
+    <string name="settings_format_mb">%d MB</string>
+    <string name="settings_format_days">%d 天</string>
+    <string name="settings_format_entries">%d 个条目</string>
+    <string name="settings_format_count_of">%1$d/%2$d</string>
+
+    <!-- ============================== 仪表盘 ============================== -->
+
+    <string name="settings_widgets">卡片</string>
+    <string name="settings_widgets_summary">仪表盘显示哪些卡片及其顺序和大小</string>
+    <string name="settings_widget_size_large">大</string>
+    <string name="settings_widget_size_small">小</string>
+    <string name="settings_widget_size_hidden">隐藏</string>
+
+    <string name="settings_probe_services">流媒体服务检测</string>
+    <string name="settings_probe_services_summary">按顺序检测解锁状态的服务</string>
+
+    <!-- ============================== 行为 ============================== -->
+
+    <string name="settings_notification_style">通知样式</string>
+    <string name="settings_notification_style_default">标准</string>
+    <string name="settings_notification_style_compact">紧凑</string>
+    <string name="settings_notification_style_minimal">精简</string>
+
+    <string name="settings_lightweight_mode">轻量模式</string>
+    <string name="settings_lightweight_mode_summary">Clash 停止时暂停刷新仪表盘</string>
+
+    <string name="settings_app_update">应用更新</string>
+    <string name="settings_app_update_auto_check">自动检查</string>
+    <string name="settings_app_update_auto_check_summary">每天检查一次新版本</string>
+    <string name="settings_app_update_channel">更新通道</string>
+    <string name="settings_app_update_channel_stable">稳定版</string>
+    <string name="settings_app_update_channel_prerelease">预览版</string>
+
+    <string name="settings_battery_optimization">电池优化</string>
+    <string name="settings_battery_optimization_exempt">已豁免</string>
+    <string name="settings_battery_optimization_restricted">受限</string>
+    <string name="settings_battery_optimization_grant">点按以豁免此应用</string>
+    <string name="settings_battery_optimization_settings">点按以打开系统设置</string>
+    <string name="settings_battery_optimization_unsupported">此设备不支持</string>
+
+    <string name="settings_language">语言</string>
+    <string name="settings_language_system">跟随系统</string>
+
+    <!-- ============================== 外观 ============================== -->
+
+    <string name="settings_dynamic_color">动态配色</string>
+    <string name="settings_dynamic_color_summary">使用壁纸色调为应用着色</string>
+    <string name="settings_dynamic_color_unsupported">需要 Android 12 或更高版本</string>
+
+    <string name="settings_navigation_bar_style">导航栏样式</string>
+    <string name="settings_navigation_bar_bottom">底部导航栏</string>
+    <string name="settings_navigation_bar_dock">悬浮坞</string>
+
+    <string name="settings_text_scale">文字缩放</string>
+    <string name="settings_text_scale_summary">将在下次启动应用时生效</string>
+
+    <!-- ============================== 配置管理 ============================== -->
+
+    <string name="settings_webdav">WebDAV 备份</string>
+    <string name="settings_webdav_url">服务器 URL</string>
+    <string name="settings_webdav_directory">目录</string>
+    <string name="settings_webdav_username">用户名</string>
+    <string name="settings_webdav_password">密码</string>
+    <string name="settings_password_set">已设置</string>
+    <string name="settings_webdav_backup">立即备份</string>
+    <string name="settings_webdav_restore">从备份恢复</string>
+    <string name="settings_webdav_restore_summary">从服务器下载备份并恢复</string>
+    <string name="settings_webdav_last_backup">上次备份：%s</string>
+    <string name="settings_webdav_never">从未</string>
+    <string name="settings_webdav_backup_ok">备份已上传（%d KB）</string>
+    <string name="settings_webdav_backup_failed">备份失败：%s</string>
+    <string name="settings_webdav_url_required">请先设置 WebDAV 服务器 URL</string>
+    <string name="settings_webdav_restore_ok">已恢复 %s，重启应用后生效。</string>
+    <string name="settings_webdav_restore_failed">恢复失败：%s</string>
+    <string name="settings_webdav_restore_confirm">恢复将会替换当前的配置和设置，是否继续？</string>
+    <string name="settings_webdav_no_backups">服务器上未找到备份</string>
+    <string name="settings_webdav_pick_backup">选择备份</string>
+
+    <string name="settings_user_agent">全局 User-Agent</string>
+    <string name="settings_user_agent_summary">获取订阅和规则时发送</string>
+    <string name="settings_default_user_agent">默认</string>
+
+    <string name="settings_subscription_meta">订阅标签</string>
+    <string name="settings_subscription_meta_summary">为每个订阅设置分类和备注</string>
+    <string name="settings_subscription_tag_hint">分类 / 标签</string>
+    <string name="settings_subscription_note_hint">备注</string>
+    <string name="settings_subscription_no_profiles">暂无订阅</string>
+    <string name="settings_subscription_tag_format">%1$s — %2$s</string>
+
+    <string name="settings_update_subscriptions_on_start">启动时更新订阅</string>
+    <string name="settings_update_subscriptions_on_start_summary">应用启动时刷新所有订阅</string>
+
+    <!-- ============================== 网络 / 核心 ============================== -->
+
+    <string name="settings_stop_on_network_lost">网络断开时停止</string>
+    <string name="settings_stop_on_network_lost_summary">设备失去网络连接时停止核心</string>
+    <string name="settings_stop_on_network_lost_interval">网络检测间隔</string>
+    <string name="settings_stop_on_network_lost_bypass">绕过的接口</string>
+    <string name="settings_stop_on_network_lost_bypass_summary">连接到这些接口时不会触发停止</string>
+
+    <string name="settings_keep_alive">Keep-Alive</string>
+    <string name="settings_keep_alive_summary">保持隧道活跃，防止 NAT 超时关闭空闲连接</string>
+    <string name="settings_keep_alive_interval">Keep-Alive 间隔</string>
+    <string name="settings_keep_alive_idle">Keep-Alive 空闲超时</string>
+
+    <string name="settings_store_fake_ip">存储 Fake-IP 映射</string>
+    <string name="settings_store_fake_ip_summary">mihomo profile.store-fake-ip：重启后保留 Fake-IP 表</string>
+
+    <string name="settings_log_retention_days">日志保留时间</string>
+    <string name="settings_log_max_size">日志文件大小上限</string>
+    <string name="settings_log_realtime_buffer">实时缓冲区</string>
+    <string name="settings_log_realtime_buffer_summary">在内存中为实时日志视图保留的消息</string>
+
+    <string name="settings_wifi_action">连接指定 Wi-Fi 时的操作</string>
+    <string name="settings_wifi_action_disabled">不执行任何操作</string>
+    <string name="settings_wifi_action_pause">暂停 Clash</string>
+    <string name="settings_wifi_action_direct">直接连接</string>
+    <string name="settings_wifi_networks">Wi-Fi 网络名称</string>
+    <string name="settings_wifi_networks_empty">未添加任何网络</string>
+    <string name="settings_wifi_networks_placeholder">家中 Wi-Fi、办公室</string>
+
+    <string name="settings_permission_location">位置权限</string>
+    <string name="settings_permission_location_required">在 Android 8.1+ 上需要此权限才能读取当前 Wi-Fi 名称</string>
+    <string name="settings_permission_location_granted">已授权</string>
+    <string name="settings_permission_location_denied">已拒绝</string>
+    <string name="settings_permission_location_denied_permanently">已永久拒绝，点按以打开应用设置</string>
+
+    <string name="settings_disabled_while_running">停止 Clash 后才能更改</string>
+
+    <!-- ============================== 通用操作 ============================== -->
+
+    <string name="settings_action_in_progress">处理中…</string>
+    <string name="settings_invalid_number">请输入 %1$d 到 %2$d 之间的数字</string>
+    <string name="settings_invalid_url">请输入 http(s) URL</string>
+    <string name="settings_invalid_not_blank">此项不能为空</string>
+
+</resources>

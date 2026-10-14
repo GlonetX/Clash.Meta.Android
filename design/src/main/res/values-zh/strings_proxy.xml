@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== 代理页 ==================== -->
+
+    <string name="proxy_search">查找节点</string>
+    <string name="proxy_search_hint">查找节点</string>
+    <string name="proxy_search_clear">清除查找</string>
+    <string name="proxy_no_match">此分组中没有匹配“%1$s”的节点</string>
+
+    <string name="proxy_card_density">卡片密度</string>
+    <string name="proxy_density_tight">紧凑</string>
+    <string name="proxy_density_standard">标准</string>
+    <string name="proxy_density_loose">宽松</string>
+
+    <string name="proxy_node_icon">节点图标</string>
+    <string name="proxy_node_icon_none">无</string>
+    <string name="proxy_node_icon_flag">国旗</string>
+
+    <!-- ==================== 连接页 ==================== -->
+
+    <string name="conn_search">查找连接</string>
+    <string name="conn_search_hint">查找主机、应用、规则、代理链</string>
+    <string name="conn_search_clear">清除查找</string>
+    <string name="conn_filter">过滤连接</string>
+    <string name="conn_sort">排序连接</string>
+
+    <string name="conn_filter_all">全部</string>
+    <string name="conn_filter_unknown_app">无应用</string>
+    <string name="conn_no_match">没有符合当前过滤条件的连接</string>
+
+    <string name="conn_sort_size">大小</string>
+    <string name="conn_sort_duration">时长</string>
+    <string name="conn_sort_process">应用</string>
+    <string name="conn_sort_rule">规则</string>
+    <string name="conn_sort_host">主机</string>
+
+    <string name="conn_group_by_process">按应用分组</string>
+
+    <string name="conn_summary">%1$d 个活跃 · ↓%2$s ↑%3$s</string>
+    <string name="conn_summary_filtered">%1$d/%2$d · ↓%3$s ↑%4$s</string>
+
+    <string name="conn_close_all_confirm_title">关闭全部连接？</string>
+    <string name="conn_close_all_confirm_message">将关闭 %1$d 个活跃连接，正在进行的传输将被丢弃。</string>
+
+    <string name="conn_close_process_confirm_title">关闭来自 %1$s 的连接？</string>
+    <string name="conn_close_process_confirm_message">将关闭此应用发起的 %1$d 个连接。</string>
+
+    <string name="conn_group_count">%1$d 个连接</string>
+    <string name="conn_group_count_one">1 个连接</string>
+    <string name="conn_group_toggle">展开或折叠此分组</string>
+
+    <string name="conn_detail_title">连接详情</string>
+    <string name="conn_detail_started">开始时间</string>
+    <string name="conn_detail_network">网络</string>
+    <string name="conn_detail_type">协议</string>
+    <string name="conn_detail_process">应用 / 进程</string>
+    <string name="conn_detail_rule">匹配规则</string>
+    <string name="conn_detail_payload">规则载荷</string>
+    <string name="conn_detail_source">源地址</string>
+    <string name="conn_detail_destination">目标地址</string>
+    <string name="conn_detail_remote">远程目标地址</string>
+    <string name="conn_detail_chain">代理链</string>
+    <string name="conn_detail_no_chain">直连 · 无代理链</string>
+    <string name="conn_detail_unknown">未知</string>
+    <string name="conn_detail_close">关闭连接</string>
+    <string name="conn_detail_close_process">关闭此应用的全部连接</string>
+    <string name="conn_detail_no_process">此连接没有应用或进程信息</string>
+
+    <string name="conn_speed">%1$s/s</string>
+</resources>
