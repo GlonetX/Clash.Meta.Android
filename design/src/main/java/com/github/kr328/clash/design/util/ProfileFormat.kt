@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
  * profile's own auto-update interval.
  */
 
-private const val MIN_AUTO_INTERVAL = TimeUnit.MINUTES.toMillis(15)
+private val MIN_AUTO_INTERVAL = TimeUnit.MINUTES.toMillis(15)
 
 /** The profile card meta line: `type · host · auto-update interval`. */
 fun Profile.describe(context: Context): String {

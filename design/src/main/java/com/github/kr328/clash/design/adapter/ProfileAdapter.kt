@@ -22,7 +22,9 @@ class ProfileAdapter(
     private val currentTime = ObservableCurrentTime()
 
     private val primaryColor by lazy {
-        context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+        ColorStateList.valueOf(
+            context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+        )
     }
     private val transparent by lazy {
         ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
@@ -53,9 +55,9 @@ class ProfileAdapter(
         // surface (AppCard already provides the shared radius, elevation
         // and colorSurface background).
         binding.rootView.apply {
-            strokeColor = if (current.active) ColorStateList.valueOf(primaryColor) else transparent
+            setStrokeColor(if (current.active) primaryColor else transparent)
             strokeWidth = if (current.active) 2 else 0
-            rippleColor = ColorStateList.valueOf(primaryColor)
+            rippleColor = primaryColor
         }
 
         binding.setClicked {
