@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data />
+
+    <com.github.kr328.clash.design.view.AppCard style="@style/DashboardUnitCard">
+
+        <LinearLayout style="@style/DashboardCardBody">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/DashboardCardIcon"
+                    android:src="@drawable/ic_dashboard_donut" />
+
+                <TextView
+                    style="@style/DashboardCardTitle"
+                    android:text="@string/dashboard_traffic_total" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/app_space_sm"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.github.kr328.clash.design.view.DonutChartView
+                    android:id="@+id/donut"
+                    android:layout_width="@dimen/dashboard_donut_size"
+                    android:layout_height="@dimen/dashboard_donut_size" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/app_space_md"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/donut_up"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.App.MetricSmall" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_upload"
+                        android:textAppearance="@style/TextAppearance.App.Label" />
+
+                    <TextView
+                        android:id="@+id/donut_down"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/app_space_xs"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.App.MetricSmall" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_download"
+                        android:textAppearance="@style/TextAppearance.App.Label" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.github.kr328.clash.design.view.AppCard>
+</layout>

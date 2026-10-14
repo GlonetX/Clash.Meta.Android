@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The trailing entry links. These used to be four `LargeActionLabel`s, which
+  is the row component the design system retired; they are `AppRow`s now.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data />
+
+    <com.github.kr328.clash.design.view.AppCard style="@style/DashboardWideCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="@dimen/app_space_xs">
+
+            <com.github.kr328.clash.design.view.AppRow
+                android:id="@+id/row_providers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_swap_vertical_circle"
+                app:text="@string/providers" />
+
+            <com.github.kr328.clash.design.view.AppRow
+                android:id="@+id/row_logs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_assignment"
+                app:text="@string/logs" />
+
+            <com.github.kr328.clash.design.view.AppRow
+                android:id="@+id/row_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_help_center"
+                app:text="@string/help" />
+
+            <com.github.kr328.clash.design.view.AppRow
+                android:id="@+id/row_about"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_info"
+                app:text="@string/about" />
+        </LinearLayout>
+    </com.github.kr328.clash.design.view.AppCard>
+</layout>

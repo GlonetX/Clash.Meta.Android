@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Dashboard-only widget styles. `values/styles.xml` is shared with the
+      other overhaul worktrees and must not be edited; resource merging makes
+      this file equivalent. See OVERHAUL_WORKTREES.md.
+    -->
+
+    <!-- One selectable window on the network speed chart. -->
+    <style name="DashboardWindowChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/app_space_xs</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">34dp</item>
+        <item name="android:paddingHorizontal">@dimen/app_space_sm</item>
+        <item name="android:paddingVertical">@dimen/app_space_xs</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.NavLabel</item>
+    </style>
+
+    <!-- A small metric column inside a one-column card. -->
+    <style name="DashboardMiniMetric">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="DashboardMiniMetric.Value" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.MetricSmall</item>
+    </style>
+
+    <style name="DashboardMiniMetric.Label" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Label</item>
+    </style>
+
+    <!-- Title row shared by every one-column metric card. -->
+    <style name="DashboardCardTitle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/app_space_sm</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.CardTitle</item>
+    </style>
+
+    <style name="DashboardCardIcon">
+        <item name="android:layout_width">@dimen/app_icon_glyph_size_small</item>
+        <item name="android:layout_height">@dimen/app_icon_glyph_size_small</item>
+        <item name="android:contentDescription">@null</item>
+        <item name="android:scaleType">fitCenter</item>
+        <!-- Icons take their tint from the theme, never from the vector, so
+             one drawable works on-surface and on-primary alike. -->
+        <item name="android:tint">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="DashboardCardBody">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">@dimen/app_space_lg</item>
+    </style>
+
+    <style name="DashboardCardBody.Wrap">
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="DashboardUnitCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/dashboard_unit_height</item>
+        <item name="android:layout_margin">@dimen/dashboard_cell_margin</item>
+    </style>
+
+    <style name="DashboardWideCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">@dimen/dashboard_cell_margin</item>
+    </style>
+
+</resources>
