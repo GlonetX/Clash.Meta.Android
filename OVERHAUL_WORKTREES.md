@@ -3,6 +3,25 @@
 `feature/ui-overhaul` carries the frozen design system from phase 0
 (`DESIGN_SYSTEM.md`). Four worktrees branch from it and run in parallel.
 
+## The frozen layers
+
+**This overhaul is UI-only.** The network and core layers are frozen:
+
+| Layer | Path | Rule |
+|---|---|---|
+| Go core + JNI bridge | `core/**` | ❌ Never. No new native surface, no `native*` additions, no changes to `Clash.kt`/`Bridge.kt`. |
+| Proxy/VPN runtime | `service/.../clash/**`, `TunService.kt`, `ClashService.kt`, `NetworkObserveModule.kt`, `ClashManager` | ❌ Never. |
+| Service process plumbing | the rest of `service/**` | ⚠️ Additive only: new preference keys in the stores are allowed; behaviour changes are not. |
+
+If a feature needs core or service wiring that does not exist (a new JNI
+function, a new runtime module, a change to the VPN setup), build **only** the
+UI and the persisted preference, and record the required wiring in your final
+report. Do not implement it. Existing APIs — `queryXxx`, `patchOverride`,
+`patchSelector`, the `ProfileReceiver` intents — may be *called* freely.
+
+Rationale: the base system is stable and CI-green; the rewrite must not be
+able to regress the tunnel, the VPN, or the core.
+
 ## The one rule that keeps them from colliding
 
 > **Never edit a shared resource file. Add your own.**
