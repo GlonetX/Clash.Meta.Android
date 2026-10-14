@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.viewpager2.widget.ViewPager2
 import com.github.kr328.clash.core.model.Proxy
+import com.github.kr328.clash.core.model.ProxySort
 import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.design.adapter.ProxyAdapter
 import com.github.kr328.clash.design.adapter.ProxyPageAdapter
@@ -132,7 +133,10 @@ class ProxyDesign(
         parent: ProxyState,
         links: Map<String, ProxyState>
     ) {
-        adapter?.updateAdapter(position, proxies, selectable, parent, links)
+        val ordered =
+            if (uiStore.proxySort == ProxySort.Delay) stableDelaySort(proxies) else proxies
+
+        adapter?.updateAdapter(position, ordered, selectable, parent, links)
 
         pageState(position)?.urlTesting = false
 
@@ -284,6 +288,37 @@ class ProxyDesign(
         requests.trySend(Request.UrlTest(binding.pagesView.currentItem))
 
         updateUrlTestButtonStatus()
+    }
+
+    /**
+     * Stable, human ordering for the delay sort.
+     *
+     * The core (`tunnel/proxies.go`) sorts real delays ascending with its
+     * special values last, but its comparison has two problems the UI has
+     * to compensate for: its sort is not stable, so nodes with equal keys
+     * reshuffle on every reload, and a never-tested node arrives with
+     * `delay == 0`, which its key ranks as the *fastest* possible delay —
+     * the opposite of "never-tested nodes last".
+     *
+     * This re-sort (UI-side only; the core is frozen) orders: tested delays
+     * ascending, then timed-out nodes, then never-tested nodes, with the
+     * node name as a deterministic tiebreaker so the order survives reloads.
+     */
+    private fun stableDelaySort(proxies: List<Proxy>): List<Proxy> {
+        fun rank(delay: Int): Int = when {
+            delay < 0 -> 1 // tested but timed out
+            delay == 0 -> 2 // never tested
+            delay >= 0xffff -> 2 // core sentinel for missing history
+            else -> 0 // tested
+        }
+
+        return proxies.sortedWith(
+            compareBy(
+                { rank(it.delay) },
+                { if (rank(it.delay) == 0) it.delay else 0 },
+                { it.name.lowercase() },
+            )
+        )
     }
 
     fun requestLocate() {
