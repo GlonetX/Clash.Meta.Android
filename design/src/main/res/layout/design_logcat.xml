@@ -100,7 +100,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/delete"
                             android:focusable="true"
-                            android:onClick="@{() -> self.requests.offer(Request.Delete)}"
+                            android:onClick="@{() -> self.requests.offer(Request.Delete.INSTANCE)}"
                             android:padding="@dimen/toolbar_image_action_padding"
                             android:src="@drawable/ic_baseline_delete"
                             android:visibility="@{streaming ? View.GONE : View.VISIBLE}" />
@@ -113,7 +113,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/export"
                             android:focusable="true"
-                            android:onClick="@{() -> self.requests.offer(Request.Export)}"
+                            android:onClick="@{() -> self.requests.offer(Request.Export.INSTANCE)}"
                             android:padding="@dimen/toolbar_image_action_padding"
                             android:src="@drawable/ic_baseline_publish"
                             android:visibility="@{streaming ? View.GONE : View.VISIBLE}" />
@@ -126,7 +126,7 @@
                             android:clickable="true"
                             android:contentDescription="@string/close"
                             android:focusable="true"
-                            android:onClick="@{() -> self.requests.offer(Request.Close)}"
+                            android:onClick="@{() -> self.requests.offer(Request.Close.INSTANCE)}"
                             android:padding="@dimen/toolbar_image_action_padding"
                             android:src="@drawable/ic_baseline_stop"
                             android:visibility="@{streaming ? View.VISIBLE : View.GONE}" />
