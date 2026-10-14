@@ -50,8 +50,8 @@ class TrafficChartView @JvmOverloads constructor(
         }
 
     init {
-        uploadColor = context.resolveThemedColor(MaterialR.attr.colorPrimary)
-        downloadColor = context.resolveThemedColor(MaterialR.attr.colorSecondary)
+        uploadColor = context.resolveThemedColor(com.google.android.material.R.attr.colorTertiary)
+        downloadColor = context.resolveThemedColor(MaterialR.attr.colorPrimary)
     }
 
     fun push(upload: Long, download: Long) {
