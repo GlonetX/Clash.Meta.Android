@@ -9,10 +9,10 @@ import androidx.core.content.getSystemService
 import com.github.kr328.clash.design.databinding.DesignSettingsCommonBinding
 import com.github.kr328.clash.design.model.Behavior
 import com.github.kr328.clash.design.model.DarkMode
+import com.github.kr328.clash.design.model.ProbeServices
 import com.github.kr328.clash.design.settings.DashboardWidgets
 import com.github.kr328.clash.design.settings.NotificationStyle
 import com.github.kr328.clash.design.settings.NavigationBarStyle
-import com.github.kr328.clash.design.settings.ProbeServices
 import com.github.kr328.clash.design.settings.SettingEntry
 import com.github.kr328.clash.design.settings.SettingGroup
 import com.github.kr328.clash.design.settings.SettingItem
@@ -109,7 +109,7 @@ class AppSettingsDesign(
                     title = R.string.settings_probe_services,
                     summary = context.getString(
                         R.string.settings_format_count_of,
-                        settings.probeServiceEnabled.size,
+                        ProbeServices.resolve(settings).size,
                         ProbeServices.ALL.size,
                     ),
                     icon = R.drawable.ic_settings_movie,
@@ -435,9 +435,11 @@ class AppSettingsDesign(
 
     private fun editProbeServices() {
         launch(Dispatchers.Main) {
-            val enabled = settings.probeServiceEnabled
+            // resolve() so a never-configured store opens with every
+            // service checked, matching what is actually probed.
+            val enabled = ProbeServices.resolve(settings).map { it.name }.toSet()
 
-            val initial = settings.probeServiceOrder(ProbeServices.ALL)
+            val initial = settings.probeServiceOrder(ProbeServices.names)
                 .map { name ->
                     SettingEntry.Enabled(
                         key = name,

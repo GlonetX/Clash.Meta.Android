@@ -19,7 +19,6 @@ import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.ticker
 import com.github.kr328.clash.core.bridge.Bridge
 import com.github.kr328.clash.core.Clash
-import com.github.kr328.clash.core.model.ProbeResult
 import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.core.util.trafficDownload
 import com.github.kr328.clash.core.util.trafficDownloadValue
@@ -31,7 +30,7 @@ import com.github.kr328.clash.design.ProxyDesign
 import com.github.kr328.clash.design.SettingsDesign
 import com.github.kr328.clash.design.dashboard.DashboardState
 import com.github.kr328.clash.design.dashboard.ServiceProbe
-import com.github.kr328.clash.design.model.ServiceAvailability
+import com.github.kr328.clash.design.model.ProbeServices
 import com.github.kr328.clash.design.settings.SettingsStore
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.design.util.toBytesString
@@ -58,61 +57,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R as DesignR
 
-
-/**
- * The streaming services the dashboard reports on.
- *
- * This is the same set — and the same probe — that the latency screen
- * uses, deliberately not widened. It is duplicated rather than shared
- * only because `LatencyActivity` belongs to another worktree in this
- * overhaul; extracting one shared list is the follow-up described in
- * the dashboard PR.
- */
-private class DashboardService(
-    val name: String,
-    val url: String,
-    val okCodes: Set<Int>,
-    val restrictedCodes: Set<Int> = emptySet(),
-)
-
-private val SERVICES = listOf(
-    DashboardService(
-        "Google",
-        "https://www.google.com/generate_204",
-        okCodes = setOf(204),
-    ),
-    DashboardService(
-        "Cloudflare",
-        "https://www.cloudflare.com/cdn-cgi/trace",
-        okCodes = setOf(200),
-    ),
-    DashboardService(
-        "GitHub",
-        "https://github.com/generate_204",
-        okCodes = setOf(204),
-    ),
-    DashboardService(
-        "YouTube",
-        "https://www.youtube.com/generate_204",
-        okCodes = setOf(204),
-    ),
-    DashboardService(
-        "ChatGPT",
-        "https://ios.chat.openai.com/public-api/mobile/server_status/v1",
-        okCodes = setOf(200),
-    ),
-    DashboardService(
-        "Netflix",
-        "https://www.netflix.com/title/81280792",
-        okCodes = setOf(200),
-        restrictedCodes = setOf(404),
-    ),
-    DashboardService(
-        "Disney+",
-        "https://www.disneyplus.com/",
-        okCodes = setOf(200),
-    ),
-)
 
 /**
  * Connection metadata types that represent an HTTP-shaped request.
@@ -410,9 +354,10 @@ class MainActivity : BaseActivity<MainDesign>() {
     /**
      * Probe the streaming services and fold the results into the state.
      *
-     * The service list is unchanged; only the rendering moved to the
-     * dashboard. Results are collected before the state is published so
-     * concurrent probes cannot interleave partial updates.
+     * The list and its classification come from the shared
+     * [ProbeServices] catalog, honouring the probe-services settings.
+     * Results are collected before the state is published so concurrent
+     * probes cannot interleave partial updates.
      */
     private suspend fun MainDesign.probeServices(force: Boolean = false) {
         if (!clashRunning) {
@@ -426,44 +371,37 @@ class MainActivity : BaseActivity<MainDesign>() {
             return
         }
 
+        val services = ProbeServices.resolve(SettingsStore(this@MainActivity))
+
         // fetch() runs on every ActivityStart, which would otherwise fire
         // seven network probes each time the app comes to the foreground.
-        if (!force && SystemClock.elapsedRealtime() - lastServiceProbeAt < SERVICE_PROBE_INTERVAL)
+        // A service list that no longer matches the state (the settings
+        // were edited) re-probes even inside the interval.
+        if (!force &&
+            SystemClock.elapsedRealtime() - lastServiceProbeAt < SERVICE_PROBE_INTERVAL &&
+            services.map { it.name } == dashboard.services.map { it.name }
+        )
             return
 
         lastServiceProbeAt = SystemClock.elapsedRealtime()
 
         val results = coroutineScope {
-            SERVICES.map { service ->
+            services.map { service ->
                 async { withClash { probeUrl(service.url) } }
             }.awaitAll()
         }
 
         pushState(
             dashboard.copy(
-                services = SERVICES.mapIndexed { index, service ->
+                services = services.mapIndexed { index, service ->
                     ServiceProbe(
                         name = service.name,
-                        availability = classify(service, results[index]),
+                        availability = ProbeServices.classify(service, results[index]),
                         latencyMillis = results[index]?.latency ?: -1,
                     )
                 }
             )
         )
-    }
-
-    private fun classify(service: DashboardService, result: ProbeResult?): ServiceAvailability {
-        if (result == null)
-            return ServiceAvailability.FAILED
-
-        if (result.code < 0)
-            return ServiceAvailability.TIMEOUT
-
-        return when (result.code) {
-            in service.okCodes -> ServiceAvailability.OK
-            in service.restrictedCodes -> ServiceAvailability.RESTRICTED
-            else -> ServiceAvailability.BLOCKED
-        }
     }
 
     private suspend fun MainDesign.pushState(state: DashboardState) {

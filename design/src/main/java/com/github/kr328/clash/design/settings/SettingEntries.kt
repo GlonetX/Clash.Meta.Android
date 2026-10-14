@@ -62,19 +62,6 @@ object DashboardWidgets {
     val keys: List<String> = ALL.map { it.key }
 }
 
-/** Streaming services the latency page probes. Names match LatencyActivity. */
-object ProbeServices {
-    val ALL = listOf(
-        "Google",
-        "Cloudflare",
-        "GitHub",
-        "YouTube",
-        "ChatGPT",
-        "Netflix",
-        "Disney+",
-    )
-}
-
 /**
  * Opens the full-screen editor for an ordered [SettingEntry] list. Returns the
  * edited list, or `null` when the user resets it. A cancelled dialog returns
