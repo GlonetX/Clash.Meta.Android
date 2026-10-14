@@ -8,6 +8,44 @@ on:
       - main
 
 jobs:
+  # UI-only guard for the overhaul phase branches: core/ and the service
+  # runtime are frozen (see OVERHAUL_WORKTREES.md). Additive store keys are
+  # the sole exception. Also blocks secret-class files, which this repo has
+  # leaked before (id_ed25519 + release.keystore, removed in 81056b19).
+  ScopeGuard:
+    if: startsWith(github.head_ref, 'feature/phase-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Enforce frozen layers and scan for secrets
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+
+          CHANGED=$(git diff --name-only --diff-filter=ACMRD "$BASE" "$HEAD")
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          VIOLATIONS=$(echo "$CHANGED" | grep -E '^core/|^service/' | grep -v 'store/' || true)
+          if [ -n "$VIOLATIONS" ]; then
+            echo "::error::Frozen layer touched (UI-only rule, see OVERHAUL_WORKTREES.md):"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+
+          SECRETS=$(echo "$CHANGED" | grep -E '(^|/)(id_rsa|id_ed25519|.*\.keystore|.*\.jks|.*\.pem|.*\.p12)$' || true)
+          if [ -n "$SECRETS" ]; then
+            echo "::error::Secret-class file added:"
+            echo "$SECRETS"
+            exit 1
+          fi
+
+          echo "Scope OK: UI-only, no secrets."
+
   BuildDebug:
     runs-on: ubuntu-latest
     steps:
