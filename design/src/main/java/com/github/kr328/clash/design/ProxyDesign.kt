@@ -140,9 +140,6 @@ class ProxyDesign(
             .firstOrNull { it.name == parent.now }
             ?.let { GroupStatus(it.name, it.delay) }
 
-        if (position == binding.pagesView.currentItem)
-            renderGroupStatus()
-
         updateUrlTestButtonStatus()
         updateFilterStatus()
     }
@@ -363,14 +360,20 @@ class ProxyDesign(
      * Renders the live-status line of the group currently displayed: the
      * node it routes through and that node's delay, colour-coded with the
      * same delay tiers as the node cards. Tapping the line locates the node.
+     *
+     * While a URL test of the displayed group is in flight the line also
+     * shows an indeterminate spinner, and falls back to a plain
+     * "Testing delays…" line when the group has no rendered status yet.
      */
     private fun renderGroupStatus() {
         val index = binding.pagesView.currentItem
 
         val status = groupStatus.getOrNull(index)
+        val testing = pageState(index)?.urlTesting == true
 
-        if (status == null || status.name.isEmpty()) {
+        if ((status == null || status.name.isEmpty()) && !testing) {
             binding.groupStatusBar.visibility = View.GONE
+            binding.groupTestingView.visibility = View.GONE
 
             updateHeaderExtraPadding()
 
@@ -378,22 +381,27 @@ class ProxyDesign(
         }
 
         binding.groupStatusBar.visibility = View.VISIBLE
+        binding.groupTestingView.visibility = if (testing) View.VISIBLE else View.GONE
 
         val builder = SpannableStringBuilder()
 
-        builder.append(context.getString(R.string.proxy_group_status_name, status.name))
+        if (status == null || status.name.isEmpty()) {
+            builder.append(context.getString(R.string.proxy_url_testing))
+        } else {
+            builder.append(context.getString(R.string.proxy_group_status_name, status.name))
 
-        when (status.delay) {
-            in 1 until ProxyViewState.DELAY_MEDIUM_THRESHOLD ->
-                appendStatusDelay(builder, "${status.delay}ms", config.delayGood)
+            when (status.delay) {
+                in 1 until ProxyViewState.DELAY_MEDIUM_THRESHOLD ->
+                    appendStatusDelay(builder, "${status.delay}ms", config.delayGood)
 
-            in ProxyViewState.DELAY_MEDIUM_THRESHOLD..Short.MAX_VALUE ->
-                appendStatusDelay(builder, "${status.delay}ms", config.delayMedium)
+                in ProxyViewState.DELAY_MEDIUM_THRESHOLD..Short.MAX_VALUE ->
+                    appendStatusDelay(builder, "${status.delay}ms", config.delayMedium)
 
-            else -> {
-                if (status.delay < 0)
-                    appendStatusDelay(builder, context.getString(R.string.timeout), config.delayTimeout)
-                // never tested: the name alone
+                else -> {
+                    if (status.delay < 0)
+                        appendStatusDelay(builder, context.getString(R.string.timeout), config.delayTimeout)
+                    // never tested: the name alone
+                }
             }
         }
 
@@ -443,5 +451,7 @@ class ProxyDesign(
             binding.urlTestView.visibility = View.VISIBLE
             binding.urlTestProgressView.visibility = View.GONE
         }
+
+        renderGroupStatus()
     }
 }

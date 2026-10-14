@@ -19,6 +19,7 @@
 
     <!-- Group live status line under the tab row -->
     <string name="proxy_group_status_name">→ %1$s</string>
+    <string name="proxy_url_testing">Testing delays…</string>
 
     <string name="proxy_card_density">Card density</string>
     <string name="proxy_density_tight">Tight</string>

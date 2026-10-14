@@ -122,6 +122,7 @@
                                 android:id="@+id/url_test_progress_view"
                                 android:layout_width="@dimen/item_tailing_component_size"
                                 android:layout_height="@dimen/item_tailing_component_size"
+                                android:indeterminate="true"
                                 android:visibility="gone" />
                         </FrameLayout>
 
@@ -213,10 +214,19 @@
                 android:paddingEnd="@dimen/app_space_lg"
                 android:visibility="gone">
 
+                <ProgressBar
+                    android:id="@+id/group_testing_view"
+                    android:layout_width="@dimen/proxy_status_progress_size"
+                    android:layout_height="@dimen/proxy_status_progress_size"
+                    android:layout_marginEnd="@dimen/app_space_sm"
+                    android:indeterminate="true"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/group_status_view"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:ellipsize="end"
