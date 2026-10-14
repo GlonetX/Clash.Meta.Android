@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A navigable or value-bearing setting row.
+
+  Mirrors AppRow exactly; the text, subtext, icon and trailing chevron are
+  assigned from SettingAdapter rather than through DataBinding expressions,
+  because AppRow's custom attributes take Drawables, not resource ids.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.github.kr328.clash.design.view.AppRow
+        android:id="@+id/row_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</layout>

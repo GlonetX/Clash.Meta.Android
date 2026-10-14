@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A standalone explanatory paragraph. Deliberately card-less: it reads as
+  guidance for the cards below it, not as another subject.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/tips_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/app_space_lg"
+        android:paddingVertical="@dimen/app_space_md">
+
+        <ImageView
+            android:id="@+id/tips_icon_view"
+            android:layout_width="@dimen/app_icon_glyph_size"
+            android:layout_height="@dimen/app_icon_glyph_size"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_outline_info" />
+
+        <TextView
+            android:id="@+id/tips"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_space_md"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.App.Body" />
+    </LinearLayout>
+</layout>

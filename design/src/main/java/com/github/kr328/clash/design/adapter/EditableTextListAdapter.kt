@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kr328.clash.design.databinding.AdapterEditableTextListBinding
-import com.github.kr328.clash.design.preference.TextAdapter
+import com.github.kr328.clash.design.settings.TextAdapter
 import com.github.kr328.clash.design.util.layoutInflater
 
 class EditableTextListAdapter<T>(

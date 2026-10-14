@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
         <variable
             name="self"
@@ -25,45 +26,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="@dimen/preference_group_margin_horizontal"
+                android:paddingHorizontal="@dimen/settings_page_padding_horizontal"
                 android:paddingTop="@{(float) self.surface.insets.top + @dimen/toolbar_height}"
                 android:paddingBottom="@{(float) self.surface.insets.bottom + @dimen/main_dock_content_clearance}">
 
-                <LinearLayout
+                <com.github.kr328.clash.design.view.AppCard
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_preference_group"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
-                <com.github.kr328.clash.design.view.ActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> self.request(Request.StartApp)}"
-                    app:icon="@drawable/ic_baseline_settings"
-                    app:text="@string/app" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-                <com.github.kr328.clash.design.view.ActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> self.request(Request.StartNetwork)}"
-                    app:icon="@drawable/ic_baseline_dns"
-                    app:text="@string/network" />
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.StartApp)}"
+                            app:icon="@drawable/ic_baseline_settings"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/app" />
 
-                <com.github.kr328.clash.design.view.ActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> self.request(Request.StartOverride)}"
-                    app:icon="@drawable/ic_baseline_extension"
-                    app:text="@string/override" />
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.StartNetwork)}"
+                            app:icon="@drawable/ic_baseline_dns"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/network" />
 
-                <com.github.kr328.clash.design.view.ActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> self.request(Request.StartMetaFeature)}"
-                    app:icon="@drawable/ic_baseline_meta"
-                    app:text="@string/meta_features" />
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.StartOverride)}"
+                            app:icon="@drawable/ic_baseline_extension"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/override" />
 
-                </LinearLayout>
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.StartMetaFeature)}"
+                            app:icon="@drawable/ic_baseline_meta"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/meta_features" />
+                    </LinearLayout>
+                </com.github.kr328.clash.design.view.AppCard>
             </LinearLayout>
         </com.github.kr328.clash.design.view.ObservableScrollView>
 

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Settings-only metrics. Everything that already exists in tokens.xml is
+      referenced from there instead; this file only covers what the settings
+      screens genuinely need on top of the shared grid.
+    -->
+
+    <!-- Horizontal page gutter: matches the former preference_group_margin_horizontal -->
+    <dimen name="settings_page_padding_horizontal">16dp</dimen>
+
+    <!-- Vertical rhythm between one AppCard and the next -->
+    <dimen name="settings_group_margin_bottom">12dp</dimen>
+
+    <!-- Group heading sits just above its card -->
+    <dimen name="settings_group_title_margin_top">8dp</dimen>
+    <dimen name="settings_group_title_margin_bottom">6dp</dimen>
+
+    <!-- Inset of the group heading inside the page gutter -->
+    <dimen name="settings_group_title_padding_horizontal">4dp</dimen>
+
+    <!-- Trailing chevron of a navigable setting row -->
+    <dimen name="settings_chevron_size">20dp</dimen>
+
+</resources>
