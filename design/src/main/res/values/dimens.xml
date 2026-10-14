@@ -62,7 +62,12 @@
     <dimen name="main_card_title_margin_start">12dp</dimen>
     <dimen name="main_card_section_margin_vertical">8dp</dimen>
     <dimen name="main_traffic_chart_height">48dp</dimen>
-    <dimen name="main_dashboard_padding_bottom">16dp</dimen>
+    <dimen name="main_dashboard_padding_bottom">112dp</dimen>
+    <dimen name="main_dock_corner_radius">28dp</dimen>
+    <dimen name="main_dock_margin_horizontal">16dp</dimen>
+    <dimen name="main_dock_margin_bottom">12dp</dimen>
+    <dimen name="main_dock_elevation">8dp</dimen>
+    <dimen name="main_dock_content_clearance">100dp</dimen>
     <dimen name="main_tun_row_padding_vertical">12dp</dimen>
     <dimen name="main_icon_button_size">40dp</dimen>
     <dimen name="main_card_icon_size">24dp</dimen>

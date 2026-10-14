@@ -7,4 +7,8 @@
         <item name="colorControlNormal">@color/color_error</item>
         <item name="android:textColor">@color/color_error</item>
     </style>
+
+    <!-- Navigation dock: M3 default pill active indicator (secondaryContainer)
+         is used; only the floating shape is customized in the layout. -->
+    <style name="AppNavigationBar" parent="Widget.Material3.BottomNavigationView" />
 </resources>

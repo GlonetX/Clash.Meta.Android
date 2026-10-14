@@ -71,7 +71,7 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     override suspend fun main() {
-        val design = MainDesign(this)
+        val design = MainDesign(this, uiStore)
         val settingsDesign = SettingsDesign(this)
 
         this.settingsDesign = settingsDesign
@@ -156,6 +156,8 @@ class MainActivity : BaseActivity<MainDesign>() {
                             startActivity(LatencyActivity::class.intent)
                         MainDesign.Request.OpenConnections ->
                             startActivity(ConnectionsActivity::class.intent)
+                        MainDesign.Request.EditCards ->
+                            design.showEditCardsDialog()
                         MainDesign.Request.PatchMode -> {
                             val mode = design.checkedOutboundMode()
 
