@@ -26,6 +26,7 @@ import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.design.util.toBytesString
 import com.github.kr328.clash.design.util.toDateStr
 import com.github.kr328.clash.service.model.Profile
+import com.github.kr328.clash.util.AppUpdate
 import com.github.kr328.clash.util.startClashService
 import com.github.kr328.clash.util.stopClashService
 import com.github.kr328.clash.util.withClash
@@ -81,6 +82,17 @@ class MainActivity : BaseActivity<MainDesign>() {
 
         design.fetch()
         design.fetchProxyPage()
+
+        if (AppUpdate.isAutoCheckDue(this)) {
+            AppUpdate.markChecked(this)
+
+            launch {
+                val release = AppUpdate.checkUpdate(this@MainActivity)
+
+                if (release != null)
+                    design.showUpdateDialog(release)
+            }
+        }
 
         val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
 
@@ -415,6 +427,39 @@ class MainActivity : BaseActivity<MainDesign>() {
                     startActivity(PropertiesActivity::class.intent.setUUID(uuid))
                 }
             }
+        }
+    }
+
+    private suspend fun MainDesign.showUpdateDialog(release: AppUpdate.Release) {
+        val result = withContext(Dispatchers.Main) {
+            var confirmed = false
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
+                .setTitle(getString(DesignR.string.update_available_title, release.versionName))
+                .setMessage(release.notes.take(800).ifBlank { getString(DesignR.string.update_available_summary) })
+                .setPositiveButton(android.R.string.ok) { _, _ -> confirmed = true }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+
+            confirmed
+        }
+
+        if (!result)
+            return
+
+        showToast(DesignR.string.update_downloading, ToastDuration.Short)
+
+        val file = AppUpdate.downloadApk(this@MainActivity, release) { }
+
+        if (file == null) {
+            showToast(DesignR.string.update_download_failed, ToastDuration.Long)
+
+            return
+        }
+
+        withContext(Dispatchers.Main) {
+            if (!AppUpdate.installApk(this@MainActivity, file))
+                showToast(DesignR.string.update_install_failed, ToastDuration.Long)
         }
     }
 

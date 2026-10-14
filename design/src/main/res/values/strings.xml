@@ -394,6 +394,11 @@
     <string name="usage_type">Usage type</string>
     <string name="proxy_type">Proxy type</string>
     <string name="timeout">Timeout</string>
+    <string name="update_available_title">New version available: v%s</string>
+    <string name="update_available_summary">A new version has been released. Update now?</string>
+    <string name="update_downloading">Downloading update…</string>
+    <string name="update_download_failed">Download failed, please try again later</string>
+    <string name="update_install_failed">Unable to start the installer</string>
     <string name="outbound_mode">Outbound Mode</string>
     <string name="memory_usage">Memory</string>
 </resources>

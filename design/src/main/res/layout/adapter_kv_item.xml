@@ -23,7 +23,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{value.value ?? @string/unknown}"
+            android:text="@{value.value ?? @string/unknown_ip}"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </LinearLayout>
 </layout>
