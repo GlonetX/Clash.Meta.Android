@@ -20,6 +20,13 @@ class ProxyViewConfig(val context: Context, var proxyLine: Int) {
     val unselectedBackground: Int
         get() = if (proxyLine==1) Color.TRANSPARENT else colorSurface
 
+    val delayGood = context.resolveThemedColor(R.attr.delayGood)
+    val delayMedium = context.resolveThemedColor(R.attr.delayMedium)
+    val delayTimeout = context.resolveThemedColor(com.google.android.material.R.attr.colorError)
+    val chipBackground = colorSurface
+    val chipPaddingHorizontal = context.getPixels(R.dimen.proxy_chip_padding_horizontal).toFloat()
+    val chipPaddingVertical = context.getPixels(R.dimen.proxy_chip_padding_vertical).toFloat()
+
     val layoutPadding = context.getPixels(R.dimen.proxy_layout_padding).toFloat()
     val contentPadding
         get() = if (proxyLine==2) context.getPixels(R.dimen.proxy_content_padding).toFloat() else context.getPixels(R.dimen.proxy_content_padding_grid3).toFloat()

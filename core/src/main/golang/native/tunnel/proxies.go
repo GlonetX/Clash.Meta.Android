@@ -112,10 +112,17 @@ func QueryProxyGroup(name string, sortMode SortMode, uiSubtitlePattern *regexp2.
 
 		sort.Sort(wrapper)
 	case Delay:
+		// sort key: real delays ascending; timed-out (-1) and never-tested (0xffff) last
+		sortKey := func(d int) int {
+			if d < 0 || d >= 0xffff {
+				return 1 << 30
+			}
+			return d
+		}
 		wrapper := &sortableProxyList{
 			list: proxies,
 			less: func(a, b *Proxy) bool {
-				return a.Delay < b.Delay
+				return sortKey(a.Delay) < sortKey(b.Delay)
 			},
 		}
 
@@ -192,12 +199,20 @@ func convertProxies(proxies []C.Proxy, uiSubtitlePattern *regexp2.Regexp) []*Pro
 		}
 		_, isGroup := p.Adapter().(outboundgroup.ProxyGroup)
 
+		delay := int(p.LastDelayForTestUrl(testURL))
+		if delay >= 0xffff {
+			// distinguish "tested but timed out" from "never tested"
+			if state, ok := p.ExtraDelayHistories()[testURL]; ok && len(state.History) > 0 {
+				delay = -1
+			}
+		}
+
 		result = append(result, &Proxy{
 			Name:     name,
 			Title:    strings.TrimSpace(title),
 			Subtitle: strings.TrimSpace(subtitle),
 			Type:     p.Type().String(),
-			Delay:    int(p.LastDelayForTestUrl(testURL)),
+			Delay:    delay,
 			IsGroup:  isGroup,
 		})
 	}
@@ -233,12 +248,19 @@ func collectProviders(providers []provider.ProxyProvider, uiSubtitlePattern *reg
 			}
 			_, isGroup := px.Adapter().(outboundgroup.ProxyGroup)
 
+			delay := int(px.LastDelayForTestUrl(testURL))
+			if delay >= 0xffff {
+				if state, ok := px.ExtraDelayHistories()[testURL]; ok && len(state.History) > 0 {
+					delay = -1
+				}
+			}
+
 			result = append(result, &Proxy{
 				Name:     name,
 				Title:    strings.TrimSpace(title),
 				Subtitle: strings.TrimSpace(subtitle),
 				Type:     px.Type().String(),
-				Delay:    int(px.LastDelayForTestUrl(testURL)),
+				Delay:    delay,
 				IsGroup:  isGroup,
 			})
 		}

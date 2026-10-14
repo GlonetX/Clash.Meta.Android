@@ -15,6 +15,9 @@ class ProxyAdapter(
     var selectable: Boolean = false
     var states: List<ProxyViewState> = emptyList()
 
+    /** name of the currently selected proxy in the owning group */
+    var now: String = ""
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(ProxyView(config.context, config))
     }

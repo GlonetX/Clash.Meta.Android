@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -14,154 +15,250 @@ import (
 )
 
 const (
-	ipQualityTimeout  = 15 * time.Second
-	ipQualityMaxBody  = 1 << 20
-	ipQualityEndpoint = "https://ipinfo.check.place"
+	ipQualityTimeout = 25 * time.Second
+	ipQualityMaxBody = 1 << 20
+	ipEchoURL        = "https://api.ip.sb/ip"
 )
+
+// browserUserAgent avoids naive bot filtering on some endpoints
+const browserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 
 // IPQuality holds the aggregated risk info of an IP from multiple databases.
 type IPQuality struct {
 	IP  string `json:"ip"`
 	ASN string `json:"asn,omitempty"`
 
-	ScamalyticsScore    string `json:"scamalyticsScore,omitempty"`
-	ScamalyticsRisk     string `json:"scamalyticsRisk,omitempty"`
-	IPQSFraudScore      string `json:"ipqsFraudScore,omitempty"`
-	IPQSProxy           string `json:"ipqsProxy,omitempty"`
-	IPQSVpn             string `json:"ipqsVpn,omitempty"`
-	AbuseConfidence     string `json:"abuseConfidence,omitempty"`
-	AbuseUsageType      string `json:"abuseUsageType,omitempty"`
-	IP2LocationProxy    string `json:"ip2locationProxy,omitempty"`
-	IP2LocationUsage    string `json:"ip2locationUsage,omitempty"`
+	ScamalyticsScore string `json:"scamalyticsScore,omitempty"`
+	ScamalyticsRisk  string `json:"scamalyticsRisk,omitempty"`
+	ProxyCheckRisk   string `json:"proxyCheckRisk,omitempty"`
+	ProxyCheckProxy  string `json:"proxyCheckProxy,omitempty"`
+	ProxyCheckType   string `json:"proxyCheckType,omitempty"`
+	IPApiProxy       string `json:"ipApiProxy,omitempty"`
+	IPApiHosting     string `json:"ipApiHosting,omitempty"`
+	IPApiMobile      string `json:"ipApiMobile,omitempty"`
+	IPApiISP         string `json:"ipApiISP,omitempty"`
 }
 
-func fetchIPQuality(ctx context.Context, url string) (map[string]any, error) {
+var (
+	scamalyticsScoreRe = regexp.MustCompile(`Fraud Score:\s*(\d+)`)
+	scamalyticsRiskRe  = regexp.MustCompile(`>\s*(Low|Medium|High|Very High)\s+Risk\s*<`)
+)
+
+func httpGet(ctx context.Context, url string) ([]byte, int, error) {
 	response, err := clashHttp.HttpRequest(ctx, url, http.MethodGet,
-		http.Header{"User-Agent": {"clash.meta"}}, nil)
+		http.Header{"User-Agent": {browserUserAgent}}, nil)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status %d", response.StatusCode)
-	}
-
 	body, err := io.ReadAll(io.LimitReader(response.Body, ipQualityMaxBody))
 	if err != nil {
-		return nil, err
+		return nil, response.StatusCode, err
 	}
 
-	var result map[string]any
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
+	return body, response.StatusCode, nil
+}
+
+func boolText(v bool) string {
+	if v {
+		return "true"
+	}
+	return "false"
+}
+
+// resolveExitIP fetches the current exit IP as seen through the tunnel.
+func resolveExitIP(ctx context.Context) string {
+	body, status, err := httpGet(ctx, ipEchoURL)
+	if err != nil || status != http.StatusOK {
+		return ""
+	}
+
+	return strings.TrimSpace(string(body))
+}
+
+type scamalyticsResult struct {
+	score string
+	risk  string
+}
+
+func fetchScamalytics(ctx context.Context, ip string) (scamalyticsResult, error) {
+	body, status, err := httpGet(ctx, "https://scamalytics.com/ip/"+ip)
+	if err != nil {
+		return scamalyticsResult{}, err
+	}
+
+	if status != http.StatusOK {
+		return scamalyticsResult{}, fmt.Errorf("scamalytics: status %d", status)
+	}
+
+	html := string(body)
+
+	result := scamalyticsResult{}
+
+	if m := scamalyticsScoreRe.FindStringSubmatch(html); m != nil {
+		result.score = m[1]
+	}
+
+	if m := scamalyticsRiskRe.FindStringSubmatch(html); m != nil {
+		result.risk = m[1] + " Risk"
+	}
+
+	if result.score == "" && result.risk == "" {
+		return scamalyticsResult{}, fmt.Errorf("scamalytics: parse failed")
 	}
 
 	return result, nil
 }
 
-func stringOf(m map[string]any, key string) string {
-	if m == nil {
-		return ""
+type proxyCheckResult struct {
+	risk  string
+	proxy string
+	typ   string
+}
+
+func fetchProxyCheck(ctx context.Context, ip string) (proxyCheckResult, error) {
+	body, status, err := httpGet(ctx, "https://proxycheck.io/v2/"+ip+"?vpn=1&asn=1&risk=1")
+	if err != nil {
+		return proxyCheckResult{}, err
 	}
 
-	if v, ok := m[key]; ok {
-		switch value := v.(type) {
-		case string:
-			return value
-		case float64:
-			return fmt.Sprintf("%.0f", value)
-		case bool:
-			if value {
-				return "true"
-			}
-			return "false"
-		}
+	if status != http.StatusOK {
+		return proxyCheckResult{}, fmt.Errorf("proxycheck: status %d", status)
 	}
 
-	return ""
+	var outer map[string]json.RawMessage
+	if err := json.Unmarshal(body, &outer); err != nil {
+		return proxyCheckResult{}, err
+	}
+
+	entry, ok := outer[ip]
+	if !ok {
+		return proxyCheckResult{}, fmt.Errorf("proxycheck: no entry")
+	}
+
+	var info struct {
+		Proxy string      `json:"proxy"`
+		Type  string      `json:"type"`
+		Risk  json.Number `json:"risk"`
+	}
+	if err := json.Unmarshal(entry, &info); err != nil {
+		return proxyCheckResult{}, err
+	}
+
+	return proxyCheckResult{
+		risk:  info.Risk.String(),
+		proxy: info.Proxy,
+		typ:   info.Type,
+	}, nil
+}
+
+type ipApiResult struct {
+	proxy   string
+	hosting string
+	mobile  string
+	as      string
+	isp     string
+}
+
+func fetchIPApi(ctx context.Context, ip string) (ipApiResult, error) {
+	body, status, err := httpGet(ctx, "http://ip-api.com/json/"+ip+"?fields=status,message,isp,as,mobile,proxy,hosting")
+	if err != nil {
+		return ipApiResult{}, err
+	}
+
+	if status != http.StatusOK {
+		return ipApiResult{}, fmt.Errorf("ip-api: status %d", status)
+	}
+
+	var info struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Proxy   bool   `json:"proxy"`
+		Hosting bool   `json:"hosting"`
+		Mobile  bool   `json:"mobile"`
+		As      string `json:"as"`
+		Isp     string `json:"isp"`
+	}
+	if err := json.Unmarshal(body, &info); err != nil {
+		return ipApiResult{}, err
+	}
+
+	if info.Status != "success" {
+		return ipApiResult{}, fmt.Errorf("ip-api: %s", info.Message)
+	}
+
+	return ipApiResult{
+		proxy:   boolText(info.Proxy),
+		hosting: boolText(info.Hosting),
+		mobile:  boolText(info.Mobile),
+		as:      info.As,
+		isp:     info.Isp,
+	}, nil
 }
 
 // QueryIPQuality queries aggregated IP intelligence for the given IP.
-// The requests go through the tunnel, so they inspect the exit IP.
+// An empty ip resolves the current exit IP through the tunnel first.
 func QueryIPQuality(ip string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), ipQualityTimeout)
 	defer cancel()
 
+	target := strings.TrimSpace(ip)
+	if target == "" {
+		target = resolveExitIP(ctx)
+		if target == "" {
+			return "", fmt.Errorf("failed to resolve exit ip")
+		}
+	}
+
 	var (
-		wg         sync.WaitGroup
-		scam       map[string]any
-		ipqs       map[string]any
-		abuse      map[string]any
-		ip2loc     map[string]any
-		scamErr    error
-		ipqsErr    error
-		abuseErr   error
-		ip2locErr  error
+		wg                        sync.WaitGroup
+		scam                      scamalyticsResult
+		check                     proxyCheckResult
+		api                       ipApiResult
+		scamErr, checkErr, apiErr error
 	)
 
-	target := ip
-	if target == "" {
-		target = "ip"
-	}
-
-	fetch := func(url string, result *map[string]any, errOut *error) {
+	wg.Add(3)
+	go func() {
 		defer wg.Done()
-
-		data, err := fetchIPQuality(ctx, url)
-		if err != nil {
-			*errOut = err
-			return
-		}
-
-		*result = data
-	}
-
-	wg.Add(4)
-	go fetch(ipQualityEndpoint+"/"+target+"?db=scamalytics", &scam, &scamErr)
-	go fetch(ipQualityEndpoint+"/"+target+"?db=ipqualityscore", &ipqs, &ipqsErr)
-	go fetch(ipQualityEndpoint+"/"+target+"?db=abuseipdb", &abuse, &abuseErr)
-	go fetch(ipQualityEndpoint+"/"+target+"?db=ip2location", &ip2loc, &ip2locErr)
+		scam, scamErr = fetchScamalytics(ctx, target)
+	}()
+	go func() {
+		defer wg.Done()
+		check, checkErr = fetchProxyCheck(ctx, target)
+	}()
+	go func() {
+		defer wg.Done()
+		api, apiErr = fetchIPApi(ctx, target)
+	}()
 	wg.Wait()
 
 	// at least one source must succeed
-	if scam == nil && ipqs == nil && abuse == nil && ip2loc == nil {
-		errs := []string{}
-		for _, e := range []error{scamErr, ipqsErr, abuseErr, ip2locErr} {
-			if e != nil {
-				errs = append(errs, e.Error())
-			}
-		}
+	if scamErr != nil && checkErr != nil && apiErr != nil {
+		errs := []string{scamErr.Error(), checkErr.Error(), apiErr.Error()}
 		return "", fmt.Errorf("all sources failed: %s", strings.Join(errs, "; "))
 	}
 
-	var quality IPQuality
+	quality := IPQuality{IP: target}
 
-	if scam != nil {
-		quality.ScamalyticsScore = stringOf(scam, "score")
-		quality.ScamalyticsRisk = stringOf(scam, "risk")
+	if scamErr == nil {
+		quality.ScamalyticsScore = scam.score
+		quality.ScamalyticsRisk = scam.risk
 	}
 
-	if ipqs != nil {
-		if data, ok := ipqs["data"].(map[string]any); ok {
-			quality.IPQSFraudScore = stringOf(data, "fraud_score")
-			quality.IPQSProxy = stringOf(data, "proxy")
-			quality.IPQSVpn = stringOf(data, "vpn")
-		}
+	if checkErr == nil {
+		quality.ProxyCheckRisk = check.risk
+		quality.ProxyCheckProxy = check.proxy
+		quality.ProxyCheckType = check.typ
 	}
 
-	if abuse != nil {
-		if data, ok := abuse["data"].(map[string]any); ok {
-			quality.AbuseConfidence = stringOf(data, "abuseConfidenceScore")
-			quality.AbuseUsageType = stringOf(data, "usageType")
-		}
-	}
-
-	if ip2loc != nil {
-		if data, ok := ip2loc["data"].(map[string]any); ok {
-			quality.IP2LocationProxy = stringOf(data, "proxy_type")
-			quality.IP2LocationUsage = stringOf(data, "usage_type")
-		}
+	if apiErr == nil {
+		quality.IPApiProxy = api.proxy
+		quality.IPApiHosting = api.hosting
+		quality.IPApiMobile = api.mobile
+		quality.ASN = api.as
+		quality.IPApiISP = api.isp
 	}
 
 	data, err := json.Marshal(quality)
@@ -181,7 +278,7 @@ func TestLatency(url string) int64 {
 	start := time.Now()
 
 	response, err := clashHttp.HttpRequest(ctx, url, http.MethodGet,
-		http.Header{"User-Agent": {"clash.meta"}}, nil)
+		http.Header{"User-Agent": {browserUserAgent}}, nil)
 	if err != nil {
 		return -1
 	}

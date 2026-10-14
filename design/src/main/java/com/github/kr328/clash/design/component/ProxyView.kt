@@ -120,11 +120,16 @@ class ProxyView(
 
         paint.textSize = state.config.textSize
 
+        // selected cards draw the delay inside a surface-colored chip
+        // so the tier color stays readable on the primary background
+        val drawChip = state.isSelected && state.delayText.isNotEmpty()
+        val chipPadH = if (drawChip) state.config.chipPaddingHorizontal else 0f
+
         // measure delay text bounds
         val delayCount = paint.breakText(
             state.delayText,
             false,
-            (width - state.config.layoutPadding * 2 - state.config.contentPadding * 2)
+            (width - state.config.layoutPadding * 2 - state.config.contentPadding * 2 - chipPadH * 2)
                 .coerceAtLeast(0f),
             null
         )
@@ -137,6 +142,7 @@ class ProxyView(
                 state.config.layoutPadding * 2 -
                 state.config.contentPadding * 2 -
                 delayWidth -
+                chipPadH * 2 -
                 state.config.textMargin * 2
                 )
             .coerceAtLeast(0f)
@@ -164,15 +170,49 @@ class ProxyView(
 
         paint.textSize = state.config.textSize
         paint.isAntiAlias = true
-        paint.color = state.controls
 
         // draw delay
         canvas.apply {
-            val x = width - state.config.layoutPadding - state.config.contentPadding - delayWidth
+            if (state.delayText.isEmpty())
+                return@apply
+
+            val right = width - state.config.layoutPadding - state.config.contentPadding
+
+            if (drawChip) {
+                val chipHeight = state.config.textSize + state.config.chipPaddingVertical * 2
+                val top = height / 2f - chipHeight / 2
+                val bottom = height / 2f + chipHeight / 2
+                val left = right - delayWidth - chipPadH * 2
+
+                val path = state.path
+
+                path.reset()
+
+                path.addRoundRect(
+                    left,
+                    top,
+                    right,
+                    bottom,
+                    chipHeight / 2,
+                    chipHeight / 2,
+                    Path.Direction.CW
+                )
+
+                paint.color = state.config.chipBackground
+                paint.style = Paint.Style.FILL
+
+                drawPath(path, paint)
+            }
+
+            paint.color = state.delayColor
+
+            val x = right - chipPadH - delayWidth
             val y = height / 2f - textOffset
 
             drawText(state.delayText, 0, delayCount, x, y, paint)
         }
+
+        paint.color = state.controls
 
         // draw title
         canvas.apply {

@@ -292,6 +292,7 @@
     <string name="more">More</string>
     <string name="save">Save</string>
     <string name="delay_test">Delay Test</string>
+    <string name="locate_node">Locate selected node</string>
 
     <string name="format_provider_type">%1$s(%2$s)</string>
     <string name="rule">Rule</string>
@@ -399,6 +400,10 @@
     <string name="update_downloading">Downloading update…</string>
     <string name="update_download_failed">Download failed, please try again later</string>
     <string name="update_install_failed">Unable to start the installer</string>
+    <string name="datacenter">Data center</string>
+    <string name="mobile_network">Mobile network</string>
+    <string name="value_yes">Yes</string>
+    <string name="value_no">No</string>
     <string name="outbound_mode">Outbound Mode</string>
     <string name="memory_usage">Memory</string>
 </resources>

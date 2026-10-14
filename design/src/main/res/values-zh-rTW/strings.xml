@@ -197,6 +197,7 @@
     <string name="more">更多</string>
     <string name="save">儲存</string>
     <string name="delay_test">延遲測試</string>
+    <string name="locate_node">定位選中節點</string>
     <string name="format_provider_type">%1$s(%2$s)</string>
     <string name="rule">規則</string>
     <string name="http">HTTP</string>
@@ -286,6 +287,10 @@
     <string name="update_downloading">正在下載更新…</string>
     <string name="update_download_failed">下載失敗，請稍後重試</string>
     <string name="update_install_failed">無法啟動安裝器</string>
+    <string name="datacenter">數據中心</string>
+    <string name="mobile_network">行動網路</string>
+    <string name="value_yes">是</string>
+    <string name="value_no">否</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">記憶體</string>
 </resources>
