@@ -222,7 +222,9 @@ class TrafficChartView @JvmOverloads constructor(
         canvas.drawText(
             max.toBytesString(),
             left,
-            top - labelPaint.fontMetrics.let { it.ascent } - density * 2f,
+            // Baseline of the scale label sits at the bottom of the strip
+            // reserved above `top`, so the text cannot drift into the plot.
+            top - labelPaint.fontMetrics.descent,
             labelPaint,
         )
     }
