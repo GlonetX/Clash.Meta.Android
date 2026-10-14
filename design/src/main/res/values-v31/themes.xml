@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material You (wallpaper) dynamic colour — API 31+ variants.
+
+  Two kinds of styles live here:
+
+  1. The four dialog *Base styles, redefined with the dynamic palette.
+     Dialogs (bottom sheets, full screen dialogs) use standalone themes
+     and never receive the activity overlay, so they must carry the
+     dynamic palette themselves. On API < 31 the brand-palette variants
+     from values/themes.xml are used instead.
+
+  2. ThemeOverlay.App.DynamicColors.{Light,Dark} — applied to activity
+     themes by MainApplication from onActivityCreated, AFTER
+     BaseActivity.applyDayNight() force-applies the AppTheme* family.
+     Material's own DynamicColors.applyToActivitiesIfAvailable applies
+     its overlay in onActivityPreCreated (before onCreate), where
+     applyDayNight would overwrite it with the brand palette.
+
+  The public material_dynamic_* palette aliases are used because the
+  m3_sys_color_dynamic_* tokens are library-private. Surface neutrals use
+  the standard tonal steps (neutral99 / neutral10) rather than the
+  library's extended steps (neutral_variant98 / neutral_variant6), which
+  are not publicly exported; both are visually equivalent, and neutral10
+  matches this app's existing dark surface (#FF202020).
+-->
+<resources>
+    <!-- ==================== Full screen dialogs ==================== -->
+
+    <style name="AppFullScreenDialogLightBase" parent="AppFullScreenDialogLightCore">
+        <item name="colorPrimary">@color/material_dynamic_primary40</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary100</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary90</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary10</item>
+        <item name="colorSecondary">@color/material_dynamic_secondary40</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary100</item>
+        <item name="colorSurface">@color/material_dynamic_neutral99</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant90</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant50</item>
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="colorClashStopped">@color/color_light_clash_stopped</item>
+        <item name="colorControlDisabled">@color/color_light_control_disabled</item>
+
+        <item name="colorPrimaryDark">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
+        <item name="android:windowBackground">@color/color_light_background</item>
+    </style>
+
+    <style name="AppFullScreenDialogDarkBase" parent="AppFullScreenDialogDarkCore">
+        <item name="colorPrimary">@color/material_dynamic_primary80</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary20</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary30</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary90</item>
+        <item name="colorSecondary">@color/material_dynamic_secondary80</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary20</item>
+        <item name="colorSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral90</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant80</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant60</item>
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="colorControlDisabled">@color/color_dark_control_disabled</item>
+
+        <item name="android:windowBackground">@color/color_dark_background</item>
+
+        <item name="colorPrimaryDark">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorClashStopped">?attr/colorSurface</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
+    </style>
+
+    <!-- ==================== Bottom sheet dialogs ==================== -->
+
+    <style name="AppBottomSheetDialogLightBase" parent="AppBottomSheetDialogLightCore">
+        <item name="colorPrimary">@color/material_dynamic_primary40</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary100</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary90</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary10</item>
+        <item name="colorSecondary">@color/material_dynamic_secondary40</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary100</item>
+        <item name="colorSurface">@color/material_dynamic_neutral99</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant90</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant50</item>
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="colorClashStopped">@color/color_light_clash_stopped</item>
+        <item name="colorControlDisabled">@color/color_light_control_disabled</item>
+
+        <item name="colorPrimaryDark">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
+
+        <item name="bottomSheetStyle">@style/AppBottomSheetStyle</item>
+    </style>
+
+    <style name="AppBottomSheetDialogDarkBase" parent="AppBottomSheetDialogDarkCore">
+        <item name="colorPrimary">@color/material_dynamic_primary80</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary20</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary30</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary90</item>
+        <item name="colorSecondary">@color/material_dynamic_secondary80</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary20</item>
+        <item name="colorSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral90</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant80</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant60</item>
+        <item name="colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="colorControlDisabled">@color/color_dark_control_disabled</item>
+
+        <item name="colorPrimaryDark">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorClashStopped">?attr/colorSurface</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
+
+        <item name="bottomSheetStyle">@style/AppBottomSheetStyle</item>
+    </style>
+
+    <!-- ==================== Activity overlays ====================
+         Applied by MainApplication after BaseActivity.applyDayNight().
+         Deliberately does NOT touch android:windowBackground or
+         android:colorBackground: those stay the app's neutral
+         (#FAFAFA / #121212 / #000) so AMOLED windows are always black
+         and light/dark windows stay neutral under any wallpaper. -->
+
+    <style name="ThemeOverlay.App.DynamicColors.Light" parent="">
+        <item name="colorPrimary">@color/material_dynamic_primary40</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary100</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary90</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary10</item>
+        <item name="colorSecondary">@color/material_dynamic_secondary40</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary100</item>
+        <item name="colorSecondaryContainer">@color/material_dynamic_secondary90</item>
+        <item name="colorOnSecondaryContainer">@color/material_dynamic_secondary10</item>
+        <item name="colorTertiary">@color/material_dynamic_tertiary40</item>
+        <item name="colorOnTertiary">@color/material_dynamic_tertiary100</item>
+        <item name="colorSurface">@color/material_dynamic_neutral99</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant90</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant50</item>
+        <item name="colorSurfaceInverse">@color/material_dynamic_neutral20</item>
+        <item name="colorOnSurfaceInverse">@color/material_dynamic_neutral95</item>
+        <item name="colorPrimaryInverse">@color/material_dynamic_primary80</item>
+    </style>
+
+    <style name="ThemeOverlay.App.DynamicColors.Dark" parent="">
+        <item name="colorPrimary">@color/material_dynamic_primary80</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary20</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary30</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary90</item>
+        <item name="colorSecondary">@color/material_dynamic_secondary80</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary20</item>
+        <item name="colorSecondaryContainer">@color/material_dynamic_secondary30</item>
+        <item name="colorOnSecondaryContainer">@color/material_dynamic_secondary90</item>
+        <item name="colorTertiary">@color/material_dynamic_tertiary80</item>
+        <item name="colorOnTertiary">@color/material_dynamic_tertiary20</item>
+        <item name="colorSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral90</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant80</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant60</item>
+        <item name="colorSurfaceInverse">@color/material_dynamic_neutral90</item>
+        <item name="colorOnSurfaceInverse">@color/material_dynamic_neutral20</item>
+        <item name="colorPrimaryInverse">@color/material_dynamic_primary40</item>
+    </style>
+</resources>
