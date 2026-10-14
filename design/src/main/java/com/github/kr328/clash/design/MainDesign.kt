@@ -160,50 +160,50 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
                 orientation = LinearLayout.VERTICAL
             }
 
-            val rebuild: () -> Unit = {
-                list.removeAllViews()
-
-                val inflater = LayoutInflater.from(context)
-                val hidden = dashboardCardHidden()
-
-                dashboardCardOrder().forEachIndexed { index, key ->
-                    val card = dashboardCards.firstOrNull { it.key == key } ?: return@forEachIndexed
-
-                    val row = DialogDashboardCardBinding.inflate(inflater, list, false)
-
-                    row.titleView.text = context.getString(card.titleRes)
-                    row.visibilityView.isChecked = key !in hidden
-
-                    row.visibilityView.setOnCheckedChangeListener { _, checked ->
-                        setDashboardCardHidden(key, !checked)
-                    }
-
-                    row.moveUpView.isEnabled = index > 0
-                    row.moveUpView.alpha = if (index > 0) 1.0f else 0.4f
-                    row.moveUpView.setOnClickListener {
-                        moveDashboardCard(key, -1)
-                        rebuild()
-                    }
-
-                    val last = dashboardCardOrder().size - 1
-                    row.moveDownView.isEnabled = index < last
-                    row.moveDownView.alpha = if (index < last) 1.0f else 0.4f
-                    row.moveDownView.setOnClickListener {
-                        moveDashboardCard(key, 1)
-                        rebuild()
-                    }
-
-                    list.addView(row.root)
-                }
-            }
-
-            rebuild()
+            rebuildEditCardsList(list)
 
             MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.edit_dashboard_cards)
                 .setView(ScrollView(context).apply { addView(list) })
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
+        }
+    }
+
+    private fun rebuildEditCardsList(list: LinearLayout) {
+        list.removeAllViews()
+
+        val inflater = LayoutInflater.from(context)
+        val hidden = dashboardCardHidden()
+
+        dashboardCardOrder().forEachIndexed { index, key ->
+            val card = dashboardCards.firstOrNull { it.key == key } ?: return@forEachIndexed
+
+            val row = DialogDashboardCardBinding.inflate(inflater, list, false)
+
+            row.titleView.text = context.getString(card.titleRes)
+            row.visibilityView.isChecked = key !in hidden
+
+            row.visibilityView.setOnCheckedChangeListener { _, checked ->
+                setDashboardCardHidden(key, !checked)
+            }
+
+            row.moveUpView.isEnabled = index > 0
+            row.moveUpView.alpha = if (index > 0) 1.0f else 0.4f
+            row.moveUpView.setOnClickListener {
+                moveDashboardCard(key, -1)
+                rebuildEditCardsList(list)
+            }
+
+            val last = dashboardCardOrder().size - 1
+            row.moveDownView.isEnabled = index < last
+            row.moveDownView.alpha = if (index < last) 1.0f else 0.4f
+            row.moveDownView.setOnClickListener {
+                moveDashboardCard(key, 1)
+                rebuildEditCardsList(list)
+            }
+
+            list.addView(row.root)
         }
     }
 
