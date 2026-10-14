@@ -68,4 +68,14 @@
     <string name="conn_detail_no_process">此连接没有应用或进程信息</string>
 
     <string name="conn_speed">%1$s/s</string>
+
+    <!-- Phase E: group live status, node action sheet -->
+    <string name="proxy_group_status_name">→ %1$s</string>
+    <string name="proxy_url_testing">正在测试延迟…</string>
+    <string name="proxy_line_quadruple">四列</string>
+    <string name="proxy_node_copy_name">复制节点名称</string>
+    <string name="proxy_node_detail_name">名称</string>
+    <string name="proxy_node_detail_delay">延迟</string>
+    <string name="proxy_node_delay_with_unit">%1$dms</string>
+    <string name="proxy_node_delay_none">未测试</string>
 </resources>

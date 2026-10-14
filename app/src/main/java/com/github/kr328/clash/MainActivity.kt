@@ -114,7 +114,7 @@ class MainActivity : BaseActivity<MainDesign>() {
         design.fetch()
         design.fetchProxyPage()
 
-        if (AppUpdate.isAutoCheckDue(this)) {
+        if (SettingsStore(this).appUpdateAutoCheck && AppUpdate.isAutoCheckDue(this)) {
             AppUpdate.markChecked(this)
 
             val channel = SettingsStore(this).appUpdateChannel
