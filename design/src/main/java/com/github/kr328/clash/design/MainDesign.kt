@@ -101,7 +101,6 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
 
         binding.pagesContainer.addView(
             view,
-            index,
             FrameLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
