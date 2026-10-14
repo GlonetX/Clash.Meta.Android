@@ -164,6 +164,12 @@ object Clash {
         }
     }
 
+    suspend fun queryFinalConfig(path: String): String? {
+        return withContext(Dispatchers.IO) {
+            Bridge.nativeQueryFinalConfig(path)
+        }
+    }
+
     suspend fun testLatency(url: String): Long {
         return withContext(Dispatchers.IO) {
             Bridge.nativeTestLatency(url)

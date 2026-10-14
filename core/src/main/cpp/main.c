@@ -257,6 +257,21 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeProbeUrl(JNIEnv *env, jobje
     return new_string(response);
 }
 
+JNIEXPORT jstring JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryFinalConfig(JNIEnv *env, jobject thiz,
+                                                                     jstring path) {
+    TRACE_METHOD();
+
+    scoped_string _path = get_string(path);
+
+    scoped_string response = queryFinalConfig(_path);
+
+    if (response == NULL)
+        return NULL;
+
+    return new_string(response);
+}
+
 JNIEXPORT jlong JNICALL
 Java_com_github_kr328_clash_core_bridge_Bridge_nativeTestLatency(JNIEnv *env, jobject thiz,
                                                                   jstring url) {

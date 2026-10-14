@@ -8,6 +8,8 @@ import (
 	"unsafe"
 
 	"cfa/native/config"
+
+	"github.com/metacubex/mihomo/common/yaml"
 )
 
 type remoteValidCallback struct {
@@ -47,6 +49,21 @@ func load(completable unsafe.Pointer, path C.c_string) {
 
 		runtime.GC()
 	}(C.GoString(path))
+}
+
+//export queryFinalConfig
+func queryFinalConfig(path C.c_string) *C.char {
+	raw, err := config.UnmarshalAndPatch(C.GoString(path))
+	if err != nil {
+		return nil
+	}
+
+	data, err := yaml.Marshal(raw)
+	if err != nil {
+		return nil
+	}
+
+	return marshalString(string(data))
 }
 
 //export readOverride

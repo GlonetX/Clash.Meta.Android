@@ -31,6 +31,7 @@ object Bridge {
     external fun nativeQueryConnections(): String?
     external fun nativeCloseConnection(id: String)
     external fun nativeProbeUrl(url: String): String?
+    external fun nativeQueryFinalConfig(path: String): String?
     external fun nativeTestLatency(url: String): Long
     external fun nativeHealthCheck(completable: CompletableDeferred<Unit>, name: String)
     external fun nativeHealthCheckAll()

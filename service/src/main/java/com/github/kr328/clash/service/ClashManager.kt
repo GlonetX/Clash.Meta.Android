@@ -104,6 +104,10 @@ class ClashManager(private val context: Context) : IClashManager,
         return Clash.probeUrl(url)
     }
 
+    override suspend fun queryFinalConfig(path: String): String? {
+        return Clash.queryFinalConfig(path)
+    }
+
     override suspend fun testLatency(url: String): Long {
         return Clash.testLatency(url)
     }
