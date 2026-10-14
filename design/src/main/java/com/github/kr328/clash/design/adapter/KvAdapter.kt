@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kr328.clash.design.databinding.AdapterKvItemBinding
 import com.github.kr328.clash.design.databinding.AdapterSectionHeaderBinding
+import com.github.kr328.clash.design.util.resolveThemedColor
 
 class KvAdapter(
     context: Context,
@@ -70,6 +71,16 @@ class KvAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: com.github.kr328.clash.design.model.KvItem) {
             binding.value = item
+
+            binding.valueView.apply {
+                if (item.highlight) {
+                    setTextAppearance(context, R.style.TextAppearance_Material3_TitleMedium)
+                    setTextColor(context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary))
+                } else {
+                    setTextAppearance(context, R.style.TextAppearance_Material3_BodyLarge)
+                    setTextColor(context.resolveThemedColor(android.R.attr.textColor))
+                }
+            }
         }
     }
 }

@@ -72,11 +72,11 @@ class IPQualityDesign(context: Context) : Design<IPQualityDesign.Request>(contex
             }
 
             quality.scamalyticsScore?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (Scamalytics)", "$it / 100 ${quality.scamalyticsRisk ?: ""}")))
+                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (Scamalytics)", "$it / 100 ${quality.scamalyticsRisk ?: ""}", highlight = true)))
             }
 
             quality.proxyCheckRisk?.takeIf { it.isNotBlank() }?.let {
-                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (proxycheck.io)", "$it / 100")))
+                entries.add(KvAdapter.Entry.Item(KvItem("${context.getString(R.string.risk_score)} (proxycheck.io)", "$it / 100", highlight = true)))
             }
 
             quality.proxyCheckProxy?.takeIf { it.isNotBlank() }?.let {

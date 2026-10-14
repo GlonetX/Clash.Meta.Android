@@ -4,7 +4,6 @@
         <variable
             name="value"
             type="com.github.kr328.clash.design.model.KvItem" />
-        <import type="android.view.View" />
     </data>
 
     <LinearLayout
@@ -16,6 +15,7 @@
         android:paddingVertical="@dimen/main_kv_row_padding_vertical">
 
         <TextView
+            android:id="@+id/title_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -24,11 +24,11 @@
             android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
+            android:id="@+id/value_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/item_tailing_margin"
             android:text="@{value.value ?? @string/unknown_ip}"
-            android:textAppearance="@{value.highlight ? @style/TextAppearance.Material3.TitleMedium : @style/TextAppearance.Material3.BodyLarge}"
-            android:textColor="@{value.highlight ? ?attr/colorPrimary : ?attr/colorOnSurface}" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </LinearLayout>
 </layout>
