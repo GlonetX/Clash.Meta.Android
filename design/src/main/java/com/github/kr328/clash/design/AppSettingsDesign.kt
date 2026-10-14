@@ -20,6 +20,7 @@ import com.github.kr328.clash.design.settings.SettingPage
 import com.github.kr328.clash.design.settings.SettingRow
 import com.github.kr328.clash.design.settings.SettingsBackup
 import com.github.kr328.clash.design.settings.SettingsStore
+import com.github.kr328.clash.design.settings.SubscriptionInfo
 import com.github.kr328.clash.design.settings.SubscriptionMeta
 import com.github.kr328.clash.design.settings.UpdateChannel
 import com.github.kr328.clash.design.settings.WidgetSize

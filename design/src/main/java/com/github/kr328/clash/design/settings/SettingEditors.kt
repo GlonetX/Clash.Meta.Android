@@ -318,13 +318,15 @@ private suspend fun Context.requestSettingListOverlay(
     addNewItem: suspend () -> Unit,
 ): SettingListResult = coroutineScope {
     suspendCancellableCoroutine { ctx ->
-        val dialog = FullScreenDialog(this)
+        val context = this@requestSettingListOverlay
 
-        val binding = DialogSettingListBinding.inflate(layoutInflater, root, false)
+        val dialog = FullScreenDialog(context)
+
+        val binding = DialogSettingListBinding.inflate(context.layoutInflater, context.root, false)
 
         binding.surface = dialog.surface
         binding.titleView.text = title
-        binding.mainList.applyLinearAdapter(this, adapter)
+        binding.mainList.applyLinearAdapter(context, adapter)
 
         binding.newView.setOnClickListener {
             launch {
