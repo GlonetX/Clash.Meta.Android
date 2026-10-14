@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      仪表盘专用字符串，与 values/strings_dashboard.xml 对应。
+    -->
+
+    <string name="dashboard_node">当前节点</string>
+    <string name="dashboard_node_unavailable">未选择代理</string>
+    <string name="dashboard_network_speed">网络速度</string>
+    <string name="dashboard_traffic_total">流量分布</string>
+    <string name="dashboard_memory">内存</string>
+    <string name="dashboard_uptime">运行时长</string>
+    <string name="dashboard_services">服务可用性</string>
+    <string name="dashboard_links">更多</string>
+
+    <string name="dashboard_upload">上传</string>
+    <string name="dashboard_download">下载</string>
+
+    <!-- 出站模式滑动胶囊的短标签 -->
+    <string name="rule_mode_short">规则</string>
+    <string name="global_mode_short">全局</string>
+    <string name="direct_mode_short">直连</string>
+
+    <string name="dashboard_connections_count">连接</string>
+    <string name="dashboard_requests_count">请求</string>
+    <string name="dashboard_dns_count">DNS 查询</string>
+
+    <!-- 流量图表时间窗口选择 -->
+    <string name="dashboard_window_1m">1 分钟</string>
+    <string name="dashboard_window_5m">5 分钟</string>
+    <string name="dashboard_window_30m">30 分钟</string>
+
+    <string name="dashboard_no_node">—</string>
+    <string name="dashboard_delay_unknown">--</string>
+    <string name="dashboard_since_start">自核心启动以来</string>
+    <string name="dashboard_not_running">核心未运行</string>
+
+    <!-- 运行时长：%1$d 天 + h:mm:ss | h:mm:ss（等宽数字） -->
+    <string name="dashboard_uptime_days">%1$d 天 %2$02d:%3$02d</string>
+    <string name="dashboard_uptime_clock">%1$02d:%2$02d:%3$02d</string>
+
+    <!-- 卡片自定义 -->
+    <string name="dashboard_add_widget">添加卡片</string>
+    <string name="dashboard_edit_mode">正在编辑仪表盘</string>
+    <string name="dashboard_edit_done">完成</string>
+    <string name="dashboard_added_widget">已添加 %1$s</string>
+    <string name="dashboard_widget_already_placed">%1$s 已在仪表盘上</string>
+    <string name="dashboard_remove_widget">移除卡片</string>
+    <string name="dashboard_widgets_empty">所有卡片均已添加到仪表盘</string>
+    <string name="dashboard_reorder_hint">拖动以排序</string>
+
+    <string name="dashboard_probe_latency">%1$d ms</string>
+    <string name="dashboard_refresh_services">重新检测</string>
+
+    <!-- 服务探测可用性 -->
+    <string name="dashboard_status_ok">可用</string>
+    <string name="dashboard_status_restricted">受限</string>
+    <string name="dashboard_status_blocked">被拦截</string>
+    <string name="dashboard_status_timeout">超时</string>
+    <string name="dashboard_status_failed">失败</string>
+    <string name="dashboard_status_checking">检测中…</string>
+
+</resources>

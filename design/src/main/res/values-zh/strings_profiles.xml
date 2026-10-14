@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      配置 / 日志页字符串，与 values/strings_profiles.xml 对应。
+    -->
+
+    <!-- ==================== Logcat ==================== -->
+
+    <string name="log_search_hint">查找日志</string>
+    <string name="clear_screen">清空屏幕</string>
+    <string name="clear_search">清除查找内容</string>
+
+    <!-- ==================== 配置 ==================== -->
+
+    <string name="share">分享</string>
+    <string name="share_failed">分享失败</string>
+    <string name="profiles_settings">配置设置</string>
+    <string name="dynamic_colors">动态配色 (Material You)</string>
+    <string name="update_profiles_on_launch">启动时更新配置</string>
+    <string name="profile_update_interval_hours">每 %d 小时自动更新</string>
+    <string name="profile_update_interval_minutes">每 %d 分钟自动更新</string>
+</resources>
