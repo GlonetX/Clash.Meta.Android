@@ -24,6 +24,8 @@ dependencies {
     implementation(libs.androidx.coordinator)
     implementation(libs.androidx.recyclerview)
     implementation(libs.google.material)
+    implementation(libs.quickie.bundled)
+    implementation(libs.androidx.activity.ktx)
 }
 
 tasks.getByName("clean", type = Delete::class) {
@@ -35,9 +37,11 @@ val geoFilesDownloadDir = "src/main/assets"
 task("downloadGeoFiles") {
 
     val geoFilesUrls = mapOf(
-        "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb" to "geoip.metadb",
-        "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat" to "geosite.dat",
-        "https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country.mmdb" to "country.mmdb",
+        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb" to "geoip.metadb",
+        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat" to "geosite.dat",
+        // "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb" to "country.mmdb",
+        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb" to "ASN.mmdb",
+        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/BundleMRS.7z" to "BundleMRS.7z",
     )
 
     doLast {

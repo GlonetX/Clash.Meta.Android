@@ -1,7 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="PluralsCandidate">
-    <string name="launch_name">Clash Meta</string>
-    <string name="application_name">Clash Meta для Android</string>
-
     <string name="stopped">Остановлен</string>
     <string name="tap_to_start">Нажмите для запуска</string>
     <string name="running">Запущен</string>
@@ -41,6 +38,7 @@
     <string name="url">URL</string>
     <string name="import_from_url">Импорт из URL</string>
     <string name="external">Внешний</string>
+    <string name="import_from_qr">Импорт из QR-кода</string>
     <string name="format_type_unsaved">%s (не сохранён)</string>
 
     <string name="application_broken">Приложение сломано</string>
@@ -59,6 +57,17 @@
     <string name="accept_http_content">Принимать только http(s)</string>
     <string name="at_least_15_minutes">Не менее 15 минут или пустой</string>
     <string name="should_not_be_blank">Не должно быть пустым</string>
+    <string name="age_secret_key">Секретный ключ Age</string>
+    <string name="age_secret_key_hint">AGE-SECRET-KEY-… (необязательно)</string>
+    <string name="age_secret_key_error">Недопустимый формат. Ключ должен начинаться с AGE-SECRET-KEY-</string>
+    <string name="age_key_helper">Ключ Age</string>
+    <string name="age_key_category">Ключ Age</string>
+    <string name="age_key_generate_summary">Нажмите, чтобы сгенерировать</string>
+    <string name="age_public_key">Открытый ключ Age</string>
+    <string name="age_public_key_error">Недействительный открытый ключ Age</string>
+    <string name="age_key_generate">Сгенерировать</string>
+    <string name="age_key_to_public">Из секретного ключа</string>
+    <string name="age_key_copy">Копировать</string>
     <string name="detail">Детали</string>
     <string name="update">Обновить</string>
     <string name="edit">Изменить</string>
@@ -67,6 +76,8 @@
     <string name="import_">Импорт</string>
     <string name="properties">Свойства</string>
     <string name="duplicate">Создать копию</string>
+    <string name="share_qr_code">Поделиться QR-кодом</string>
+    <string name="qr_code_generation_failed">Не удалось создать QR-код для этой ссылки.</string>
     <string name="active_unsaved_tips">Профиль должен быть сохранён перед активацией</string>
 
     <string name="exit_without_save">Выйти без сохранения</string>
@@ -144,8 +155,6 @@
     <string name="log_level">Уровень логов</string>
     <string name="ipv6">IPv6</string>
     <string name="hosts">Hosts</string>
-    <string name="sideload_geoip">Загрузить GeoIP</string>
-    <string name="sideload_geoip_summary">Внешняя база GeoIP</string>
     <string name="_new">Новый</string>
     <string name="value">Значение</string>
 
@@ -308,4 +317,6 @@
     <string name="force_dns_mapping">Force DNS Mapping</string>
     <string name="parse_pure_ip">Parse Pure IP</string>
     <string name="override_destination">Override Destination</string>
+    <string name="import_from_qr_no_permission">Доступ к камере ограничен. Разрешите его в настройках.</string>
+    <string name="import_from_qr_exception">Произошла не обрабатываемая системная ошибка.</string>
 </resources>

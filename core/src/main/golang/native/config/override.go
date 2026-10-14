@@ -1,10 +1,10 @@
 package config
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 
-	"github.com/Dreamacro/clash/constant"
+	"github.com/metacubex/mihomo/constant"
 )
 
 type OverrideSlot int
@@ -31,7 +31,7 @@ func ReadOverride(slot OverrideSlot) string {
 			return defaultPersistOverride
 		}
 
-		buf, err := ioutil.ReadAll(file)
+		buf, err := io.ReadAll(file)
 		if err != nil {
 			return defaultPersistOverride
 		}

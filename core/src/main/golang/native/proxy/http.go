@@ -3,8 +3,8 @@ package proxy
 import (
 	"sync"
 
-	"github.com/Dreamacro/clash/listener/http"
-	"github.com/Dreamacro/clash/tunnel"
+	"github.com/metacubex/mihomo/listener/http"
+	"github.com/metacubex/mihomo/tunnel"
 )
 
 var listener *http.Listener
@@ -18,7 +18,7 @@ func Start(listen string) (listenAt string, err error) {
 
 	listener, err = http.NewWithAuthenticate(listen, tunnel.Tunnel, false)
 	if err == nil {
-		listenAt = listener.Listener().Addr().String()
+		listenAt = listener.Address()
 	}
 
 	return

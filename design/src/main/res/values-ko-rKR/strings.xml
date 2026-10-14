@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="launch_name">Clash Meta</string>
-    <string name="application_name">Clash Meta for Android</string>
     <string name="stopped">중지됨</string>
     <string name="tap_to_start">연결하려면 터치</string>
     <string name="running">연결중</string>
@@ -33,6 +31,7 @@
     <string name="url">URL</string>
     <string name="import_from_url">URL에서 가져오기</string>
     <string name="external">외부</string>
+    <string name="import_from_qr">QR코드에서 가져오기</string>
     <string name="format_type_unsaved">%s (저장되지 않음)</string>
     <string name="application_broken">앱 오류</string>
     <string name="application_crashed">앱 중지</string>
@@ -48,6 +47,17 @@
     <string name="accept_http_content">http(s) 연결만 허용</string>
     <string name="at_least_15_minutes">최소 15분 이상 또는 공백</string>
     <string name="should_not_be_blank">이 필드는 공백이 허용되지 않습니다.</string>
+    <string name="age_secret_key">Age 비밀 키</string>
+    <string name="age_secret_key_hint">AGE-SECRET-KEY-… (선택 사항)</string>
+    <string name="age_secret_key_error">형식이 올바르지 않습니다. 키는 AGE-SECRET-KEY-로 시작해야 합니다</string>
+    <string name="age_key_helper">Age 키</string>
+    <string name="age_key_category">Age 키</string>
+    <string name="age_key_generate_summary">탭하여 생성</string>
+    <string name="age_public_key">Age 공개 키</string>
+    <string name="age_public_key_error">잘못된 Age 공개 키</string>
+    <string name="age_key_generate">생성</string>
+    <string name="age_key_to_public">비밀 키에서 생성</string>
+    <string name="age_key_copy">복사</string>
     <string name="detail">자세히</string>
     <string name="update">업데이트</string>
     <string name="edit">편집</string>
@@ -56,6 +66,8 @@
     <string name="import_">가져오기</string>
     <string name="properties">속성</string>
     <string name="duplicate">복제</string>
+    <string name="share_qr_code">QR 코드로 공유</string>
+    <string name="qr_code_generation_failed">이 링크의 QR 코드를 생성할 수 없습니다.</string>
     <string name="active_unsaved_tips">활성화하기 전에 구성 파일을 저장해야합니다.</string>
     <string name="exit_without_save">저장없이 종료</string>
     <string name="exit_without_save_warning">모든 변경 사항이 저장되지 않습니다.</string>
@@ -119,8 +131,6 @@
     <string name="log_level">로그 레벨</string>
     <string name="ipv6">IPv6</string>
     <string name="hosts">호스트</string>
-    <string name="sideload_geoip">Sideload GEOIP</string>
-    <string name="sideload_geoip_summary">외부 GEOIP 데이터베이스</string>
     <string name="_new">신규</string>
     <string name="value">값</string>
     <string name="strategy">정책</string>
@@ -253,4 +263,6 @@
     <string name="force_dns_mapping">Force DNS Mapping</string>
     <string name="parse_pure_ip">Parse Pure IP</string>
     <string name="override_destination">Override Destination</string>
+    <string name="import_from_qr_no_permission">카메라 접근이 제한되었습니다. 설정에서 허용해 주세요.</string>
+    <string name="import_from_qr_exception">처리되지 않은 시스템 예외가 발생했습니다.</string>
 </resources>

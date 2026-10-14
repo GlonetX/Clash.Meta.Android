@@ -77,6 +77,13 @@ class NetworkSettingsDesign(
                 configure = vpnDependencies::add,
             )
 
+            switch(
+                value = srvStore::allowIpv6,
+                title = R.string.allow_ipv6,
+                summary = R.string.allow_ipv6_summary,
+                configure = vpnDependencies::add,
+            )
+
             if (Build.VERSION.SDK_INT >= 29) {
                 switch(
                     value = srvStore::systemProxy,
@@ -85,6 +92,24 @@ class NetworkSettingsDesign(
                     configure = vpnDependencies::add,
                 )
             }
+
+            selectableList(
+                value = srvStore::tunStackMode,
+                values = arrayOf(
+                    "system",
+                    "gvisor",
+                    "mixed",
+                    "mips"
+                ),
+                valuesText = arrayOf(
+                    R.string.tun_stack_system,
+                    R.string.tun_stack_gvisor,
+                    R.string.tun_stack_mixed,
+                    R.string.tun_stack_mips
+                ),
+                title = R.string.tun_stack_mode,
+                configure = vpnDependencies::add,
+            )
 
             selectableList(
                 value = srvStore::accessControlMode,
@@ -105,8 +130,6 @@ class NetworkSettingsDesign(
                 clicked {
                     requests.trySend(Request.StartAccessControlList)
                 }
-
-                vpnDependencies.add(this)
             }
 
             if (running) {

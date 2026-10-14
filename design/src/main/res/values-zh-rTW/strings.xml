@@ -6,7 +6,6 @@
     <string name="access_control_packages">存取控制應用程式套件清單</string>
     <string name="append_system_dns">附加作業系統 DNS</string>
     <string name="application_broken">應用程式損毀</string>
-    <string name="application_name">Clash Meta for Android</string>
     <string name="auto_update">自動更新</string>
     <string name="behavior">行為</string>
     <string name="bypass_private_network">略過私有網路</string>
@@ -26,6 +25,8 @@
     <string name="dns_hijacking">DNS 攔截攻擊</string>
     <string name="dns_hijacking_summary">處理所有 DNS 封包</string>
     <string name="duplicate">複製</string>
+    <string name="share_qr_code">分享 QR 碼</string>
+    <string name="qr_code_generation_failed">無法為此連結產生 QR 碼。</string>
     <string name="edit">編輯</string>
     <string name="empty_name">空白名稱</string>
     <string name="exit_without_save">退出而不儲存</string>
@@ -41,9 +42,9 @@
     <string name="history">歷史</string>
     <string name="import_from_file">從檔案匯入</string>
     <string name="import_from_url">從 URL 匯入</string>
+    <string name="import_from_qr">從二維碼導入</string>
     <string name="interface_">介面</string>
     <string name="invalid_url">無效 URL</string>
-    <string name="launch_name">Clash Meta</string>
     <string name="logcat">Logcat</string>
     <string name="logs">日誌</string>
     <string name="mode">模式</string>
@@ -79,6 +80,17 @@
     <string name="update_time">更新時間</string>
     <string name="package_name">套件名稱</string>
     <string name="install_time">安裝時間</string>
+    <string name="age_secret_key">Age 私鑰</string>
+    <string name="age_secret_key_hint">AGE-SECRET-KEY-…（選填）</string>
+    <string name="age_secret_key_error">無效格式。金鑰應以 AGE-SECRET-KEY- 開頭</string>
+    <string name="age_key_helper">Age 金鑰</string>
+    <string name="age_key_category">Age 金鑰</string>
+    <string name="age_key_generate_summary">輕觸產生</string>
+    <string name="age_public_key">Age 公開金鑰</string>
+    <string name="age_public_key_error">無效的 Age 公開金鑰</string>
+    <string name="age_key_generate">產生</string>
+    <string name="age_key_to_public">從私鑰匯出</string>
+    <string name="age_key_copy">複製</string>
     <string name="feedback">回饋</string>
     <string name="github_issues">Github Issues</string>
     <string name="tips_properties"><![CDATA[僅接受 <strong>Clash 設定檔</strong> (包含<strong>Proxy</strong> /<strong>規則</strong>)]]></string>
@@ -175,8 +187,6 @@
     <string name="format_fetching_provider">正在下載外部資源 %s</string>
     <string name="initializing">正在初始化</string>
     <string name="verifying">正在校驗</string>
-    <string name="sideload_geoip">旁載入 GEOIP</string>
-    <string name="sideload_geoip_summary">外部 GEOIP 資料庫</string>
     <string name="force_enable">強制啟用</string>
     <string name="document">文件</string>
     <string name="clash_wiki">Clash Wiki</string>
@@ -250,4 +260,6 @@
     <string name="force_dns_mapping">Force DNS Mapping</string>
     <string name="parse_pure_ip">Parse Pure IP</string>
     <string name="override_destination">Override Destination</string>
+    <string name="import_from_qr_no_permission">相機權限受限，請前往設定開啟。</string>
+    <string name="import_from_qr_exception">發生系統未知異常，操作失敗。</string>
 </resources>

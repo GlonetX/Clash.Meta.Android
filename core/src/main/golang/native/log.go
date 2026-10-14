@@ -1,5 +1,3 @@
-//go:build !premium
-
 package main
 
 //#include "bridge.h"
@@ -10,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/Dreamacro/clash/log"
+	"github.com/metacubex/mihomo/log"
 )
 
 type message struct {

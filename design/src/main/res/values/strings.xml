@@ -1,6 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="PluralsCandidate">
-    <string name="launch_name">Clash Meta</string>
-    <string name="application_name">Clash Meta for Android</string>
+    <string name="launch_name_meta">Clash Meta</string>
+    <string name="launch_name_alpha">Clash Meta Alpha</string>
+    <string name="application_name_meta">Clash Meta for Android</string>
+    <string name="application_name_alpha">Clash Meta for Android Alpha</string>
 
     <string name="stopped">Stopped</string>
     <string name="tap_to_start">Tap to start</string>
@@ -39,7 +41,9 @@
     <string name="file">File</string>
     <string name="import_from_file">Import from File</string>
     <string name="url">URL</string>
+    <string name="qr" translatable="false">QR Code</string>
     <string name="import_from_url">Import from URL</string>
+    <string name="import_from_qr">Import from QR Code</string>
     <string name="external">External</string>
     <string name="format_type_unsaved">%s (Unsaved)</string>
 
@@ -58,6 +62,19 @@
 
     <string name="accept_http_content">Accept only http(s)</string>
     <string name="at_least_15_minutes">At least 15 minutes or empty</string>
+    <string name="age_secret_key">Age Secret Key</string>
+    <string name="age_secret_key_hint">AGE-SECRET-KEY-… (optional)</string>
+    <string name="age_secret_key_error">Invalid format. Key should start with AGE-SECRET-KEY-</string>
+    <string name="age_key_helper">Age Key</string>
+    <string name="age_key_category">Age Key</string>
+    <string name="age_key_generate_summary">Tap to generate</string>
+    <string name="age_key_type_x25519" translatable="false">X25519</string>
+    <string name="age_key_type_hybrid" translatable="false">MLKEM768-X25519</string>
+    <string name="age_public_key">Age Public Key</string>
+    <string name="age_public_key_error">Invalid age public key</string>
+    <string name="age_key_generate">Generate</string>
+    <string name="age_key_to_public">From Secret</string>
+    <string name="age_key_copy">Copy</string>
     <string name="should_not_be_blank">Should not be blank</string>
     <string name="detail">Detail</string>
     <string name="update">Update</string>
@@ -67,6 +84,8 @@
     <string name="import_">Import</string>
     <string name="properties">Properties</string>
     <string name="duplicate">Duplicate</string>
+    <string name="share_qr_code">Share QR code</string>
+    <string name="qr_code_generation_failed">Unable to generate a QR code for this link.</string>
     <string name="active_unsaved_tips">Profile needs to be saved before activation</string>
 
     <string name="exit_without_save">Exit without Save</string>
@@ -122,6 +141,8 @@
     <string name="block_loopback_summary">Block loopback connections</string>
     <string name="allow_bypass">Allow Bypass</string>
     <string name="allow_bypass_summary">Allows all apps to bypass this VPN connection</string>
+    <string name="allow_ipv6">Allow Ipv6</string>
+    <string name="allow_ipv6_summary">Allows ipv6 traffic via VpnService</string>
     <string name="system_proxy">System Proxy</string>
     <string name="system_proxy_summary">Attach http proxy to VpnService</string>
     <string name="access_control_mode">Access Control Mode</string>
@@ -144,9 +165,12 @@
     <string name="mode">Mode</string>
     <string name="log_level">Log Level</string>
     <string name="ipv6">IPv6</string>
+    <string name="external_controller">External Controller</string>
+    <string name="external_controller_tls">External Controller TLS</string>
+    <string name="allow_origins">External Controller Allow Origins</string>
+    <string name="allow_private_network">External Controller Allow Private Network</string>
+    <string name="secret">Secret</string>
     <string name="hosts">Hosts</string>
-    <string name="sideload_geoip">Sideload GEOIP</string>
-    <string name="sideload_geoip_summary">External GEOIP database</string>
     <string name="_new">New</string>
     <string name="value">Value</string>
 
@@ -159,6 +183,7 @@
     <string name="fallback">Fallback Name Server</string>
     <string name="default_name_server">Default Name Server</string>
     <string name="fakeip_filter">Fake-IP Filter</string>
+    <string name="fakeip_filter_mode">Fake-IP Filter Mode</string>
     <string name="geoip_fallback">GeoIP Fallback</string>
     <string name="geoip_fallback_code">GeoIP Fallback Code</string>
     <string name="ipcidr_fallback">IPCIDR Fallback</string>
@@ -180,6 +205,9 @@
 
     <string name="mapping">Real-IP to domain mapping</string>
     <string name="fakeip">Fake-IP to domain mapping</string>
+
+    <string name="blacklist">Black List</string>
+    <string name="whitelist">White List</string>
 
     <string name="off">OFF</string>
     <string name="strict">Strict</string>
@@ -229,6 +257,12 @@
     <string name="always_dark">Always Dark</string>
     <string name="always_light">Always Light</string>
 
+    <string name="tun_stack_mode">Stack Mode</string>
+    <string name="tun_stack_system">System Stack</string>
+    <string name="tun_stack_gvisor">Gvisor Stack</string>
+    <string name="tun_stack_mixed">Mixed Stack</string>
+    <string name="tun_stack_mips">Mips Stack</string>
+
     <string name="allow_all_apps">Allow all apps</string>
     <string name="allow_selected_apps">Allow selected apps</string>
     <string name="deny_selected_apps">Deny selected apps</string>
@@ -262,6 +296,7 @@
     <string name="format_provider_type">%1$s(%2$s)</string>
     <string name="rule">Rule</string>
     <string name="http">HTTP</string>
+    <string name="inline">Inline</string>
     <string name="compatible">Compatible</string>
     <string name="format_update_provider_failure">Update %1$s: %2$s</string>
     <string name="update_all">Update All</string>
@@ -288,13 +323,19 @@
 
     <string name="sniffer_setting">Sniffer Setting</string>
     <string name="sniffer">Sniffer</string>
-    <string name="sniffing">Sniffer Mode</string>
+    <string name="force_dns_mapping">Force DNS Mapping</string>
+    <string name="parse_pure_ip">Parse Pure IP</string>
+    <string name="override_destination">Override Destination</string>
     <string name="force_domain">Force Domain</string>
     <string name="skip_domain">Skip Domain</string>
-    <string name="port_whitelist">Port Whitelist</string>
-    <string name="disable_sniffer">Disable Sniffer</string>
-    <string name="sniffer_config">Load Sniffer From Config</string>
-    <string name="sniffer_override">Override Sniffer Config</string>
+    <string name="skip_src_address">Skip Src Address</string>
+    <string name="skip_dst_address">Skip Dst Address</string>
+    <string name="sniff_http_ports">Sniff HTTP Ports</string>
+    <string name="sniff_tls_ports">Sniff TLS Ports</string>
+    <string name="sniff_quic_ports">Sniff QUIC Ports</string>
+    <string name="sniff_http_override_destination">Sniff HTTP Override Destination</string>
+    <string name="sniff_tls_override_destination">Sniff TLS Override Destination</string>
+    <string name="sniff_quic_override_destination">Sniff QUIC Override Destination</string>
 
     <string name="geox_url_setting">GeoX Url Setting</string>
     <string name="geox_geoip">GeoIp Url</string>
@@ -305,9 +346,10 @@
     <string name="geosite_url" translatable="false">https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geosite.dat</string>
     <string name="geox_files" >Geo Files</string>
     <string name="import_geoip_file">Import GeoIP Database</string>
-    <string name="press_to_import" translatable="false">Press to import...</string>
     <string name="import_geosite_file">Import GeoSite Database</string>
     <string name="import_country_file">Import Country Database</string>
+    <string name="import_asn_file">Import ASN Database</string>
+    <string name="press_to_import" translatable="false">Press to import...</string>
     <string name="geofile_import_failed">Import failed</string>
     <string name="geofile_unknown_db_format">Unknown Database format</string>
     <string name="geofile_unknown_db_format_message">Only %1$s are supported</string>
@@ -317,9 +359,20 @@
     <string name="external_control_activity">External Control</string>
     <string name="external_control_started">Clash.Meta service started</string>
     <string name="external_control_stopped">Clash.Meta service stopped</string>
-    <string name="force_dns_mapping">Force DNS Mapping</string>
-    <string name="parse_pure_ip">Parse Pure IP</string>
-    <string name="override_destination">Override Destination</string>
+
+    <string name="hide_app_icon_title">Hide App Icon</string>
+    <string name="hide_app_icon_desc">You can dial *#*#252746382#*#* to open this App</string>
+    <string name="hide_from_recents_title">Hide from Recents</string>
+    <string name="hide_from_recents_desc">Hide app from the Recent apps screen</string>
+    <string name="import_from_qr_no_permission">Camera access is restricted. Please enable it in Settings.</string>
+    <string name="import_from_qr_exception">An unhandled system exception occurred.</string>
+
+    <string name="shortcut_toggle_short">Toggle Clash</string>
+    <string name="shortcut_toggle_long">Toggle Clash service on/off</string>
+    <string name="shortcut_start_short">Start Clash</string>
+    <string name="shortcut_start_long">Start Clash service</string>
+    <string name="shortcut_stop_short">Stop Clash</string>
+    <string name="shortcut_stop_long">Stop Clash service</string>
     <string name="glonetx_url" translatable="false">https://github.com/GlonetX</string>
     <string name="reforged_by_glonetx" translatable="false">Reforged by GlonetX</string>
 </resources>

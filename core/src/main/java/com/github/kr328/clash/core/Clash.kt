@@ -6,6 +6,8 @@ import com.github.kr328.clash.core.util.parseInetSocketAddress
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonPrimitive
@@ -49,7 +51,7 @@ object Clash {
     }
 
     fun notifyDnsChanged(dns: List<String>) {
-        Bridge.nativeNotifyDnsChanged(dns.joinToString(separator = ","))
+        Bridge.nativeNotifyDnsChanged(dns.toSet().joinToString(separator = ","))
     }
 
     fun notifyTimeZoneChanged(name: String, offset: Int) {
@@ -64,13 +66,14 @@ object Clash {
 
     fun startTun(
         fd: Int,
+        stack: String,
         gateway: String,
         portal: String,
         dns: String,
         markSocket: (Int) -> Boolean,
         querySocketUid: (protocol: Int, source: InetSocketAddress, target: InetSocketAddress) -> Int
     ) {
-        Bridge.nativeStartTun(fd, gateway, portal, dns, object : TunInterface {
+        Bridge.nativeStartTun(fd, stack, gateway, portal, dns, object : TunInterface {
             override fun markSocket(fd: Int) {
                 markSocket(fd)
             }
@@ -113,7 +116,7 @@ object Clash {
     fun queryGroup(name: String, sort: ProxySort): ProxyGroup {
         return Bridge.nativeQueryGroup(name, sort.name)
             ?.let { Json.Default.decodeFromString(ProxyGroup.serializer(), it) }
-            ?: ProxyGroup(Proxy.Type.Unknown, emptyList(), "")
+            ?: ProxyGroup("Unknown", emptyList(), "")
     }
 
     fun healthCheck(name: String): CompletableDeferred<Unit> {
@@ -208,10 +211,6 @@ object Clash {
         Bridge.nativeClearOverride(slot.ordinal)
     }
 
-    fun installSideloadGeoip(data: ByteArray?) {
-        Bridge.nativeInstallSideloadGeoip(data)
-    }
-
     fun queryConfiguration(): UiConfiguration {
         return Json.Default.decodeFromString(
             UiConfiguration.serializer(),
@@ -227,5 +226,35 @@ object Clash {
                 }
             })
         }
+    }
+
+    fun setAgeSecretKey(key: String?) {
+        Bridge.nativeSetAgeSecretKey(key)
+    }
+
+    fun genX25519KeyPair(): AgeKeyPair {
+        return parseAgeKeyPair(checkNotNull(Bridge.nativeGenX25519KeyPair()))
+    }
+
+    fun genHybridKeyPair(): AgeKeyPair {
+        return parseAgeKeyPair(checkNotNull(Bridge.nativeGenHybridKeyPair()))
+    }
+
+    fun veritySecretKeys(vararg secretKeys: String): Boolean {
+        return Bridge.nativeVeritySecretKeys(secretKeys.firstOrNull() ?: "")
+    }
+
+    fun toPublicKeys(vararg secretKeys: String): List<String> {
+        return Bridge.nativeToPublicKeys(secretKeys.firstOrNull() ?: "")
+            ?.let { Json.Default.decodeFromString(ListSerializer(String.serializer()), it) }
+            ?: emptyList()
+    }
+
+    fun verityPublicKeys(vararg publicKeys: String): Boolean {
+        return Bridge.nativeVerityPublicKeys(publicKeys.firstOrNull() ?: "")
+    }
+
+    private fun parseAgeKeyPair(value: String): AgeKeyPair {
+        return Json.Default.decodeFromString(AgeKeyPair.serializer(), value)
     }
 }

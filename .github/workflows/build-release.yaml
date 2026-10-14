@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release-tag:
-        description: 'Release Tag (v3.x.x)'
+        description: 'Release Tag (v12.x.x)'
         required: true
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -25,30 +25,35 @@ jobs:
         run: |
           touch id_ed25519
           echo "$DEPLOY_KEY" > id_ed25519
-          echo "cat ./id_ed25519"
-          cat ./id_ed25519
           chmod 600 ./id_ed25519
-          ls -al
 
       - name: Checkout submodules
         run: |
           eval "$(ssh-agent -s)"
           ssh-add ./id_ed25519
-          ssh-add -l
-          git submodule update --init --recursive --remote --force
+          git submodule update --init --recursive --force
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
-          java-version: 17
+          distribution: "temurin"
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
-          go-version: "1.20"
+          go-download-base-url: 'https://github.com/MetaCubeX/go/releases/download/build'
+          go-version: '1.26'
 
-      - uses: actions/cache@v3
+      - name: Apply Patches
+        run: |
+          cd $(go env GOROOT)
+          for p in $GITHUB_WORKSPACE/.github/patch/*.patch; do patch --verbose -p 1 < "$p"; done
+
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -56,7 +61,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      
+
       - name: Convert and set version env
         id: process-version
         run: |
@@ -64,19 +69,19 @@ jobs:
           VERSION_TAG=${VERSION_TAG#v}                              # remove the 'v' prefix
           IFS='.' read -ra VERSION_PARTS <<< "$VERSION_TAG"         # split into array
           VERSION_CODE=$(printf "%1d%02d%03d" "${VERSION_PARTS[0]}" "${VERSION_PARTS[1]}" "${VERSION_PARTS[2]}")
-          
+
           echo "versonName=$VERSION_TAG" >> $GITHUB_OUTPUT          # "1.2.3"
           echo "versonCode=$VERSION_CODE" >> $GITHUB_OUTPUT         # "102003"
-      
+
       # Re-write version in build.gradle.kts
       - name: Re-write version
-        uses: Devofure/advance-android-version-actions@v1.4
+        uses: Devofure/advance-android-version-actions@v1.5
         with:
           gradlePath: build.gradle.kts
           versionCode: ${{ steps.process-version.outputs.versonCode }}
           versionName: ${{ steps.process-version.outputs.versonName }}
-      
-      # If any change found, commit it and push
+
+      # If any change found, commit it and push it
       - name: Commit and push if changes
         run: |
           changes=$(git diff --name-only origin/main | wc -l)
@@ -92,6 +97,12 @@ jobs:
             git push --follow-tags
           fi
 
+      - name: Update CA
+        run: |
+          sudo apt-get update && sudo apt-get install ca-certificates
+          sudo update-ca-certificates
+          cp -f /etc/ssl/certs/ca-certificates.crt core/src/foss/golang/clash/component/ca/ca-certificates.crt
+
       - name: Signing properties
         env:
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
@@ -102,25 +113,20 @@ jobs:
           echo keystore.password="$SIGNING_STORE_PASSWORD" > signing.properties
           echo key.alias="$SIGNING_KEY_ALIAS" >> signing.properties
           echo key.password="$SIGNING_KEY_PASSWORD" >> signing.properties
-            
-          echo "cat signing.properties"
-          cat signing.properties
 
       - name: Release Build
         if: success()
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: --no-daemon app:assembleMetaRelease
+        run: ./gradlew --no-daemon app:assembleMetaRelease
 
       - name: Tag Repo
-        uses: richardsimko/update-tag@v1
+        uses: richardsimko/update-tag@v3
         with:
           tag_name: ${{ inputs.release-tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         if: ${{ success() }}
         with:
           tag_name: ${{ inputs.release-tag }}
