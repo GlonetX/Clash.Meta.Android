@@ -53,50 +53,59 @@
                     android:textAppearance="@style/TextAppearance.App.CardTitle" />
             </LinearLayout>
 
-            <LinearLayout
+            <!-- The pill is positioned by translating it across the track;
+                 it must not take part in the labels' weighted layout, so
+                 the track is a FrameLayout: highlight behind, labels on
+                 top with three equal shares of the full width. -->
+            <FrameLayout
                 android:id="@+id/mode_stack"
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:layout_marginTop="@dimen/app_space_md"
-                android:background="@drawable/bg_dashboard_track"
-                android:clipChildren="true"
-                android:orientation="horizontal">
+                android:background="@drawable/bg_dashboard_track">
 
                 <View
                     android:id="@+id/mode_highlight"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent" />
-
-                <TextView
-                    android:id="@+id/mode_rule"
-                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:text="@string/rule_mode_short"
-                    android:textAppearance="@style/TextAppearance.App.NavLabel" />
+                    android:background="@drawable/bg_dashboard_pill" />
 
-                <TextView
-                    android:id="@+id/mode_global"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:text="@string/global_mode_short"
-                    android:textAppearance="@style/TextAppearance.App.NavLabel" />
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/mode_direct"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:text="@string/direct_mode_short"
-                    android:textAppearance="@style/TextAppearance.App.NavLabel" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/mode_rule"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="@string/rule_mode_short"
+                        android:textAppearance="@style/TextAppearance.App.NavLabel" />
+
+                    <TextView
+                        android:id="@+id/mode_global"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="@string/global_mode_short"
+                        android:textAppearance="@style/TextAppearance.App.NavLabel" />
+
+                    <TextView
+                        android:id="@+id/mode_direct"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="@string/direct_mode_short"
+                        android:textAppearance="@style/TextAppearance.App.NavLabel" />
+                </LinearLayout>
+            </FrameLayout>
         </LinearLayout>
     </com.github.kr328.clash.design.view.AppCard>
 </layout>
