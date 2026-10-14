@@ -533,6 +533,7 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
+            style="@style/AppNavigationBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/main_dock_margin_horizontal"
@@ -541,7 +542,6 @@
             android:backgroundTint="@null"
             android:elevation="@dimen/main_dock_elevation"
             android:paddingBottom="@{self.surface.insets.bottom}"
-            app:activeIndicatorStyle="@style/AppNavigationBar.ActiveIndicator"
             app:itemBackground="@null"
             app:itemIconTint="@color/dock_item_color"
             app:itemTextColor="@color/dock_item_color"

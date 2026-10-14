@@ -8,7 +8,9 @@
         <item name="android:textColor">@color/color_error</item>
     </style>
 
-    <style name="AppNavigationBar" />
+    <style name="AppNavigationBar" parent="Widget.Material3.BottomNavigationView">
+        <item name="activeIndicatorStyle">@style/AppNavigationBar.ActiveIndicator</item>
+    </style>
 
     <style name="AppNavigationBar.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:backgroundTint">?attr/colorPrimaryContainer</item>
