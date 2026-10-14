@@ -113,7 +113,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/application_name"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+                            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
                     </LinearLayout>
 
                     <com.github.kr328.clash.design.view.LargeActionCard
@@ -157,7 +157,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="@dimen/main_card_title_margin_start"
                                     android:text="@string/outbound_mode"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
                             </LinearLayout>
 
                             <com.google.android.material.button.MaterialButtonToggleGroup
@@ -234,13 +234,13 @@
                                     android:layout_marginStart="@dimen/main_card_title_margin_start"
                                     android:layout_weight="1"
                                     android:text="@string/network_quality"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+                                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@{memoryUsage ?? @string/unknown_ip}"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                                    android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -259,13 +259,13 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="@string/upload_speed"
-                                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                                        android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="@{speedUp ?? @string/unknown_ip}"
-                                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+                                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
                                 </LinearLayout>
 
                                 <LinearLayout
@@ -278,13 +278,13 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="@string/download_speed"
-                                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                                        android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="@{speedDown ?? @string/unknown_ip}"
-                                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+                                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
                                 </LinearLayout>
                             </LinearLayout>
 
@@ -326,12 +326,15 @@
                                     android:layout_marginStart="@dimen/main_card_title_margin_start"
                                     android:layout_weight="1"
                                     android:text="@string/ip_info"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+                                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
 
-                                <View
-                                    android:layout_width="@dimen/large_item_header_layout_size"
-                                    android:layout_height="@dimen/large_item_header_layout_size"
-                                    android:background="@drawable/ic_baseline_refresh" />
+                                <ImageButton
+                                    android:layout_width="@dimen/main_icon_button_size"
+                                    android:layout_height="@dimen/main_icon_button_size"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="@string/refresh"
+                                    android:scaleType="centerInside"
+                                    android:src="@drawable/ic_baseline_refresh" />
                             </LinearLayout>
 
                             <TextView
@@ -339,26 +342,26 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/main_card_section_margin_vertical"
                                 android:text="@{ipStatus ?? @string/exit_ip}"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                                android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@{exitIPAddr ?? @string/unknown_ip}"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@{exitIPDisplay}"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@{exitIPISP}"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -370,21 +373,21 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/direct_ip"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                                    android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="@dimen/main_card_title_margin_start"
                                     android:text="@{directIPAddr ?? @string/unknown_ip}"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+                                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="@dimen/main_card_title_margin_start"
                                     android:text="@{directIPDisplay}"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+                                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                             </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -421,16 +424,16 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/tun_mode"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/tun_mode_summary"
-                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                                    android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
                             </LinearLayout>
 
-                            <com.google.android.material.switchmaterial.SwitchMaterial
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:checked="@{tunEnabled}"

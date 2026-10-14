@@ -292,6 +292,7 @@
     <string name="upload_speed">上传</string>
     <string name="download_speed">下载</string>
     <string name="dashboard">仪表盘</string>
+    <string name="refresh">刷新</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">内存</string>
     <string name="tun_mode">TUN（VPN）模式</string>
