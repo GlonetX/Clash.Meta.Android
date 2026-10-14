@@ -10,6 +10,7 @@ import androidx.annotation.StyleRes
 import com.github.kr328.clash.design.R
 import com.github.kr328.clash.design.databinding.ComponentActionLabelBinding
 import com.github.kr328.clash.design.util.layoutInflater
+import com.github.kr328.clash.design.util.resolveThemedColor
 
 class ActionLabel @JvmOverloads constructor(
     context: Context,
@@ -24,6 +25,11 @@ class ActionLabel @JvmOverloads constructor(
         get() = binding.iconView.background
         set(value) {
             binding.iconView.background = value
+            // FlClash-style tinted icon inside a tonal container
+            binding.iconView.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(
+                    context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+                )
         }
 
     var text: CharSequence?

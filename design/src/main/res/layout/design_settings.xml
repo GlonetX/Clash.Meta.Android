@@ -25,8 +25,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:paddingHorizontal="@dimen/preference_group_margin_horizontal"
                 android:paddingTop="@{(float) self.surface.insets.top + @dimen/toolbar_height}"
                 android:paddingBottom="@{(float) self.surface.insets.bottom + @dimen/main_dock_content_clearance}">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_preference_group"
+                    android:orientation="vertical">
 
                 <com.github.kr328.clash.design.view.ActionLabel
                     android:layout_width="match_parent"
@@ -56,6 +63,7 @@
                     app:icon="@drawable/ic_baseline_meta"
                     app:text="@string/meta_features" />
 
+                </LinearLayout>
             </LinearLayout>
         </com.github.kr328.clash.design.view.ObservableScrollView>
 

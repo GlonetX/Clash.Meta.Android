@@ -4,8 +4,9 @@
         android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="@dimen/item_padding_vertical"
-        android:paddingStart="@{@dimen/item_header_component_size + @dimen/item_header_margin * 2}"
-        android:paddingEnd="@dimen/item_tailing_margin"
-        android:textColor="?attr/colorControlActivated" />
+        android:paddingHorizontal="@dimen/preference_group_margin_horizontal"
+        android:paddingTop="@dimen/item_padding_vertical"
+        android:paddingBottom="@dimen/item_text_margin"
+        android:textColor="?attr/colorPrimary"
+        android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
 </layout>

@@ -7,23 +7,33 @@
         android:clickable="true"
         android:focusable="true"
         android:minHeight="@dimen/item_min_height"
+        android:paddingVertical="@dimen/item_padding_vertical"
+        android:paddingStart="@dimen/preference_group_margin_horizontal"
         android:paddingEnd="@dimen/item_tailing_margin">
 
-        <View
-            android:id="@+id/icon_view"
-            android:layout_width="@dimen/item_header_component_size"
-            android:layout_height="@dimen/item_header_component_size"
+        <FrameLayout
+            android:id="@+id/icon_container"
+            android:layout_width="@dimen/preference_icon_container_size"
+            android:layout_height="@dimen/preference_icon_container_size"
             android:layout_centerVertical="true"
-            android:layout_marginHorizontal="@dimen/item_header_margin"
-            android:clickable="false"
-            android:focusable="false" />
+            android:layout_marginEnd="@dimen/item_header_margin"
+            android:background="@drawable/bg_preference_icon">
+
+            <View
+                android:id="@+id/icon_view"
+                android:layout_width="@dimen/item_header_component_size"
+                android:layout_height="@dimen/item_header_component_size"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:focusable="false" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toStartOf="@id/switch_view"
-            android:layout_toEndOf="@id/icon_view"
+            android:layout_toEndOf="@id/icon_container"
             android:orientation="vertical">
 
             <TextView
@@ -37,7 +47,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_text_margin"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
         <com.google.android.material.materialswitch.MaterialSwitch
