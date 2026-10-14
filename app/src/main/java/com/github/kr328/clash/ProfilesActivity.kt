@@ -8,9 +8,14 @@ import com.github.kr328.clash.common.util.intent
 import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.ticker
 import com.github.kr328.clash.design.ProfilesDesign
+import com.github.kr328.clash.design.store.DynamicColorsStore
+import com.github.kr328.clash.design.store.ProfileUpdateStore
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.service.model.Profile
+import com.github.kr328.clash.util.ApplicationObserver
 import com.github.kr328.clash.util.withProfile
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -42,6 +47,8 @@ class ProfilesActivity : BaseActivity<ProfilesDesign>() {
                     when (it) {
                         ProfilesDesign.Request.Create ->
                             startActivity(NewProfileActivity::class.intent)
+                        ProfilesDesign.Request.Configure ->
+                            showProfilesSettings()
                         ProfilesDesign.Request.UpdateAll ->
                             withProfile {
                                 try {
@@ -92,6 +99,37 @@ class ProfilesActivity : BaseActivity<ProfilesDesign>() {
         withProfile {
             patchProfiles(queryAll())
         }
+    }
+
+    /**
+     * The profiles page settings dialog: dynamic colour and the
+     * update-on-launch preference. Toggling dynamic colour recreates all
+     * activities so the new palette takes effect immediately.
+     */
+    private fun showProfilesSettings() {
+        val view = layoutInflater.inflate(R.layout.dialog_profiles_settings, null)
+
+        val dynamicColorsSwitch = view.findViewById<MaterialSwitch>(R.id.switch_dynamic_colors)
+        val updateOnLaunchSwitch = view.findViewById<MaterialSwitch>(R.id.switch_update_on_launch)
+
+        dynamicColorsSwitch.isChecked = DynamicColorsStore(this).enabled
+        updateOnLaunchSwitch.isChecked = ProfileUpdateStore(this).updateOnLaunch
+
+        dynamicColorsSwitch.setOnCheckedChangeListener { _, checked ->
+            DynamicColorsStore(this).enabled = checked
+
+            ApplicationObserver.createdActivities.forEach { it.recreate() }
+        }
+
+        updateOnLaunchSwitch.setOnCheckedChangeListener { _, checked ->
+            ProfileUpdateStore(this).updateOnLaunch = checked
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.profiles_settings)
+            .setView(view)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     override fun onProfileUpdateCompleted(uuid: UUID?) {

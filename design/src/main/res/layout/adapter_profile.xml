@@ -21,9 +21,13 @@
         <import type="com.github.kr328.clash.service.model.Profile.Type" />
         <import type="com.github.kr328.clash.design.util.I18nKt" />
         <import type="com.github.kr328.clash.design.util.IntervalKt" />
+        <import type="com.github.kr328.clash.design.util.ProfileFormatKt" />
     </data>
 
-    <com.google.android.material.card.MaterialCardView
+    <!-- One card, one profile. AppCard provides the shared radius,
+         elevation and colorSurface background; ProfileAdapter adds the
+         primary stroke for the active profile. -->
+    <com.github.kr328.clash.design.view.AppCard
         android:id="@+id/root_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,10 +36,7 @@
         android:clickable="true"
         android:focusable="true"
         android:nextFocusRight="@id/menu_view"
-        android:onClick="@{clicked}"
-        app:cardCornerRadius="@dimen/preference_group_corner_radius"
-        app:cardElevation="0dp"
-        app:rippleColor="?attr/colorPrimary">
+        android:onClick="@{clicked}">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -59,14 +60,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{profile.name}"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                        android:textAppearance="@style/TextAppearance.App.CardTitle" />
 
+                    <!-- Type · source host · auto-update interval -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/item_text_margin"
-                        android:text="@{profile.pending ? @string/format_type_unsaved(I18nKt.toString(profile.type, context)) : I18nKt.toString(profile.type, context)}"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:text="@{ProfileFormatKt.describe(profile, context)}"
+                        android:textAppearance="@style/TextAppearance.App.Label"
                         android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 
@@ -76,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/item_tailing_margin"
                     android:text="@{IntervalKt.elapsedIntervalString(currentTime.value - profile.updatedAt, context)}"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                    android:textAppearance="@style/TextAppearance.App.Label"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <ImageButton
@@ -115,15 +117,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text='@{I18nKt.toBytesString(profile.download + profile.upload) + " / " + I18nKt.toBytesString(profile.total)}'
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textAppearance="@style/TextAppearance.App.MetricSmall" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/item_tailing_margin"
-                    android:text='@{profile.expire > 0 ? I18nKt.toDateStr(profile.expire) : ""}'
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="@{ProfileFormatKt.toDateOnly(profile.expire, context)}"
+                    android:textAppearance="@style/TextAppearance.App.Label"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:visibility="@{profile.expire == 0 ? View.GONE : View.VISIBLE}" />
             </LinearLayout>
@@ -138,5 +139,5 @@
                 android:progressTint="?attr/colorPrimary"
                 android:visibility="@{profile.total &lt; 2 ? View.GONE : View.VISIBLE}" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </com.github.kr328.clash.design.view.AppCard>
 </layout>
