@@ -298,6 +298,45 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
+                        android:onClick="@{() -> self.request(Request.OpenConnections)}"
+                        android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="@dimen/main_card_content_padding">
+
+                            <View
+                                android:layout_width="@dimen/main_card_icon_size"
+                                android:layout_height="@dimen/main_card_icon_size"
+                                android:background="@drawable/ic_baseline_stack" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/main_card_title_margin_start"
+                                android:layout_weight="1"
+                                android:text="@string/connections"
+                                android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
+
+                            <ImageView
+                                android:layout_width="@dimen/main_icon_button_size"
+                                android:layout_height="@dimen/main_icon_button_size"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:clickable="true"
+                                android:contentDescription="@string/connections"
+                                android:focusable="true"
+                                android:scaleType="centerInside"
+                                android:src="@drawable/ic_baseline_more_vert" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/main_card_margin_vertical"
                         android:onClick="@{() -> self.request(Request.OpenIPQuality)}"
                         android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
 

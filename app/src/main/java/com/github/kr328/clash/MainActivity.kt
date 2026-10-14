@@ -154,6 +154,8 @@ class MainActivity : BaseActivity<MainDesign>() {
                             startActivity(IPQualityActivity::class.intent)
                         MainDesign.Request.OpenLatency ->
                             startActivity(LatencyActivity::class.intent)
+                        MainDesign.Request.OpenConnections ->
+                            startActivity(ConnectionsActivity::class.intent)
                         MainDesign.Request.PatchMode -> {
                             val mode = design.checkedOutboundMode()
 

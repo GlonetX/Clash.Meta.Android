@@ -404,6 +404,11 @@
     <string name="mobile_network">Mobile network</string>
     <string name="value_yes">Yes</string>
     <string name="value_no">No</string>
+    <string name="connections">Connections</string>
+    <string name="active_connections">%d active</string>
+    <string name="close_connection">Close connection</string>
+    <string name="close_all_connections">Close all connections</string>
+    <string name="no_connections">No active connections</string>
     <string name="outbound_mode">Outbound Mode</string>
     <string name="memory_usage">Memory</string>
 </resources>

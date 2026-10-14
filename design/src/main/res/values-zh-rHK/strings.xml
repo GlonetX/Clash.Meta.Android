@@ -202,6 +202,11 @@
     <string name="mobile_network">行動網路</string>
     <string name="value_yes">是</string>
     <string name="value_no">否</string>
+    <string name="connections">連接</string>
+    <string name="active_connections">%d 個活躍</string>
+    <string name="close_connection">關閉連接</string>
+    <string name="close_all_connections">關閉全部連接</string>
+    <string name="no_connections">暫無活躍連接</string>
     <string name="format_provider_type">%1$s(%2$s)</string>
     <string name="rule">規則</string>
     <string name="http">HTTP</string>

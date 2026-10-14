@@ -139,6 +139,24 @@ object Clash {
         }
     }
 
+    suspend fun queryConnections(): ConnectionList {
+        return withContext(Dispatchers.IO) {
+            Bridge.nativeQueryConnections()
+                ?.let {
+                    Json.Default.decodeFromString(
+                        ListSerializer(ConnectionItem.serializer()),
+                        it
+                    )
+                }
+                ?.let { ConnectionList(it) }
+                ?: ConnectionList(emptyList())
+        }
+    }
+
+    fun closeConnection(id: String) {
+        Bridge.nativeCloseConnection(id)
+    }
+
     suspend fun testLatency(url: String): Long {
         return withContext(Dispatchers.IO) {
             Bridge.nativeTestLatency(url)
