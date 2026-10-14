@@ -1,4 +1,7 @@
 name: Update Clash-Core and Go Modules
+permissions:
+  contents: write
+  pull-requests: write
 on:
   repository_dispatch:
     types:
@@ -11,9 +14,20 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
-      
+
+      - name: Checkout deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          touch id_ed25519
+          echo "$DEPLOY_KEY" > id_ed25519
+          chmod 600 ./id_ed25519
+
       - name: Checkout and Update submodules
-        run: git submodule update --init --recursive --remote --force
+        run: |
+          eval "$(ssh-agent -s)"
+          ssh-add ./id_ed25519
+          git submodule update --init --recursive --remote --force
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -31,7 +45,7 @@ jobs:
         run: |
           cd $(go env GOROOT)
           for p in $GITHUB_WORKSPACE/.github/patch/*.patch; do patch --verbose -p 1 < "$p"; done
-      
+
       - uses: actions/cache@v5
         with:
           path: |
@@ -57,6 +71,10 @@ jobs:
           update-go-mod-replace ${{ github.workspace }}/core/src/foss/golang/clash/go.mod $(pwd)/go.mod
           go mod tidy
 
+      - name: Remove deploy key
+        run: |
+          rm -f ./id_ed25519
+
       - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
@@ -79,10 +97,9 @@ jobs:
             - Update Go Module Dependecies
           labels: |
             Update
-        
+
       - name: PR result
         if: ${{ steps.cpr.outputs.pull-request-number }}
         run: |
           echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
           echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
-      

@@ -349,7 +349,7 @@
     <string name="import_geosite_file">Import GeoSite Database</string>
     <string name="import_country_file">Import Country Database</string>
     <string name="import_asn_file">Import ASN Database</string>
-    <string name="press_to_import">Press to import...</string>
+    <string name="press_to_import" translatable="false">Press to import...</string>
     <string name="geofile_import_failed">Import failed</string>
     <string name="geofile_unknown_db_format">Unknown Database format</string>
     <string name="geofile_unknown_db_format_message">Only %1$s are supported</string>
@@ -373,4 +373,6 @@
     <string name="shortcut_start_long">Start Clash service</string>
     <string name="shortcut_stop_short">Stop Clash</string>
     <string name="shortcut_stop_long">Stop Clash service</string>
+    <string name="glonetx_url" translatable="false">https://github.com/GlonetX</string>
+    <string name="reforged_by_glonetx" translatable="false">Reforged by GlonetX</string>
 </resources>

@@ -72,6 +72,15 @@ class HelpDesign(
                     openLink(Uri.parse(context.getString(R.string.meta_github_url)))
                 }
             }
+
+            clickable(
+                title = R.string.reforged_by_glonetx,
+                summary = R.string.glonetx_url
+            ) {
+                clicked {
+                    openLink(Uri.parse(context.getString(R.string.glonetx_url)))
+                }
+            }
         }
 
         binding.content.addView(screen.root)
