@@ -263,4 +263,13 @@
     <string name="override_destination">Override Destination</string>
     <string name="import_from_qr_no_permission">相機權限受限，請前往設定開啟。</string>
     <string name="import_from_qr_exception">發生系統未知異常，操作失敗。</string>
+    <string name="network_quality">網路品質</string>
+    <string name="ip_info">IP 資訊</string>
+    <string name="exit_ip">出口 IP</string>
+    <string name="direct_ip">直連 IP</string>
+    <string name="ip_querying">查詢中…</string>
+    <string name="ip_query_failed">查詢失敗，點擊重試</string>
+    <string name="unknown_ip">未知</string>
+    <string name="upload_speed">上傳</string>
+    <string name="download_speed">下載</string>
 </resources>

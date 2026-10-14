@@ -26,6 +26,10 @@ class ClashManager(private val context: Context) : IClashManager,
         return Clash.queryTrafficTotal()
     }
 
+    override fun queryTrafficNow(): Long {
+        return Clash.queryTrafficNow()
+    }
+
     override fun queryProxyGroupNames(excludeNotSelectable: Boolean): List<String> {
         return Clash.queryGroupNames(excludeNotSelectable)
     }
@@ -74,6 +78,10 @@ class ClashManager(private val context: Context) : IClashManager,
 
     override suspend fun updateProvider(type: Provider.Type, name: String) {
         return Clash.updateProvider(type, name).await()
+    }
+
+    override suspend fun queryIPInfo(proxy: String): ExternalIP? {
+        return Clash.queryIPInfo(proxy)
     }
 
     override fun setLogObserver(observer: ILogObserver?) {

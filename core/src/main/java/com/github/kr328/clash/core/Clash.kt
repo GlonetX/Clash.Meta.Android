@@ -4,8 +4,10 @@ import com.github.kr328.clash.core.bridge.*
 import com.github.kr328.clash.core.model.*
 import com.github.kr328.clash.core.util.parseInetSocketAddress
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -117,6 +119,13 @@ object Clash {
         return Bridge.nativeQueryGroup(name, sort.name)
             ?.let { Json.Default.decodeFromString(ProxyGroup.serializer(), it) }
             ?: ProxyGroup("Unknown", emptyList(), "")
+    }
+
+    suspend fun queryIPInfo(proxy: String = ""): ExternalIP? {
+        return withContext(Dispatchers.IO) {
+            Bridge.nativeQueryIPInfo(proxy)
+                ?.let { Json.Default.decodeFromString(ExternalIP.serializer(), it) }
+        }
     }
 
     fun healthCheck(name: String): CompletableDeferred<Unit> {

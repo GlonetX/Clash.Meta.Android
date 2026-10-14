@@ -23,6 +23,8 @@ import com.github.kr328.clash.util.withClash
 import com.github.kr328.clash.util.withProfile
 import com.github.kr328.clash.core.bridge.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
@@ -30,6 +32,9 @@ import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R as DesignR
 
 class MainActivity : BaseActivity<MainDesign>() {
+    companion object {
+        private const val IP_REFRESH_INTERVAL = 5 * 60 * 1000L
+    }
     override suspend fun main() {
         val design = MainDesign(this)
 
@@ -39,6 +44,8 @@ class MainActivity : BaseActivity<MainDesign>() {
 
         val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
 
+        var lastIPRefresh = 0L
+
         while (isActive) {
             select<Unit> {
                 events.onReceive {
@@ -46,7 +53,15 @@ class MainActivity : BaseActivity<MainDesign>() {
                         Event.ActivityStart,
                         Event.ServiceRecreated,
                         Event.ClashStop, Event.ClashStart,
-                        Event.ProfileLoaded, Event.ProfileChanged -> design.fetch()
+                        Event.ProfileLoaded, Event.ProfileChanged -> {
+                            design.fetch()
+
+                            if (clashRunning && System.currentTimeMillis() - lastIPRefresh > IP_REFRESH_INTERVAL) {
+                                lastIPRefresh = System.currentTimeMillis()
+
+                                design.fetchIPInfo(force = false)
+                            }
+                        }
                         else -> Unit
                     }
                 }
@@ -77,6 +92,11 @@ class MainActivity : BaseActivity<MainDesign>() {
                             startActivity(HelpActivity::class.intent)
                         MainDesign.Request.OpenAbout ->
                             design.showAbout(queryAppVersionName())
+                        MainDesign.Request.RefreshIP -> {
+                            lastIPRefresh = System.currentTimeMillis()
+
+                            design.fetchIPInfo(force = true)
+                        }
                     }
                 }
                 if (clashRunning) {
@@ -109,6 +129,30 @@ class MainActivity : BaseActivity<MainDesign>() {
     private suspend fun MainDesign.fetchTraffic() {
         withClash {
             setForwarded(queryTrafficTotal())
+        }
+
+        val traffic = withClash {
+            queryTrafficNow()
+        }
+
+        setNetworkSpeed(traffic)
+    }
+
+    private suspend fun MainDesign.fetchIPInfo(force: Boolean) {
+        setIPInfoLoading()
+
+        try {
+            coroutineScope {
+                val exit = async { withClash { queryIPInfo("") } }
+                val direct = async { withClash { queryIPInfo("DIRECT") } }
+
+                setIPInfo(exit.await(), direct.await())
+            }
+        } catch (e: Exception) {
+            if (force)
+                setIPInfoFailed()
+            else
+                setIPInfo(null, null)
         }
     }
 

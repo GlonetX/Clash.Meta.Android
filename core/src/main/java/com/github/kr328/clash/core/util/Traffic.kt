@@ -10,6 +10,14 @@ fun Traffic.trafficDownload(): String {
     return trafficString(scaleTraffic(this and 0xFFFFFFFF))
 }
 
+fun Traffic.trafficUploadValue(): Long {
+    return scaleTraffic(this ushr 32)
+}
+
+fun Traffic.trafficDownloadValue(): Long {
+    return scaleTraffic(this and 0xFFFFFFFF)
+}
+
 fun Traffic.trafficTotal(): String {
     val upload = scaleTraffic(this ushr 32)
     val download = scaleTraffic(this and 0xFFFFFFFF)

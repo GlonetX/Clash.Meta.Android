@@ -26,6 +26,30 @@
         <variable
             name="hasProviders"
             type="boolean" />
+        <variable
+            name="speedUp"
+            type="String" />
+        <variable
+            name="speedDown"
+            type="String" />
+        <variable
+            name="exitIPAddr"
+            type="String" />
+        <variable
+            name="exitIPDisplay"
+            type="String" />
+        <variable
+            name="exitIPISP"
+            type="String" />
+        <variable
+            name="directIPAddr"
+            type="String" />
+        <variable
+            name="directIPDisplay"
+            type="String" />
+        <variable
+            name="ipStatus"
+            type="String" />
 
         <import type="android.view.View" />
         <import type="com.github.kr328.clash.design.MainDesign.Request" />
@@ -89,6 +113,183 @@
                     app:text="@{clashRunning ? @string/running : @string/stopped}">
                     <requestFocus />
                 </com.github.kr328.clash.design.view.LargeActionCard>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/main_card_margin_vertical"
+                    android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/main_card_content_padding">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="@dimen/large_item_header_layout_size"
+                                android:layout_height="@dimen/large_item_header_layout_size"
+                                android:background="@drawable/ic_baseline_speed" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/main_card_title_margin_start"
+                                android:text="@string/network_quality"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/main_card_section_margin_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/upload_speed"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{speedUp ?? @string/unknown_ip}"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/download_speed"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@{speedDown ?? @string/unknown_ip}"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <com.github.kr328.clash.design.view.TrafficChartView
+                            android:id="@+id/traffic_chart"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/main_traffic_chart_height"
+                            android:layout_marginTop="@dimen/main_card_section_margin_vertical" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/main_card_margin_vertical"
+                    android:onClick="@{() -> self.request(Request.RefreshIP)}"
+                    android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/main_card_content_padding">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="@dimen/large_item_header_layout_size"
+                                android:layout_height="@dimen/large_item_header_layout_size"
+                                android:background="@drawable/ic_baseline_public" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/main_card_title_margin_start"
+                                android:layout_weight="1"
+                                android:text="@string/ip_info"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+
+                            <View
+                                android:layout_width="@dimen/large_item_header_layout_size"
+                                android:layout_height="@dimen/large_item_header_layout_size"
+                                android:background="@drawable/ic_baseline_refresh" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/main_card_section_margin_vertical"
+                            android:text="@{ipStatus ?? @string/exit_ip}"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{exitIPAddr ?? @string/unknown_ip}"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{exitIPDisplay}"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{exitIPISP}"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/main_card_section_margin_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/direct_ip"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/main_card_title_margin_start"
+                                android:text="@{directIPAddr ?? @string/unknown_ip}"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/main_card_title_margin_start"
+                                android:text="@{directIPDisplay}"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <com.github.kr328.clash.design.view.LargeActionCard
                     android:layout_width="match_parent"

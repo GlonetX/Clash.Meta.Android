@@ -58,6 +58,10 @@
 
     <!-- Main Design -->
     <dimen name="main_card_margin_vertical">5dp</dimen>
+    <dimen name="main_card_content_padding">16dp</dimen>
+    <dimen name="main_card_title_margin_start">12dp</dimen>
+    <dimen name="main_card_section_margin_vertical">8dp</dimen>
+    <dimen name="main_traffic_chart_height">48dp</dimen>
     <dimen name="main_label_margin_vertical">2dp</dimen>
     <dimen name="main_padding_horizontal">30dp</dimen>
     <dimen name="main_logo_size">50dp</dimen>

@@ -282,4 +282,13 @@
     <string name="shortcut_start_long">启动 Clash 服务</string>
     <string name="shortcut_stop_short">停止 Clash</string>
     <string name="shortcut_stop_long">停止 Clash 服务</string>
+    <string name="network_quality">网络质量</string>
+    <string name="ip_info">IP 信息</string>
+    <string name="exit_ip">出口 IP</string>
+    <string name="direct_ip">直连 IP</string>
+    <string name="ip_querying">查询中…</string>
+    <string name="ip_query_failed">查询失败，点击重试</string>
+    <string name="unknown_ip">未知</string>
+    <string name="upload_speed">上传</string>
+    <string name="download_speed">下载</string>
 </resources>
