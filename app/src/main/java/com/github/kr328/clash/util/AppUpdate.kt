@@ -14,6 +14,7 @@ import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 object AppUpdate {
@@ -27,6 +28,8 @@ object AppUpdate {
         val apkUrl: String,
         val apkSize: Long,
         val notes: String,
+        /** Expected SHA-256 of [apkUrl], or null when the release publishes none. */
+        val apkSha256: String? = null,
     )
 
     fun isAutoCheckDue(context: Context): Boolean {
@@ -89,13 +92,18 @@ object AppUpdate {
                 val abi = if (Build.SUPPORTED_ABIS.isEmpty()) "arm64-v8a" else Build.SUPPORTED_ABIS[0]
                 val preferred = if (abi == "armeabi-v7a") "armeabi-v7a" else abi
 
-                val asset = release.optJSONArray("assets")
-                    ?.let { array ->
-                        (0 until array.length()).asSequence()
-                            .map { array.optJSONObject(it) }
-                            .firstOrNull { it?.optString("name")?.contains(preferred) == true }
-                    }
-                    ?: return@withContext null
+                val assets = release.optJSONArray("assets") ?: return@withContext null
+
+                val asset = assets.firstAsset {
+                    // exclude the `<apk>.sha256` sidecar assets — their names
+                    // contain the ABI marker too
+                    it.optString("name").endsWith(".apk") && it.optString("name").contains(preferred)
+                } ?: return@withContext null
+
+                // The release workflows attach a `<apk>.sha256` file next to
+                // each APK. Releases published before that carry no checksum.
+                val apkSha256 = assets.firstAsset { it.optString("name") == "${asset.optString("name")}.sha256" }
+                    ?.let { fetchSha256(it.optString("browser_download_url")) }
 
                 Release(
                     tagName = tagName,
@@ -103,6 +111,7 @@ object AppUpdate {
                     apkUrl = asset.optString("browser_download_url"),
                     apkSize = asset.optLong("size"),
                     notes = release.optString("body"),
+                    apkSha256 = apkSha256,
                 )
             } catch (e: Exception) {
                 Log.w("Check update failed: ${e.message}")
@@ -164,6 +173,25 @@ object AppUpdate {
         }
     }
 
+    private fun JSONArray.firstAsset(predicate: (JSONObject) -> Boolean): JSONObject? {
+        return (0 until length()).asSequence()
+            .map { optJSONObject(it) }
+            .firstOrNull { it != null && predicate(it) }
+    }
+
+    /** Hex digest from a `sha256sum`-style asset: `<hex>  <filename>`. */
+    private fun fetchSha256(url: String): String? {
+        val hex = fetchBody(url)?.trim()?.split(Regex("\\s+"))?.firstOrNull()
+
+        if (hex == null || !hex.matches(Regex("[0-9a-fA-F]{64}"))) {
+            Log.w("Invalid published checksum for update: $hex")
+
+            return null
+        }
+
+        return hex.lowercase()
+    }
+
     suspend fun downloadApk(context: Context, release: Release, onProgress: (Int) -> Unit): File? {
         return withContext(Dispatchers.IO) {
             try {
@@ -179,6 +207,9 @@ object AppUpdate {
 
                     val file = File(context.cacheDir, "update-${release.versionName}.apk")
 
+                    // Hash while copying — no second pass over the file.
+                    val digest = MessageDigest.getInstance("SHA-256")
+
                     connection.inputStream.use { input ->
                         file.outputStream().use { output ->
                             val total = connection.contentLengthLong
@@ -192,12 +223,31 @@ object AppUpdate {
                                     break
 
                                 output.write(buffer, 0, read)
+                                digest.update(buffer, 0, read)
 
                                 copied += read
 
                                 if (total > 0)
                                     onProgress((copied * 100 / total).toInt())
                             }
+                        }
+                    }
+
+                    val expected = release.apkSha256
+
+                    if (expected == null) {
+                        // Releases published before checksums were attached;
+                        // keep the install but make the skip visible.
+                        Log.i("No published checksum for ${release.versionName}; skipping APK verification")
+                    } else {
+                        val actual = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+
+                        if (!actual.equals(expected, ignoreCase = true)) {
+                            Log.w("APK checksum mismatch for ${release.versionName}: expected $expected, got $actual")
+
+                            file.delete()
+
+                            return@withContext null
                         }
                     }
 

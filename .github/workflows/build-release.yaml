@@ -125,6 +125,17 @@ jobs:
         if: success()
         run: ./gradlew --no-daemon app:assembleMetaRelease
 
+      # One `<apk>.sha256` file next to each APK, in `sha256sum` format.
+      # The in-app updater downloads the matching file and refuses to
+      # install an APK whose digest does not match.
+      - name: Generate APK checksums
+        if: success()
+        run: |
+          cd app/build/outputs/apk/meta/release
+          for apk in *.apk; do
+            sha256sum "$apk" > "$apk.sha256"
+          done
+
       - name: Tag Repo
         uses: richardsimko/update-tag@v3
         with:
