@@ -1,10 +1,12 @@
 package com.github.kr328.clash.design
 
 import android.content.Context
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +23,7 @@ import com.github.kr328.clash.design.databinding.DesignMainBinding
 import com.github.kr328.clash.design.store.UiStore
 import com.github.kr328.clash.design.util.layoutInflater
 import com.github.kr328.clash.design.util.root
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -127,7 +130,10 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
 
     // ------------------------------------------------------ widget management
 
-    /** Placed widgets, in the user's order — includes hidden ones. */
+    /**
+     * Every placeable widget, in the user's order — including hidden ones,
+     * so a widget's position survives being hidden and shown again.
+     */
     fun placedWidgets(): List<DashboardWidget> {
         val stored = uiStore.dashboardCardOrder
             .split(',')
@@ -141,27 +147,9 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
         return known + DashboardWidget.placeableWidgets.filter { it !in known }
     }
 
-    fun dashboardWidgetHidden(): Set<String> = uiStore.dashboardCardHidden
-
-    /** Widgets that are not currently on the dashboard. */
-    fun unplacedWidgets(): List<DashboardWidget> {
-        val placed = placedWidgets().toSet()
-
-        return DashboardWidget.placeableWidgets.filter { it !in placed }
-    }
-
-    fun moveDashboardWidget(from: Int, to: Int) {
-        val order = placedWidgets().toMutableList()
-
-        if (from !in order.indices || to !in order.indices)
-            return
-
-        order.add(to, order.removeAt(from))
-
-        uiStore.dashboardCardOrder = order.joinToString(",") { it.key }
-
-        applyDashboardWidgets()
-    }
+    /** Widgets that are not currently on the dashboard, i.e. hidden ones. */
+    fun unplacedWidgets(): List<DashboardWidget> =
+        DashboardWidget.placeableWidgets.filter { it.key in uiStore.dashboardCardHidden }
 
     fun setDashboardWidgetHidden(key: String, hidden: Boolean) {
         val hiddenSet = uiStore.dashboardCardHidden.toMutableSet()
@@ -176,30 +164,17 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
         applyDashboardWidgets()
     }
 
+    /** Put a widget back on the dashboard: unhide it, keeping its old slot. */
     fun showDashboardWidget(widget: DashboardWidget) {
         val order = placedWidgets().toMutableList()
 
-        if (widget in order)
-            return
+        if (widget !in order) {
+            order.add(widget)
 
-        order.add(widget)
+            uiStore.dashboardCardOrder = order.joinToString(",") { it.key }
+        }
 
-        uiStore.dashboardCardOrder = order.joinToString(",") { it.key }
-
-        applyDashboardWidgets()
-    }
-
-    fun removeDashboardWidget(widget: DashboardWidget) {
-        val order = placedWidgets().filterNot { it == widget }
-
-        uiStore.dashboardCardOrder = order.joinToString(",") { it.key }
-
-        val hidden = uiStore.dashboardCardHidden.toMutableSet()
-        hidden.remove(widget.key)
-
-        uiStore.dashboardCardHidden = hidden
-
-        applyDashboardWidgets()
+        setDashboardWidgetHidden(widget.key, false)
     }
 
     private fun applyDashboardWidgets() {
@@ -209,7 +184,12 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
             .filter { it.key !in hidden }
             .filter { !it.requiresRunning || state.clashRunning }
 
-        val widgets = visible + DashboardWidget.fixedWidgets
+        // Fixed widgets bracket the user-ordered block: the status hero pins
+        // to the top and the links card to the bottom. `sortedBy` is stable,
+        // so the placeable widgets keep the user's order inside the block.
+        val widgets = (visible + DashboardWidget.fixedWidgets).sortedBy { widget ->
+            if (widget.placeable) PLACEABLE_BLOCK else widget.defaultOrder
+        }
 
         dashboardAdapter.submitList(widgets)
     }
@@ -306,19 +286,18 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
     /**
      * "Customise dashboard".
      *
-     * Drag to reorder, switch to hide. The order lives in the same
-     * `UiStore.dashboardCardOrder` string it always did — only the editing
-     * mechanism changed, from a hand-rolled dialog with per-row arrow buttons
-     * to an `ItemTouchHelper`.
+     * Drag to reorder (long-press any row), switch to hide. The order lives
+     * in the same `UiStore.dashboardCardOrder` string it always did — only
+     * the editing mechanism changed, from a hand-rolled dialog with per-row
+     * arrow buttons to an `ItemTouchHelper`.
      */
     suspend fun showEditCardsDialog() {
         withContext(Dispatchers.Main) {
             val editAdapter = DashboardEditAdapter(
                 context = context,
-                hidden = uiStore.dashboardCardHidden,
+                isHidden = { key -> key in uiStore.dashboardCardHidden },
                 onHiddenChanged = { key, hidden ->
                     setDashboardWidgetHidden(key, hidden)
-                    editAdapter.notifyDataSetChanged()
                 },
             ).apply {
                 submit(placedWidgets())
@@ -327,6 +306,9 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
             val list = RecyclerView(context).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = editAdapter
+
+                // The dialog wraps its custom view; without an explicit
+                // height a long list would push the buttons off screen.
                 layoutParams = android.widget.FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     (context.resources.displayMetrics.heightPixels * 0.5f).toInt(),
@@ -368,46 +350,58 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
                 }
             }).attachToRecyclerView(list)
 
-            MaterialAlertDialogBuilder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.edit_dashboard_cards)
                 .setView(list)
-                .setNeutralButton(R.string.dashboard_add_widget) { _, _ -> showAddWidgetSheet() }
+                .setNeutralButton(R.string.dashboard_add_widget, null)
                 .setPositiveButton(R.string.dashboard_edit_done, null)
                 .show()
+
+            // Keep the dialog open behind the sheet so several widgets can
+            // be added in a row; the default neutral handler dismisses it.
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setOnClickListener {
+                showAddWidgetSheet { editAdapter.notifyDataSetChanged() }
+            }
         }
     }
 
-    /** Bottom sheet listing every placeable widget not currently on the grid. */
-    private fun showAddWidgetSheet() {
-        val pickerAdapter = DashboardWidgetPickerAdapter(context) { widget ->
-            showDashboardWidget(widget)
-        }.apply {
-            submit(unplacedWidgets())
-        }
+    /**
+     * Bottom sheet listing every placeable widget not currently on the grid.
+     * Picking one unhides it in its old slot.
+     */
+    private fun showAddWidgetSheet(onAdded: () -> Unit = {}) {
+        val unplaced = unplacedWidgets()
 
-        val list = RecyclerView(context).apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = pickerAdapter
-            layoutParams = android.widget.FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-            )
-        }
+        val sheet = BottomSheetDialog(context)
 
-        val sheet = com.google.android.material.bottomsheet.BottomSheetDialog(context)
+        val content: View = if (unplaced.isEmpty()) {
+            TextView(context).apply {
+                setText(R.string.dashboard_widgets_empty)
+                setTextAppearance(context, R.style.TextAppearance.App.Body)
+                gravity = Gravity.CENTER
 
-        sheet.setContentView(list)
-        sheet.show()
+                val pad = context.resources.getDimensionPixelSize(R.dimen.app_space_xl)
+                setPadding(pad, pad, pad, pad)
+            }
+        } else {
+            val pickerAdapter = DashboardWidgetPickerAdapter(context) { widget ->
+                showDashboardWidget(widget)
 
-        if (pickerAdapter.itemCount == 0) {
-            sheet.setOnShowListener {
-                com.google.android.material.snackbar.Snackbar.make(
-                    list,
-                    R.string.dashboard_widgets_empty,
-                    com.google.android.material.snackbar.Snackbar.LENGTH_SHORT,
-                ).show()
+                onAdded()
+
+                sheet.dismiss()
+            }.apply {
+                submit(unplaced)
+            }
+
+            RecyclerView(context).apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = pickerAdapter
             }
         }
+
+        sheet.setContentView(content)
+        sheet.show()
     }
 
     private fun persistWidgetOrder(widgets: List<DashboardWidget>) {
@@ -435,4 +429,13 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
     /** Exposed so MainActivity can push chart samples without a round trip. */
     val trafficSamples: TrafficHistory
         get() = trafficHistory
+
+    companion object {
+        /**
+         * Sort key for placeable widgets in [applyDashboardWidgets]: above
+         * every fixed widget's `defaultOrder` except the links card (1000),
+         * so status pins to the top and links to the bottom.
+         */
+        private const val PLACEABLE_BLOCK = 500
+    }
 }

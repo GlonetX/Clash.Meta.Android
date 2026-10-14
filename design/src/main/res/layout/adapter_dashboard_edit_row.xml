@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- One row of the dashboard edit list: drag handle, title, visibility. -->
+<!--
+  One row of the dashboard edit list: widget icon, title, visibility switch
+  and a drag handle. Long-pressing anywhere on the row starts a drag (the
+  ItemTouchHelper attached by MainDesign); the handle is the affordance.
+-->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -15,13 +19,12 @@
         android:paddingVertical="@dimen/app_space_md">
 
         <ImageView
-            android:id="@+id/drag_handle"
+            android:id="@+id/icon"
             android:layout_width="@dimen/app_icon_glyph_size_small"
             android:layout_height="@dimen/app_icon_glyph_size_small"
-            android:contentDescription="@string/dashboard_reorder_hint"
+            android:contentDescription="@null"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_dashboard_drag"
-            android:tint="?attr/colorOutline" />
+            android:tint="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/title"
@@ -38,5 +41,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/app_space_md" />
+
+        <ImageView
+            android:id="@+id/drag_handle"
+            android:layout_width="@dimen/app_icon_glyph_size_small"
+            android:layout_height="@dimen/app_icon_glyph_size_small"
+            android:layout_marginStart="@dimen/app_space_md"
+            android:contentDescription="@string/dashboard_reorder_hint"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_dashboard_drag"
+            android:tint="?attr/colorOutline" />
     </LinearLayout>
 </layout>

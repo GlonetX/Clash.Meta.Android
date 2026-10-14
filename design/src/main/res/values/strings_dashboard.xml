@@ -50,6 +50,7 @@
     <string name="dashboard_widget_already_placed">%1$s is already on the dashboard</string>
     <string name="dashboard_remove_widget">Remove widget</string>
     <string name="dashboard_widgets_empty">All widgets are on the dashboard</string>
+    <string name="dashboard_reorder_hint">Drag to reorder</string>
 
     <string name="dashboard_probe_latency">%1$d ms</string>
     <string name="dashboard_refresh_services">Re-check</string>

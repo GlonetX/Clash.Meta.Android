@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- One row of the "add widget" sheet. -->
+<!-- One row of the "add widget" sheet: an AppRow with an add glyph. -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -10,31 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:focusable="true">
-
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="@dimen/app_icon_glyph_size"
-            android:layout_height="@dimen/app_icon_glyph_size"
-            android:contentDescription="@null"
-            android:scaleType="fitCenter" />
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/app_space_lg"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.App.Body" />
-
-        <ImageView
-            android:layout_width="@dimen/app_icon_glyph_size_small"
-            android:layout_height="@dimen/app_icon_glyph_size_small"
-            android:contentDescription="@null"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_baseline_add"
-            android:tint="?attr/colorOutline" />
-    </com.github.kr328.clash.design.view.AppRow>
+        android:focusable="true"
+        app:trailingIcon="@drawable/ic_baseline_add" />
 </layout>
