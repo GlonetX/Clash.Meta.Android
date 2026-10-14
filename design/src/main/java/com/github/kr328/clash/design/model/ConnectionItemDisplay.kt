@@ -61,14 +61,9 @@ fun ConnectionItem.toDisplay(
 ): ConnectionItemDisplay {
     val subtitleParts = mutableListOf<String>()
 
-    if (process.isNotBlank())
-        subtitleParts.add(process)
-
-    if (!rule.isNullOrBlank())
-        subtitleParts.add(rule)
-
-    if (!chains.isNullOrBlank())
-        subtitleParts.add(chains)
+    process?.takeIf { it.isNotBlank() }?.let { subtitleParts.add(it) }
+    rule?.takeIf { it.isNotBlank() }?.let { subtitleParts.add(it) }
+    chains?.takeIf { it.isNotBlank() }?.let { subtitleParts.add(it) }
 
     if (destination.isNotBlank() && destination != host)
         subtitleParts.add(destination)
