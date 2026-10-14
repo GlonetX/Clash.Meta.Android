@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dimens owned by worktree C (Proxy page).
+
+  OVERHAUL_WORKTREES.md forbids editing values/dimens.xml. The proxy node grid
+  needs three density steps (tight / standard / loose) and the token file only
+  defines one step per role, so the ladder lives here.
+
+  Every value below is snapped to the 4dp grid and to the TextAppearance.App
+  sizes defined in tokens.xml. Nothing here invents a scale of its own:
+
+    gap / content / margin  -> app_space_*  (4 / 8 / 12 / 16 / 24 dp)
+    radius                  -> app_radius_* (8 / 12 / 20 / 28 dp)
+    text                    -> App.Body 14sp, App.Label 12sp
+
+  The legacy proxy_* ladder in dimens.xml is superseded by this file for the
+  proxy page; it is left untouched for the other worktrees that may still
+  reference it.
+-->
+<resources>
+
+    <!-- ============ outer gap between cards ============ -->
+    <dimen name="proxy_gap_tight">2dp</dimen>
+    <dimen name="proxy_gap_standard">4dp</dimen>
+    <dimen name="proxy_gap_loose">8dp</dimen>
+
+    <!-- ============ inner padding, two-column cards ============ -->
+    <dimen name="proxy_content_wide_tight">12dp</dimen>
+    <dimen name="proxy_content_wide_standard">16dp</dimen>
+    <dimen name="proxy_content_wide_loose">20dp</dimen>
+
+    <!-- ============ inner padding, three-column grid ============ -->
+    <dimen name="proxy_content_grid_tight">8dp</dimen>
+    <dimen name="proxy_content_grid_standard">12dp</dimen>
+    <dimen name="proxy_content_grid_loose">16dp</dimen>
+
+    <!-- ============ gap between the title and the subtitle ============ -->
+    <dimen name="proxy_margin_wide_tight">6dp</dimen>
+    <dimen name="proxy_margin_wide_standard">10dp</dimen>
+    <dimen name="proxy_margin_wide_loose">14dp</dimen>
+
+    <dimen name="proxy_margin_grid_tight">4dp</dimen>
+    <dimen name="proxy_margin_grid_standard">8dp</dimen>
+    <dimen name="proxy_margin_grid_loose">12dp</dimen>
+
+    <!-- ============ node text size ============ -->
+    <dimen name="proxy_text_wide_tight">12sp</dimen>
+    <dimen name="proxy_text_wide_standard">14sp</dimen>
+    <dimen name="proxy_text_wide_loose">16sp</dimen>
+
+    <dimen name="proxy_text_grid_tight">10sp</dimen>
+    <dimen name="proxy_text_grid_standard">12sp</dimen>
+    <dimen name="proxy_text_grid_loose">14sp</dimen>
+
+    <!-- ============ delay chip ============ -->
+    <dimen name="proxy_chip_padding_horizontal_new">@dimen/app_space_sm</dimen>
+    <dimen name="proxy_chip_padding_vertical_new">@dimen/app_space_xs</dimen>
+
+    <!-- ============ gap between a node flag icon and its title ============ -->
+    <dimen name="proxy_icon_margin">@dimen/app_space_xs</dimen>
+
+    <!-- ============ Connections page ============ -->
+    <dimen name="conn_filter_bar_padding">@dimen/app_space_sm</dimen>
+    <dimen name="conn_row_padding_vertical">@dimen/app_space_md</dimen>
+    <dimen name="conn_row_padding_horizontal">@dimen/app_space_lg</dimen>
+    <dimen name="conn_detail_padding">@dimen/app_space_lg</dimen>
+    <dimen name="conn_section_margin">@dimen/app_space_sm</dimen>
+    <dimen name="conn_chip_min_height">32dp</dimen>
+
+</resources>
