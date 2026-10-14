@@ -199,9 +199,12 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
     /** The single entry point for every dashboard value. */
     suspend fun setDashboardState(state: DashboardState) {
         withContext(Dispatchers.Main) {
-            val runningChanged = this.state.clashRunning != state.clashRunning
+            // `this` is the CoroutineScope in here; qualify the screen's
+            // state explicitly — the bare name is shadowed by the parameter.
+            val runningChanged =
+                this@MainDesign.state.clashRunning != state.clashRunning
 
-            this.state = state
+            this@MainDesign.state = state
 
             if (runningChanged)
                 applyDashboardWidgets()
@@ -377,7 +380,7 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
         val content: View = if (unplaced.isEmpty()) {
             TextView(context).apply {
                 setText(R.string.dashboard_widgets_empty)
-                setTextAppearance(context, R.style.TextAppearance.App.Body)
+                setTextAppearance(context, R.style.TextAppearance_App_Body)
                 gravity = Gravity.CENTER
 
                 val pad = context.resources.getDimensionPixelSize(R.dimen.app_space_xl)

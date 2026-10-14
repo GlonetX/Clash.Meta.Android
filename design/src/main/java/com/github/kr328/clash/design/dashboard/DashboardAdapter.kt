@@ -145,7 +145,7 @@ class DashboardAdapter(
         )
 
         val foreground = context.resolveThemedColor(
-            if (running) MaterialR.attr.colorOnPrimary else R.attr.colorOnSurface
+            if (running) MaterialR.attr.colorOnPrimary else MaterialR.attr.colorOnSurface
         )
 
         binding.statusIcon.setImageResource(
@@ -176,7 +176,7 @@ class DashboardAdapter(
         binding.modeGlobal.setOnClickListener { onSelectMode(TunnelState.Mode.Global) }
         binding.modeDirect.setOnClickListener { onSelectMode(TunnelState.Mode.Direct) }
 
-        val place: () -> Unit = {
+        val place = place@{
             val step = binding.modeStack.width / MODES
 
             if (step <= 0)
@@ -370,7 +370,7 @@ class DashboardAdapter(
 
     private fun bindLinks(binding: AdapterDashboardLinksBinding) {
         binding.rowProviders.visibility =
-            visible(state.clashRunning && state.hasProviders)
+            if (state.clashRunning && state.hasProviders) View.VISIBLE else View.GONE
 
         binding.rowProviders.setOnClickListener { onRequest(MainDesign.Request.OpenProviders) }
         binding.rowLogs.setOnClickListener { onRequest(MainDesign.Request.OpenLogs) }
