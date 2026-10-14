@@ -18,6 +18,8 @@
     <attr name="color" format="color" />
     <attr name="placeholder" format="string" />
     <attr name="title" format="string" />
+    <attr name="trailingIcon" format="reference" />
+    <attr name="hideIconContainer" format="boolean" />
 
     <declare-styleable name="LargeActionCard">
         <attr name="text" />
@@ -44,6 +46,14 @@
         <attr name="title" />
         <attr name="text" />
         <attr name="placeholder" />
+    </declare-styleable>
+
+    <declare-styleable name="AppRow">
+        <attr name="text" />
+        <attr name="subtext" />
+        <attr name="icon" />
+        <attr name="trailingIcon" />
+        <attr name="hideIconContainer" />
     </declare-styleable>
 
     <declare-styleable name="Clickable">

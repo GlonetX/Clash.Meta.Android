@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      ===================================================================
+      App design tokens — the single source of truth for spacing, radius,
+      elevation and type. New layouts and components MUST reference these
+      instead of ad-hoc dimens or raw TextAppearance.Material3.* styles.
+
+      See DESIGN_SYSTEM.md for the migration contract.
+      ===================================================================
+    -->
+
+    <!-- ================= Corner radius =================
+         Replaces the previous ad-hoc mix of 5dp (proxy chip), 8dp
+         (large action card), 12dp (preference icon), 20dp (preference
+         group) and 28dp (navigation dock). -->
+    <dimen name="app_radius_xs">8dp</dimen>
+    <dimen name="app_radius_sm">12dp</dimen>
+    <dimen name="app_radius_md">20dp</dimen>
+    <dimen name="app_radius_lg">28dp</dimen>
+
+    <!-- ================= Spacing (4dp grid) ================= -->
+    <dimen name="app_space_xs">4dp</dimen>
+    <dimen name="app_space_sm">8dp</dimen>
+    <dimen name="app_space_md">12dp</dimen>
+    <dimen name="app_space_lg">16dp</dimen>
+    <dimen name="app_space_xl">24dp</dimen>
+
+    <!-- ================= Elevation ================= -->
+    <dimen name="app_elevation_flat">0dp</dimen>
+    <dimen name="app_elevation_card">1dp</dimen>
+    <dimen name="app_elevation_raised">3dp</dimen>
+    <dimen name="app_elevation_dock">8dp</dimen>
+
+    <!-- ================= Iconography ================= -->
+    <dimen name="app_icon_container_size">40dp</dimen>
+    <dimen name="app_icon_glyph_size">24dp</dimen>
+    <dimen name="app_icon_glyph_size_small">20dp</dimen>
+    <dimen name="app_row_min_height">56dp</dimen>
+
+    <!-- ================= Typography =================
+         Six semantic roles. Pick the role that matches what the text IS,
+         never by how big it currently looks.
+
+           ScreenTitle  page-level screen title            (was HeadlineSmall)
+           CardTitle    the title row inside a card        (was HeadlineSmall)
+           Metric       a large value: speed, memory, IP   (was TitleMedium)
+           MetricSmall  a compact value: uptime, count     (was BodyLarge)
+           Label        a caption under a metric            (was BodySmall)
+           Body         supporting prose, row primary text  (was BodyLarge)
+
+         Metric/MetricSmall/NavLabel use tabular figures so ticking values
+         do not shift neighbouring digits horizontally.
+         -->
+    <style name="TextAppearance.App" parent="" />
+
+    <style name="TextAppearance.App.ScreenTitle" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="TextAppearance.App.CardTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="TextAppearance.App.Metric" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.App.MetricSmall" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.App.Label" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="TextAppearance.App.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="TextAppearance.App.NavLabel" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+</resources>
