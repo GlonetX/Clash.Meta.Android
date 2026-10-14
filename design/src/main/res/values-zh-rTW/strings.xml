@@ -110,6 +110,7 @@
     <string name="app">應用</string>
     <string name="follow_system_android_10">系統預設 (Android 10+)</string>
     <string name="always_dark">深色</string>
+    <string name="always_black">純黑 (AMOLED)</string>
     <string name="always_light">淺色</string>
     <string name="service">服務</string>
     <string name="accept_http_content">僅接受 http(s) 和 content 類型</string>

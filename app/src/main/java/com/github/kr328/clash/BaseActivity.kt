@@ -192,14 +192,17 @@ abstract class BaseActivity<D : Design<*>> : AppCompatActivity(),
         return when (uiStore.darkMode) {
             DarkMode.Auto -> if (config.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) DayNight.Night else DayNight.Day
             DarkMode.ForceLight -> DayNight.Day
-            DarkMode.ForceDark -> DayNight.Night
+            DarkMode.ForceDark, DarkMode.ForceBlack -> DayNight.Night
         }
     }
 
     private fun applyDayNight(config: Configuration = resources.configuration) {
         val dayNight = queryDayNight(config)
         when (dayNight) {
-            DayNight.Night -> theme.applyStyle(R.style.AppThemeDark, true)
+            DayNight.Night -> theme.applyStyle(
+                if (uiStore.darkMode == DarkMode.ForceBlack) R.style.AppThemeBlack else R.style.AppThemeDark,
+                true
+            )
             DayNight.Day -> theme.applyStyle(R.style.AppThemeLight, true)
         }
 

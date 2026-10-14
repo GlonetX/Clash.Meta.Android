@@ -228,4 +228,41 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="AppThemeBlackBase" parent="AppThemeDarkBase">
+        <item name="android:windowBackground">@color/color_black_background</item>
+        <item name="colorSurface">@color/color_black_surface</item>
+        <item name="colorSurfaceVariant">@color/color_black_surface_variant</item>
+        <item name="colorSurfaceInverse">#FFF5EFF7</item>
+        <item name="colorOnSurfaceInverse">#FF322F35</item>
+
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogBlack</item>
+        <item name="fullScreenDialogTheme">@style/AppFullScreenDialogBlack</item>
+    </style>
+
+    <style name="AppThemeBlack" parent="AppThemeBlackBase">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppFullScreenDialogBlackBase" parent="AppFullScreenDialogDarkBase">
+        <item name="colorSurface">@color/color_black_surface</item>
+        <item name="colorSurfaceVariant">@color/color_black_surface_variant</item>
+        <item name="android:windowBackground">@color/color_black_background</item>
+    </style>
+
+    <style name="AppFullScreenDialogBlack" parent="AppFullScreenDialogBlackBase">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppBottomSheetDialogBlackBase" parent="AppBottomSheetDialogDarkBase">
+        <item name="colorSurface">@color/color_black_surface</item>
+        <item name="colorSurfaceVariant">@color/color_black_surface_variant</item>
+    </style>
+
+    <style name="AppBottomSheetDialogBlack" parent="AppBottomSheetDialogBlackBase">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>
