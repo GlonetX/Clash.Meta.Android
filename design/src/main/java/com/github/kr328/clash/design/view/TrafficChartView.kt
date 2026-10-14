@@ -134,7 +134,10 @@ class TrafficChartView @JvmOverloads constructor(
         if (usableWidth <= 0f || usableHeight <= 0f)
             return
 
-        val max = maxOf(uploads.maxOf(), downloads.maxOf()).coerceAtLeast(1L)
+        // Only the first `samples` slots are valid; the arrays are sized for
+        // the longest window and keep stale bytes beyond that.
+        val max = maxOf(uploads.maxValid(samples), downloads.maxValid(samples))
+            .coerceAtLeast(1L)
 
         drawGrid(canvas, left, right, top, bottom, usableHeight, max)
 
@@ -150,6 +153,7 @@ class TrafficChartView @JvmOverloads constructor(
             perColumn = perColumn,
             left = left,
             top = top,
+            usableWidth = usableWidth,
             usableHeight = usableHeight,
             max = max,
             path = downloadPath,
@@ -163,13 +167,14 @@ class TrafficChartView @JvmOverloads constructor(
             perColumn = perColumn,
             left = left,
             top = top,
+            usableWidth = usableWidth,
             usableHeight = usableHeight,
             max = max,
             path = uploadPath,
             stroke = uploadColor,
         )
 
-        drawPeak(canvas, left, top, usableHeight, max, perColumn)
+        drawPeak(canvas, left, top, usableWidth, usableHeight, max, perColumn, columns)
     }
 
     private fun readInto(history: TrafficHistory, window: TrafficHistory.Window): Int {
@@ -184,6 +189,17 @@ class TrafficChartView @JvmOverloads constructor(
             return 0
 
         return n
+    }
+
+    private fun LongArray.maxValid(count: Int): Long {
+        var result = 0L
+
+        for (i in 0 until count) {
+            if (this[i] > result)
+                result = this[i]
+        }
+
+        return result
     }
 
     private fun drawGrid(
@@ -218,6 +234,7 @@ class TrafficChartView @JvmOverloads constructor(
         perColumn: Float,
         left: Float,
         top: Float,
+        usableWidth: Float,
         usableHeight: Float,
         max: Long,
         path: Path,
@@ -275,9 +292,11 @@ class TrafficChartView @JvmOverloads constructor(
         canvas: Canvas,
         left: Float,
         top: Float,
+        usableWidth: Float,
         usableHeight: Float,
         max: Long,
         perColumn: Float,
+        columns: Int,
     ) {
         var peakValue = 0L
         var peakIndex = -1
@@ -294,7 +313,10 @@ class TrafficChartView @JvmOverloads constructor(
         if (peakIndex < 0 || peakValue <= 0L)
             return
 
-        val x = left + peakIndex / perColumn
+        // Same x the series uses for that sample's column, so the marker
+        // sits on the drawn curve instead of drifting with the sample index.
+        val columnWidth = usableWidth / columns
+        val x = left + (peakIndex / perColumn) * columnWidth
         val y = top + usableHeight - (peakValue.toFloat() / max) * usableHeight
         val r = density * 3f
 

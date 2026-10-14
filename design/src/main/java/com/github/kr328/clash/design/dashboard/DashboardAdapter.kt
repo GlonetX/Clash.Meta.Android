@@ -167,11 +167,8 @@ class DashboardAdapter(
 
     // ---------------------------------------------------------- outbound mode
 
-    private fun bindOutboundMode(binding: AdapterDashboardOutboundModeBinding, holder: Holder) {
-        val holder = holder as Holder.OutboundMode
+    private fun bindOutboundMode(binding: AdapterDashboardOutboundModeBinding, holder: Holder.OutboundMode) {
         val index = modeIndex(state.mode)
-
-        binding.modeHighlight.setBackgroundResource(R.drawable.bg_dashboard_pill)
 
         binding.modeRule.setOnClickListener { onSelectMode(TunnelState.Mode.Rule) }
         binding.modeGlobal.setOnClickListener { onSelectMode(TunnelState.Mode.Global) }
@@ -239,7 +236,7 @@ class DashboardAdapter(
         binding.trafficChart.history = history
         binding.trafficChart.refresh()
 
-        TrafficHistory.Window.values.forEach { window ->
+        TrafficHistory.Window.values().forEach { window ->
             val chip = when (window) {
                 TrafficHistory.Window.MINUTE_1 -> binding.windowOneMinute
                 TrafficHistory.Window.MINUTE_5 -> binding.windowFiveMinutes

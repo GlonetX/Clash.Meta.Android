@@ -386,11 +386,11 @@ class MainActivity : BaseActivity<MainDesign>() {
             return null
 
         val name = withClash {
-            queryGroupNames(uiStore.proxyExcludeNotSelectable)
+            queryProxyGroupNames(uiStore.proxyExcludeNotSelectable)
         }.firstOrNull() ?: return null
 
         val group = withClash {
-            queryGroup(name, uiStore.proxySort)
+            queryProxyGroup(name, uiStore.proxySort)
         }
 
         val delay = group.proxies.firstOrNull { it.name == group.now }?.delay ?: -1
