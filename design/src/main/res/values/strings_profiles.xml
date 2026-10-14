@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Strings owned by the profiles/logs worktree (phase D).
+      The file is named strings_profiles.xml per OVERHAUL_WORKTREES.md; it
+      also carries the strings for the logs/logcat pages owned by this
+      worktree. Add new strings here instead of values/strings.xml.
+    -->
+
+    <!-- ==================== Logcat ==================== -->
+
+    <string name="log_search_hint">Search logs</string>
+    <string name="clear_screen">Clear screen</string>
+    <string name="clear_search">Clear search query</string>
+</resources>
