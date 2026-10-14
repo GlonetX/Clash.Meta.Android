@@ -35,7 +35,8 @@
                     android:layout_height="@dimen/app_icon_glyph_size_small"
                     android:contentDescription="@null"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_dashboard_node" />
+                    android:src="@drawable/ic_dashboard_node"
+                    android:tint="?attr/colorOnSurfaceVariant" />
 
                 <TextView
                     android:layout_width="0dp"

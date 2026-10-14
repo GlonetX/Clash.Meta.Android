@@ -59,6 +59,9 @@
         <item name="android:layout_height">@dimen/app_icon_glyph_size_small</item>
         <item name="android:contentDescription">@null</item>
         <item name="android:scaleType">fitCenter</item>
+        <!-- Icons take their tint from the theme, never from the vector, so
+             one drawable works on-surface and on-primary alike. -->
+        <item name="android:tint">?attr/colorOnSurfaceVariant</item>
     </style>
 
     <style name="DashboardCardBody">
