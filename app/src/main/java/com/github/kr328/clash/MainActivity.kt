@@ -32,6 +32,7 @@ import com.github.kr328.clash.design.SettingsDesign
 import com.github.kr328.clash.design.dashboard.DashboardState
 import com.github.kr328.clash.design.dashboard.ServiceProbe
 import com.github.kr328.clash.design.model.ServiceAvailability
+import com.github.kr328.clash.design.settings.SettingsStore
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.design.util.toBytesString
 import com.github.kr328.clash.design.util.toDateStr
@@ -172,8 +173,10 @@ class MainActivity : BaseActivity<MainDesign>() {
         if (AppUpdate.isAutoCheckDue(this)) {
             AppUpdate.markChecked(this)
 
+            val channel = SettingsStore(this).appUpdateChannel
+
             launch {
-                val release = AppUpdate.checkUpdate(this@MainActivity)
+                val release = AppUpdate.checkUpdate(this@MainActivity, channel)
 
                 if (release != null)
                     design.showUpdateDialog(release)

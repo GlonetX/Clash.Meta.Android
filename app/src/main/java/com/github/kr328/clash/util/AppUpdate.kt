@@ -6,8 +6,10 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
 import com.github.kr328.clash.common.log.Log
+import com.github.kr328.clash.design.settings.UpdateChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
@@ -63,59 +65,102 @@ object AppUpdate {
         return false
     }
 
-    suspend fun checkUpdate(context: Context): Release? {
+    suspend fun checkUpdate(
+        context: Context,
+        channel: UpdateChannel = UpdateChannel.Stable,
+    ): Release? {
         return withContext(Dispatchers.IO) {
             try {
-                val connection = URL(RELEASES_API + "/latest").openConnection() as HttpURLConnection
+                val release = fetchRelease(channel) ?: return@withContext null
 
-                connection.connectTimeout = 15000
-                connection.readTimeout = 15000
-                connection.setRequestProperty("Accept", "application/vnd.github+json")
-                connection.setRequestProperty("User-Agent", "clash.meta.android")
+                // The stable channel never offers prereleases or drafts; the
+                // prerelease channel selected one explicitly above.
+                if (channel != UpdateChannel.Prerelease &&
+                    (release.optBoolean("prerelease") || release.optBoolean("draft"))
+                )
+                    return@withContext null
 
-                try {
-                    if (connection.responseCode != 200)
-                        return@withContext null
+                val tagName = release.optString("tag_name")
+                val versionName = tagName.removePrefix("v")
 
-                    val body = connection.inputStream.bufferedReader().use { it.readText() }
-                    val release = JSONObject(body)
+                if (versionName.isBlank() || !isNewer(currentVersionName(context), versionName))
+                    return@withContext null
 
-                    // skip prereleases tagged Prerelease-alpha (rolling build)
-                    if (release.optBoolean("prerelease") || release.optBoolean("draft"))
-                        return@withContext null
+                val abi = if (Build.SUPPORTED_ABIS.isEmpty()) "arm64-v8a" else Build.SUPPORTED_ABIS[0]
+                val preferred = if (abi == "armeabi-v7a") "armeabi-v7a" else abi
 
-                    val tagName = release.optString("tag_name")
-                    val versionName = tagName.removePrefix("v")
+                val asset = release.optJSONArray("assets")
+                    ?.let { array ->
+                        (0 until array.length()).asSequence()
+                            .map { array.optJSONObject(it) }
+                            .firstOrNull { it?.optString("name")?.contains(preferred) == true }
+                    }
+                    ?: return@withContext null
 
-                    if (versionName.isBlank() || !isNewer(currentVersionName(context), versionName))
-                        return@withContext null
-
-                    val abi = if (Build.SUPPORTED_ABIS.isEmpty()) "arm64-v8a" else Build.SUPPORTED_ABIS[0]
-                    val preferred = if (abi == "armeabi-v7a") "armeabi-v7a" else abi
-
-                    val asset = release.optJSONArray("assets")
-                        ?.let { array ->
-                            (0 until array.length()).asSequence()
-                                .map { array.optJSONObject(it) }
-                                .firstOrNull { it?.optString("name")?.contains(preferred) == true }
-                        }
-                        ?: return@withContext null
-
-                    Release(
-                        tagName = tagName,
-                        versionName = versionName,
-                        apkUrl = asset.optString("browser_download_url"),
-                        apkSize = asset.optLong("size"),
-                        notes = release.optString("body"),
-                    )
-                } finally {
-                    connection.disconnect()
-                }
+                Release(
+                    tagName = tagName,
+                    versionName = versionName,
+                    apkUrl = asset.optString("browser_download_url"),
+                    apkSize = asset.optLong("size"),
+                    notes = release.optString("body"),
+                )
             } catch (e: Exception) {
                 Log.w("Check update failed: ${e.message}")
 
                 null
             }
+        }
+    }
+
+    /**
+     * Stable: the latest published release (`/latest` skips prereleases and
+     * drafts by itself). Prerelease: the newest prerelease from the release
+     * list, falling back to the latest stable release when none exists.
+     */
+    private fun fetchRelease(channel: UpdateChannel): JSONObject? {
+        if (channel != UpdateChannel.Prerelease)
+            return fetchReleaseJson("$RELEASES_API/latest")
+
+        val releases = fetchBody(RELEASES_API)?.let { body ->
+            try {
+                JSONArray(body)
+            } catch (e: Exception) {
+                null
+            }
+        } ?: return null
+
+        val prerelease = (0 until releases.length()).asSequence()
+            .map { releases.optJSONObject(it) }
+            .firstOrNull { it != null && it.optBoolean("prerelease") && !it.optBoolean("draft") }
+
+        return prerelease ?: fetchReleaseJson("$RELEASES_API/latest")
+    }
+
+    private fun fetchReleaseJson(url: String): JSONObject? {
+        return fetchBody(url)?.let { body ->
+            try {
+                JSONObject(body)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    private fun fetchBody(url: String): String? {
+        val connection = URL(url).openConnection() as HttpURLConnection
+
+        connection.connectTimeout = 15000
+        connection.readTimeout = 15000
+        connection.setRequestProperty("Accept", "application/vnd.github+json")
+        connection.setRequestProperty("User-Agent", "clash.meta.android")
+
+        try {
+            if (connection.responseCode != 200)
+                return null
+
+            return connection.inputStream.bufferedReader().use { it.readText() }
+        } finally {
+            connection.disconnect()
         }
     }
 
