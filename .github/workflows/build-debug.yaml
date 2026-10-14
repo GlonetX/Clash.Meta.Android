@@ -28,6 +28,12 @@ jobs:
           ssh-add ./id_ed25519
           git submodule update --init --recursive --force
 
+      - name: Restore signing keystore
+        env:
+          SIGNING_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          echo "$SIGNING_KEYSTORE" | base64 --decode > release.keystore
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
