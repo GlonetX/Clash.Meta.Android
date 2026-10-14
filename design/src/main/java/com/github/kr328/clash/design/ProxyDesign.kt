@@ -37,7 +37,7 @@ class ProxyDesign(
     context: Context,
     overrideMode: TunnelState.Mode?,
     groupNames: List<String>,
-    uiStore: UiStore,
+    private val uiStore: UiStore,
 ) : Design<ProxyDesign.Request>(context) {
     sealed class Request {
         object ReloadAll : Request()

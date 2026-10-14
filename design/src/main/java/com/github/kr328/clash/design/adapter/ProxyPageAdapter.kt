@@ -104,12 +104,12 @@ class ProxyPageAdapter(
      */
     fun applyLayoutConfig() {
         forEachLivePage { holder ->
-            val manager = holder.recyclerView.layoutManager as? GridLayoutManager
+            val manager = holder.recyclerView.layoutManager
 
-            manager?.let {
-                it.spanSizeLookup = factory.newSpanSizeLookup()
-                it.invalidateSpanAssignments()
-                it.requestLayout()
+            if (manager is GridLayoutManager) {
+                manager.spanSizeLookup = factory.newSpanSizeLookup()
+                manager.invalidateSpanAssignments()
+                manager.requestLayout()
             }
 
             holder.recyclerView.requestLayout()
