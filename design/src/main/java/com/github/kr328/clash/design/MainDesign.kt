@@ -15,6 +15,7 @@ import com.github.kr328.clash.design.databinding.DesignMainBinding
 import com.github.kr328.clash.design.util.layoutInflater
 import com.github.kr328.clash.design.util.resolveThemedColor
 import com.github.kr328.clash.design.util.root
+import com.github.kr328.clash.design.util.toBytesString
 import com.github.kr328.clash.design.util.toDisplayString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,6 +23,7 @@ import kotlinx.coroutines.withContext
 class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     enum class Request {
         ToggleStatus,
+        ToggleTun,
         OpenProxy,
         OpenProfiles,
         OpenProviders,
@@ -38,9 +40,80 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     override val root: View
         get() = binding.root
 
+    private val attachedPages = mutableListOf<View>()
+
+    init {
+        binding.self = this
+
+        binding.colorClashStarted = context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
+        binding.colorClashStopped = context.resolveThemedColor(R.attr.colorClashStopped)
+
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.page_dashboard -> showPage(0)
+                R.id.page_profiles -> showPage(1)
+                R.id.page_settings -> showPage(2)
+            }
+            true
+        }
+    }
+
+    fun attachPage(view: View, title: String) {
+        binding.pagesContainer.addView(
+            view,
+            binding.pagesContainer.childCount,
+            android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            ),
+        )
+
+        attachedPages.add(view)
+
+        view.visibility = View.GONE
+
+        view.findViewById<android.widget.TextView>(R.id.activity_bar_title_view)?.text = title
+
+        // embedded pages navigate back to the dashboard instead of finishing the activity
+        view.findViewById<View>(R.id.activity_bar_close_view)?.setOnClickListener {
+            binding.bottomNavigation.selectedItemId = R.id.page_dashboard
+        }
+    }
+
+    private fun showPage(index: Int) {
+        binding.dashboardPage.visibility = if (index == 0) View.VISIBLE else View.GONE
+
+        attachedPages.forEachIndexed { i, page ->
+            page.visibility = if (index == i + 1) View.VISIBLE else View.GONE
+        }
+    }
+
+    fun showProfilesPage() {
+        binding.bottomNavigation.selectedItemId = R.id.page_profiles
+    }
+
+    fun showSettingsPage() {
+        binding.bottomNavigation.selectedItemId = R.id.page_settings
+    }
+
+    fun navigateBackToDashboard(): Boolean {
+        if (binding.bottomNavigation.selectedItemId == R.id.page_dashboard)
+            return false
+
+        binding.bottomNavigation.selectedItemId = R.id.page_dashboard
+
+        return true
+    }
+
     suspend fun setProfileName(name: String?) {
         withContext(Dispatchers.Main) {
             binding.profileName = name
+        }
+    }
+
+    suspend fun setProfileSummary(summary: String?) {
+        withContext(Dispatchers.Main) {
+            binding.profileSummary = summary
         }
     }
 
@@ -50,18 +123,30 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         }
     }
 
+    suspend fun setTunEnabled(enabled: Boolean) {
+        withContext(Dispatchers.Main) {
+            binding.tunEnabled = enabled
+        }
+    }
+
     suspend fun setForwarded(value: Long) {
         withContext(Dispatchers.Main) {
             binding.forwarded = value.trafficTotal()
         }
     }
 
-    suspend fun setNetworkSpeed(traffic: Traffic) {
+    suspend fun setNetworkSpeed(traffic: com.github.kr328.clash.core.model.Traffic) {
         withContext(Dispatchers.Main) {
             binding.speedUp = traffic.trafficUpload() + "/s"
             binding.speedDown = traffic.trafficDownload() + "/s"
 
             binding.trafficChart.push(traffic.trafficUploadValue(), traffic.trafficDownloadValue())
+        }
+    }
+
+    suspend fun setMemoryUsage(value: Long) {
+        withContext(Dispatchers.Main) {
+            binding.memoryUsage = value.toBytesString()
         }
     }
 
@@ -117,13 +202,6 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
                 .setView(binding.root)
                 .show()
         }
-    }
-
-    init {
-        binding.self = this
-
-        binding.colorClashStarted = context.resolveThemedColor(com.google.android.material.R.attr.colorPrimary)
-        binding.colorClashStopped = context.resolveThemedColor(R.attr.colorClashStopped)
     }
 
     fun request(request: Request) {

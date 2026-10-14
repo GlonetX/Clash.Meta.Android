@@ -68,6 +68,13 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryTrafficNow(JNIEnv *env
 }
 
 JNIEXPORT jlong JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryMemory(JNIEnv *env, jobject thiz) {
+    TRACE_METHOD();
+
+    return (jlong) queryMemory();
+}
+
+JNIEXPORT jlong JNICALL
 Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryTrafficTotal(JNIEnv *env, jobject thiz) {
     TRACE_METHOD();
 

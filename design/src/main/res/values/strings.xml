@@ -384,4 +384,8 @@
     <string name="unknown_ip">Unknown</string>
     <string name="upload_speed">Upload</string>
     <string name="download_speed">Download</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="memory_usage">Memory</string>
+    <string name="tun_mode">TUN (VPN) Mode</string>
+    <string name="tun_mode_summary">Route traffic through a virtual network interface</string>
 </resources>

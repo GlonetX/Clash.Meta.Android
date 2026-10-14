@@ -15,3 +15,7 @@ func Now() (up int64, down int64) {
 func Total() (up int64, down int64) {
 	return statistic.DefaultManager.Total()
 }
+
+func QueryMemory() uint64 {
+	return statistic.DefaultManager.Memory()
+}

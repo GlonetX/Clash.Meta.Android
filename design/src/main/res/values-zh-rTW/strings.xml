@@ -272,4 +272,8 @@
     <string name="unknown_ip">未知</string>
     <string name="upload_speed">上傳</string>
     <string name="download_speed">下載</string>
+    <string name="dashboard">儀表盤</string>
+    <string name="memory_usage">記憶體</string>
+    <string name="tun_mode">TUN（VPN）模式</string>
+    <string name="tun_mode_summary">透過虛擬網卡接管全部流量</string>
 </resources>

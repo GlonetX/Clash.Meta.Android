@@ -9,6 +9,7 @@ interface IClashManager {
     fun queryTunnelState(): TunnelState
     fun queryTrafficTotal(): Long
     fun queryTrafficNow(): Long
+    fun queryMemory(): Long
     fun queryProxyGroupNames(excludeNotSelectable: Boolean): List<String>
     fun queryProxyGroup(name: String, proxySort: ProxySort): ProxyGroup
     fun queryConfiguration(): UiConfiguration

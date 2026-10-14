@@ -29,6 +29,11 @@ func queryNow(upload, download *C.uint64_t) {
 	*download = C.uint64_t(down)
 }
 
+//export queryMemory
+func queryMemory() C.uint64_t {
+	return C.uint64_t(tunnel.QueryMemory())
+}
+
 //export queryTotal
 func queryTotal(upload, download *C.uint64_t) {
 	up, down := tunnel.Total()

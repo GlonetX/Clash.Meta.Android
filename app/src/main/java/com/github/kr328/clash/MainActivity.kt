@@ -14,20 +14,28 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.github.kr328.clash.common.constants.Intents
 import com.github.kr328.clash.common.util.intent
+import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.ticker
+import com.github.kr328.clash.core.bridge.Bridge
 import com.github.kr328.clash.design.MainDesign
+import com.github.kr328.clash.design.ProfilesDesign
+import com.github.kr328.clash.design.SettingsDesign
 import com.github.kr328.clash.design.ui.ToastDuration
+import com.github.kr328.clash.design.util.toBytesString
+import com.github.kr328.clash.design.util.toDateStr
+import com.github.kr328.clash.service.model.Profile
 import com.github.kr328.clash.util.startClashService
 import com.github.kr328.clash.util.stopClashService
 import com.github.kr328.clash.util.withClash
 import com.github.kr328.clash.util.withProfile
-import com.github.kr328.clash.core.bridge.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
+import java.util.*
 import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R as DesignR
 
@@ -35,14 +43,42 @@ class MainActivity : BaseActivity<MainDesign>() {
     companion object {
         private const val IP_REFRESH_INTERVAL = 5 * 60 * 1000L
     }
+
+    private var profilesDesign: ProfilesDesign? = null
+    private var settingsDesign: SettingsDesign? = null
+
+    override fun onDestroy() {
+        profilesDesign?.cancel()
+        settingsDesign?.cancel()
+
+        super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        if (design?.navigateBackToDashboard() == true)
+            return
+
+        super.onBackPressed()
+    }
+
     override suspend fun main() {
         val design = MainDesign(this)
+        val profilesDesign = ProfilesDesign(this)
+        val settingsDesign = SettingsDesign(this)
+
+        this.profilesDesign = profilesDesign
+        this.settingsDesign = settingsDesign
+
+        design.attachPage(profilesDesign.root, getString(DesignR.string.profiles))
+        design.attachPage(settingsDesign.root, getString(DesignR.string.settings))
 
         setContentDesign(design)
 
         design.fetch()
+        profilesDesign.fetch()
 
         val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
+        val minuteTicker = ticker(TimeUnit.MINUTES.toMillis(1))
 
         var lastIPRefresh = 0L
 
@@ -55,6 +91,7 @@ class MainActivity : BaseActivity<MainDesign>() {
                         Event.ClashStop, Event.ClashStart,
                         Event.ProfileLoaded, Event.ProfileChanged -> {
                             design.fetch()
+                            profilesDesign.fetch()
 
                             if (clashRunning && System.currentTimeMillis() - lastIPRefresh > IP_REFRESH_INTERVAL) {
                                 lastIPRefresh = System.currentTimeMillis()
@@ -73,10 +110,22 @@ class MainActivity : BaseActivity<MainDesign>() {
                             else
                                 design.startClash()
                         }
+                        MainDesign.Request.ToggleTun -> {
+                            val enabled = uiStore.enableVpn
+                            uiStore.enableVpn = !enabled
+
+                            design.setTunEnabled(!enabled)
+
+                            if (clashRunning) {
+                                stopClashService()
+
+                                design.postRestartClash()
+                            }
+                        }
                         MainDesign.Request.OpenProxy ->
                             startActivity(ProxyActivity::class.intent)
                         MainDesign.Request.OpenProfiles ->
-                            startActivity(ProfilesActivity::class.intent)
+                            design.showProfilesPage()
                         MainDesign.Request.OpenProviders ->
                             startActivity(ProvidersActivity::class.intent)
                         MainDesign.Request.OpenLogs -> {
@@ -87,7 +136,7 @@ class MainActivity : BaseActivity<MainDesign>() {
                             }
                         }
                         MainDesign.Request.OpenSettings ->
-                            startActivity(SettingsActivity::class.intent)
+                            design.showSettingsPage()
                         MainDesign.Request.OpenHelp ->
                             startActivity(HelpActivity::class.intent)
                         MainDesign.Request.OpenAbout ->
@@ -99,9 +148,66 @@ class MainActivity : BaseActivity<MainDesign>() {
                         }
                     }
                 }
+                profilesDesign.requests.onReceive {
+                    when (it) {
+                        ProfilesDesign.Request.Create ->
+                            startActivity(NewProfileActivity::class.intent)
+                        ProfilesDesign.Request.UpdateAll ->
+                            withProfile {
+                                try {
+                                    queryAll().forEach { p ->
+                                        if (p.imported && p.type != Profile.Type.File)
+                                            update(p.uuid)
+                                    }
+                                } finally {
+                                    withContext(Dispatchers.Main) {
+                                        profilesDesign.finishUpdateAll()
+                                    }
+                                }
+                            }
+                        is ProfilesDesign.Request.Update ->
+                            withProfile { update(it.profile.uuid) }
+                        is ProfilesDesign.Request.Delete ->
+                            withProfile { delete(it.profile.uuid) }
+                        is ProfilesDesign.Request.Edit ->
+                            startActivity(PropertiesActivity::class.intent.setUUID(it.profile.uuid))
+                        is ProfilesDesign.Request.Active -> {
+                            withProfile {
+                                if (it.profile.imported)
+                                    setActive(it.profile)
+                                else
+                                    profilesDesign.requestSave(it.profile)
+                            }
+                        }
+                        is ProfilesDesign.Request.Duplicate -> {
+                            val uuid = withProfile { clone(it.profile.uuid) }
+
+                            startActivity(PropertiesActivity::class.intent.setUUID(uuid))
+                        }
+                        is ProfilesDesign.Request.ShareQrCode ->
+                            profilesDesign.showProfileQrCode(it.profile)
+                    }
+                }
+                settingsDesign.requests.onReceive {
+                    when (it) {
+                        SettingsDesign.Request.StartApp ->
+                            startActivity(AppSettingsActivity::class.intent)
+                        SettingsDesign.Request.StartNetwork ->
+                            startActivity(NetworkSettingsActivity::class.intent)
+                        SettingsDesign.Request.StartOverride ->
+                            startActivity(OverrideSettingsActivity::class.intent)
+                        SettingsDesign.Request.StartMetaFeature ->
+                            startActivity(MetaFeatureSettingsActivity::class.intent)
+                    }
+                }
                 if (clashRunning) {
                     ticker.onReceive {
                         design.fetchTraffic()
+                    }
+                }
+                if (activityStarted) {
+                    minuteTicker.onReceive {
+                        profilesDesign.updateElapsed()
                     }
                 }
             }
@@ -110,6 +216,7 @@ class MainActivity : BaseActivity<MainDesign>() {
 
     private suspend fun MainDesign.fetch() {
         setClashRunning(clashRunning)
+        setTunEnabled(uiStore.enableVpn)
 
         val state = withClash {
             queryTunnelState()
@@ -121,9 +228,12 @@ class MainActivity : BaseActivity<MainDesign>() {
         setMode(state.mode)
         setHasProviders(providers.isNotEmpty())
 
-        withProfile {
-            setProfileName(queryActive()?.name)
+        val profile = withProfile {
+            queryActive()
         }
+
+        setProfileName(profile?.name)
+        setProfileSummary(profile?.summary())
     }
 
     private suspend fun MainDesign.fetchTraffic() {
@@ -136,6 +246,12 @@ class MainActivity : BaseActivity<MainDesign>() {
         }
 
         setNetworkSpeed(traffic)
+
+        val memory = withClash {
+            queryMemory()
+        }
+
+        setMemoryUsage(memory)
     }
 
     private suspend fun MainDesign.fetchIPInfo(force: Boolean) {
@@ -156,13 +272,25 @@ class MainActivity : BaseActivity<MainDesign>() {
         }
     }
 
+    private suspend fun MainDesign.postRestartClash() {
+        // brief pause to let the service fully stop before restarting
+        withContext(Dispatchers.IO) {
+            Thread.sleep(1200)
+        }
+
+        if (clashRunning)
+            return
+
+        startClash()
+    }
+
     private suspend fun MainDesign.startClash() {
         val active = withProfile { queryActive() }
 
         if (active == null || !active.imported) {
             showToast(DesignR.string.no_profile_selected, ToastDuration.Long) {
                 setAction(DesignR.string.profiles) {
-                    startActivity(ProfilesActivity::class.intent)
+                    showProfilesPage()
                 }
             }
 
@@ -182,7 +310,62 @@ class MainActivity : BaseActivity<MainDesign>() {
                     startClashService()
             }
         } catch (e: Exception) {
-            design?.showToast(DesignR.string.unable_to_start_vpn, ToastDuration.Long)
+            showToast(DesignR.string.unable_to_start_vpn, ToastDuration.Long)
+        }
+    }
+
+    private fun Profile?.summary(): String? {
+        if (this == null)
+            return null
+
+        val usage = if (total > 0) {
+            "${(download + upload).toBytesString()} / ${total.toBytesString()}"
+        } else {
+            null
+        }
+
+        val expiry = if (expire > 0) {
+            expire.toDateStr()
+        } else {
+            null
+        }
+
+        return listOfNotNull(usage, expiry).joinToString(separator = " · ").takeIf { it.isNotBlank() }
+    }
+
+    override fun onProfileUpdateCompleted(uuid: UUID?) {
+        if (uuid == null)
+            return
+
+        launch {
+            var name: String? = null
+            withProfile {
+                name = queryByUUID(uuid)?.name
+            }
+            design?.showToast(
+                getString(DesignR.string.toast_profile_updated_complete, name),
+                ToastDuration.Long
+            )
+        }
+    }
+
+    override fun onProfileUpdateFailed(uuid: UUID?, reason: String?) {
+        if (uuid == null)
+            return
+
+        launch {
+            var name: String? = null
+            withProfile {
+                name = queryByUUID(uuid)?.name
+            }
+            design?.showToast(
+                getString(DesignR.string.toast_profile_updated_failed, name, reason),
+                ToastDuration.Long
+            ) {
+                setAction(DesignR.string.edit) {
+                    startActivity(PropertiesActivity::class.intent.setUUID(uuid))
+                }
+            }
         }
     }
 

@@ -84,7 +84,7 @@ func QueryIPInfo(proxy string) (string, error) {
 		}
 	}
 
-	return json.Marshal(ipInfo{
+	data, err := json.Marshal(ipInfo{
 		IP:          raw.IP,
 		Country:     raw.Country,
 		CountryCode: raw.CountryCode,
@@ -92,4 +92,9 @@ func QueryIPInfo(proxy string) (string, error) {
 		ISP:         isp,
 		ASN:         asn,
 	})
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
 }
