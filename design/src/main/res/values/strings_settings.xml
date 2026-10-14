@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="PluralsCandidate">
+
+    <!-- ============================================================ -->
+    <!-- Phase B — settings pages.                                    -->
+    <!--                                                              -->
+    <!-- Owned by the settings worktree; see OVERHAUL_WORKTREES.md.    -->
+    <!-- Never edit values/strings.xml from here.                      -->
+    <!-- ============================================================ -->
+
+    <!-- Group headings -->
+    <string name="settings_group_dashboard">Dashboard</string>
+    <string name="settings_group_appearance">Appearance</string>
+    <string name="settings_group_config">Config Management</string>
+    <string name="settings_group_core">Core</string>
+    <string name="settings_group_logging">Logging</string>
+    <string name="settings_group_wifi">Wi-Fi Networks</string>
+
+    <!-- Shared formats -->
+    <string name="settings_format_not_set">Not set</string>
+    <string name="settings_format_percent">%d%%</string>
+    <string name="settings_format_seconds">%d s</string>
+    <string name="settings_format_minutes">%d min</string>
+    <string name="settings_format_hours">%d h</string>
+    <string name="settings_format_mb">%d MB</string>
+    <string name="settings_format_days">%d days</string>
+    <string name="settings_format_entries">%d entries</string>
+    <string name="settings_format_count_of">%1$d of %2$d</string>
+
+    <!-- ============================== Dashboard ============================== -->
+
+    <string name="settings_widgets">Widgets</string>
+    <string name="settings_widgets_summary">Which cards the dashboard shows, their order and their size</string>
+    <string name="settings_widget_size_large">Large</string>
+    <string name="settings_widget_size_small">Small</string>
+    <string name="settings_widget_size_hidden">Hidden</string>
+
+    <string name="settings_probe_services">Streaming Service Probes</string>
+    <string name="settings_probe_services_summary">Services probed for unlock status, in order</string>
+
+    <!-- ============================== Behaviour ============================== -->
+
+    <string name="settings_notification_style">Notification Style</string>
+    <string name="settings_notification_style_default">Standard</string>
+    <string name="settings_notification_style_compact">Compact</string>
+    <string name="settings_notification_style_minimal">Minimal</string>
+
+    <string name="settings_lightweight_mode">Lightweight Mode</string>
+    <string name="settings_lightweight_mode_summary">Stop refreshing the dashboard while Clash is stopped</string>
+
+    <string name="settings_app_update">App Update</string>
+    <string name="settings_app_update_auto_check">Check Automatically</string>
+    <string name="settings_app_update_auto_check_summary">Look for a new release once a day</string>
+    <string name="settings_app_update_channel">Update Channel</string>
+    <string name="settings_app_update_channel_stable">Stable</string>
+    <string name="settings_app_update_channel_prerelease">Prerelease</string>
+
+    <string name="settings_battery_optimization">Battery Optimisation</string>
+    <string name="settings_battery_optimization_exempt">Exempt</string>
+    <string name="settings_battery_optimization_restricted">Restricted</string>
+    <string name="settings_battery_optimization_grant">Tap to exempt this app</string>
+    <string name="settings_battery_optimization_settings">Tap to open system settings</string>
+    <string name="settings_battery_optimization_unsupported">Not supported by this device</string>
+
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">Follow System</string>
+
+    <!-- ============================= Appearance ============================= -->
+
+    <string name="settings_dynamic_color">Dynamic Colour</string>
+    <string name="settings_dynamic_color_summary">Tint the app with the wallpaper palette</string>
+    <string name="settings_dynamic_color_unsupported">Requires Android 12 or newer</string>
+
+    <string name="settings_navigation_bar_style">Navigation Bar Style</string>
+    <string name="settings_navigation_bar_bottom">Bottom Bar</string>
+    <string name="settings_navigation_bar_dock">Floating Dock</string>
+
+    <string name="settings_text_scale">Text Scale</string>
+    <string name="settings_text_scale_summary">Applies the next time the app starts</string>
+
+    <!-- =========================== Config management =========================== -->
+
+    <string name="settings_webdav">WebDAV Backup</string>
+    <string name="settings_webdav_url">Server URL</string>
+    <string name="settings_webdav_directory">Directory</string>
+    <string name="settings_webdav_username">Username</string>
+    <string name="settings_webdav_password">Password</string>
+    <string name="settings_password_set">Set</string>
+    <string name="settings_webdav_backup">Back Up Now</string>
+    <string name="settings_webdav_restore">Restore From Backup</string>
+    <string name="settings_webdav_restore_summary">Download a backup from the server and restore it</string>
+    <string name="settings_webdav_last_backup">Last backup: %s</string>
+    <string name="settings_webdav_never">never</string>
+    <string name="settings_webdav_backup_ok">Backup uploaded (%d KB)</string>
+    <string name="settings_webdav_backup_failed">Backup failed: %s</string>
+    <string name="settings_webdav_url_required">Set the WebDAV server URL first</string>
+    <string name="settings_webdav_restore_ok">Restored %s. Restart the app to apply it.</string>
+    <string name="settings_webdav_restore_failed">Restore failed: %s</string>
+    <string name="settings_webdav_restore_confirm">Restoring replaces your current profiles and settings. Continue?</string>
+    <string name="settings_webdav_no_backups">No backup found on the server</string>
+    <string name="settings_webdav_pick_backup">Pick a backup</string>
+
+    <string name="settings_user_agent">Global User-Agent</string>
+    <string name="settings_user_agent_summary">Sent when fetching subscriptions and rules</string>
+    <string name="settings_default_user_agent">Default</string>
+
+    <string name="settings_subscription_meta">Subscription Tags</string>
+    <string name="settings_subscription_meta_summary">Category and notes for each subscription</string>
+    <string name="settings_subscription_tag_hint">Category / tag</string>
+    <string name="settings_subscription_note_hint">Notes</string>
+    <string name="settings_subscription_no_profiles">No subscriptions yet</string>
+    <string name="settings_subscription_tag_format">%1$s — %2$s</string>
+
+    <string name="settings_update_subscriptions_on_start">Update Subscriptions On Start</string>
+    <string name="settings_update_subscriptions_on_start_summary">Refresh every subscription when the app starts</string>
+
+    <!-- ============================= Network / core ============================= -->
+
+    <string name="settings_stop_on_network_lost">Stop When Network Lost</string>
+    <string name="settings_stop_on_network_lost_summary">Stop the core when the device loses connectivity</string>
+    <string name="settings_stop_on_network_lost_interval">Network Check Interval</string>
+    <string name="settings_stop_on_network_lost_bypass">Bypassed Interfaces</string>
+    <string name="settings_stop_on_network_lost_bypass_summary">Interfaces that never trigger a stop</string>
+
+    <string name="settings_keep_alive">Keep-Alive</string>
+    <string name="settings_keep_alive_summary">Keep a tunnel alive to stop NAT timeouts closing idle connections</string>
+    <string name="settings_keep_alive_interval">Keep-Alive Interval</string>
+    <string name="settings_keep_alive_idle">Keep-Alive Idle Timeout</string>
+
+    <string name="settings_store_fake_ip">Store Fake-IP Mapping</string>
+    <string name="settings_store_fake_ip_summary">mihomo profile.store-fake-ip: keeps the fake-IP table across restarts</string>
+
+    <string name="settings_log_retention_days">Log Retention</string>
+    <string name="settings_log_max_size">Maximum Log File Size</string>
+    <string name="settings_log_realtime_buffer">Realtime Buffer</string>
+    <string name="settings_log_realtime_buffer_summary">Messages kept in memory for the live log view</string>
+
+    <string name="settings_wifi_action">Named Wi-Fi Action</string>
+    <string name="settings_wifi_action_disabled">Do Nothing</string>
+    <string name="settings_wifi_action_pause">Pause Clash</string>
+    <string name="settings_wifi_action_direct">Connect Directly</string>
+    <string name="settings_wifi_networks">Wi-Fi Network Names</string>
+    <string name="settings_wifi_networks_empty">No networks added</string>
+    <string name="settings_wifi_networks_placeholder">My Home Wi-Fi, Office</string>
+
+    <string name="settings_permission_location">Location Permission</string>
+    <string name="settings_permission_location_required">Required to read the current Wi-Fi name on Android 8.1+</string>
+    <string name="settings_permission_location_granted">Granted</string>
+    <string name="settings_permission_location_denied">Denied</string>
+    <string name="settings_permission_location_denied_permanently">Denied permanently — tap to open app settings</string>
+
+    <string name="settings_disabled_while_running">Stop Clash to change this</string>
+
+    <!-- ============================== Shared actions ============================== -->
+
+    <string name="settings_action_in_progress">Working…</string>
+    <string name="settings_invalid_number">Enter a number between %d and %d</string>
+    <string name="settings_invalid_url">Enter a http(s) URL</string>
+    <string name="settings_invalid_not_blank">This cannot be empty</string>
+
+</resources>

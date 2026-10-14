@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A boolean setting row.
+
+  Same anatomy as AppRow (see component_app_row.xml) with a MaterialSwitch in
+  the trailing slot, so a switch row and a value row stay pixel-identical.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/switch_row_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/app_row_min_height"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/app_space_lg"
+        android:paddingTop="@dimen/app_space_md"
+        android:paddingEnd="@dimen/app_space_lg"
+        android:paddingBottom="@dimen/app_space_md">
+
+        <FrameLayout
+            android:id="@+id/icon_container"
+            android:layout_width="@dimen/app_icon_container_size"
+            android:layout_height="@dimen/app_icon_container_size"
+            android:background="@drawable/bg_app_icon_container">
+
+            <ImageView
+                android:id="@+id/icon_view"
+                android:layout_width="@dimen/app_icon_glyph_size"
+                android:layout_height="@dimen/app_icon_glyph_size"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_space_lg"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.App.Body" />
+
+            <TextView
+                android:id="@+id/subtext_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/app_space_xs"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="@style/TextAppearance.App.Label" />
+        </LinearLayout>
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_space_sm"
+            android:clickable="false"
+            android:focusable="false" />
+    </LinearLayout>
+</layout>

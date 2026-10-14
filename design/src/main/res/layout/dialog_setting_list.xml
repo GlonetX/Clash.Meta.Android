@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Full-screen editor for an ordered list of settings entries (the dashboard
+  widget editor and the probe-service editor). Owned by the settings pages so
+  the title uses the App type scale rather than a raw Material appearance.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="surface"
+            type="com.github.kr328.clash.design.ui.Surface" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/editor_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="@{surface.insets.start}"
+        android:paddingTop="@{surface.insets.top}"
+        android:paddingEnd="@{surface.insets.end}"
+        android:paddingBottom="@{surface.insets.bottom}">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/toolbar_height"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/app_space_lg">
+
+                <TextView
+                    android:id="@+id/title_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.App.CardTitle" />
+
+                <ImageView
+                    android:id="@+id/new_view"
+                    android:layout_width="@dimen/item_tailing_component_size"
+                    android:layout_height="@dimen/item_tailing_component_size"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/_new"
+                    android:focusable="true"
+                    android:padding="@dimen/toolbar_image_action_padding"
+                    android:src="@drawable/ic_baseline_add" />
+            </LinearLayout>
+
+            <com.github.kr328.clash.design.view.AppRecyclerView
+                android:id="@+id/main_list"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/app_space_lg" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dialog_button_margin"
+                android:paddingVertical="@dimen/app_space_sm">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/reset_view"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reset" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancel_view"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancel" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ok_view"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/dialog_button_margin"
+                    android:text="@string/ok" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

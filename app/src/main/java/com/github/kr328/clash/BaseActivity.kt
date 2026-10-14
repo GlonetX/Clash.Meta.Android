@@ -1,6 +1,7 @@
 package com.github.kr328.clash
 
 import android.app.ActivityManager
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.github.kr328.clash.common.compat.isSystemBarsTranslucentCompat
 import com.github.kr328.clash.core.bridge.ClashException
 import com.github.kr328.clash.design.Design
 import com.github.kr328.clash.design.model.DarkMode
+import com.github.kr328.clash.design.settings.applyLocaleAndTextScale
 import com.github.kr328.clash.design.store.UiStore
 import com.github.kr328.clash.design.ui.DayNight
 import com.github.kr328.clash.design.util.resolveThemedBoolean
@@ -57,6 +59,15 @@ abstract class BaseActivity<D : Design<*>> : AppCompatActivity(),
     private var dayNight: DayNight = DayNight.Day
 
     protected abstract suspend fun main()
+
+    /**
+     * Applies the in-app language and text scale chosen on the App settings
+     * page. Runs before anything else so the whole activity — including its
+     * Design — inflates with the chosen locale and font scale.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(applyLocaleAndTextScale(newBase))
+    }
 
     fun defer(operation: suspend () -> Unit) {
         this.defer = operation
