@@ -92,6 +92,14 @@ class ClashManager(private val context: Context) : IClashManager,
         return Clash.queryIPQuality(ip)
     }
 
+    override suspend fun queryConnections(): ConnectionList {
+        return Clash.queryConnections()
+    }
+
+    override fun closeConnection(id: String) {
+        Clash.closeConnection(id)
+    }
+
     override suspend fun testLatency(url: String): Long {
         return Clash.testLatency(url)
     }

@@ -311,6 +311,11 @@
     <string name="mobile_network">移动网络</string>
     <string name="value_yes">是</string>
     <string name="value_no">否</string>
+    <string name="connections">连接</string>
+    <string name="active_connections">%d 个活跃</string>
+    <string name="close_connection">关闭连接</string>
+    <string name="close_all_connections">关闭全部连接</string>
+    <string name="no_connections">暂无活跃连接</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">内存</string>
 </resources>

@@ -21,6 +21,8 @@ interface IClashManager {
     suspend fun updateProvider(type: Provider.Type, name: String)
     suspend fun queryIPInfo(proxy: String): ExternalIP?
     suspend fun queryIPQuality(ip: String): IPQuality?
+    suspend fun queryConnections(): ConnectionList
+    fun closeConnection(id: String)
     suspend fun testLatency(url: String): Long
 
     fun queryOverride(slot: Clash.OverrideSlot): ConfigurationOverride

@@ -36,6 +36,7 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         PatchMode,
         OpenIPQuality,
         OpenLatency,
+        OpenConnections,
     }
 
     private val binding = DesignMainBinding

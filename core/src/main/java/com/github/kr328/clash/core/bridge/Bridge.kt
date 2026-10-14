@@ -28,6 +28,8 @@ object Bridge {
     external fun nativeQueryGroup(name: String, sort: String): String?
     external fun nativeQueryIPInfo(proxy: String): String?
     external fun nativeQueryIPQuality(ip: String): String?
+    external fun nativeQueryConnections(): String?
+    external fun nativeCloseConnection(id: String)
     external fun nativeTestLatency(url: String): Long
     external fun nativeHealthCheck(completable: CompletableDeferred<Unit>, name: String)
     external fun nativeHealthCheckAll()

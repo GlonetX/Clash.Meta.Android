@@ -139,6 +139,21 @@ func queryIPQuality(ip C.c_string) *C.char {
 	return marshalString(response)
 }
 
+//export queryConnections
+func queryConnections() *C.char {
+	response, err := tunnel.QueryConnections()
+	if err != nil {
+		return nil
+	}
+
+	return marshalString(response)
+}
+
+//export closeConnection
+func closeConnection(id C.c_string) {
+	tunnel.CloseConnection(C.GoString(id))
+}
+
 //export testLatency
 func testLatency(url C.c_string) C.int64_t {
 	u := C.GoString(url)
