@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Dashboard-only dimensions. `values/dimens.xml` is shared with the other
+      overhaul worktrees and must not be edited. The `sw600dp` / `sw840dp`
+      variants drive both the grid column count and the unit card height, so a
+      tablet gets a wider grid with proportionally taller cells.
+    -->
+
+    <!-- Horizontal page padding around the grid. -->
+    <dimen name="dashboard_padding_horizontal">16dp</dimen>
+
+    <!-- Gap between grid cells. Cards carry `dashboard_cell_margin` on every
+         side, which combines into this gap. -->
+    <dimen name="dashboard_grid_gap">8dp</dimen>
+    <dimen name="dashboard_cell_margin">4dp</dimen>
+
+    <!-- Height of a one-column metric card. -->
+    <dimen name="dashboard_unit_height">100dp</dimen>
+
+    <!-- Height of the network speed chart. -->
+    <dimen name="dashboard_chart_height">168dp</dimen>
+
+    <!-- Height of the traffic split donut. -->
+    <dimen name="dashboard_donut_size">104dp</dimen>
+
+    <!-- Height of the status hero card. -->
+    <dimen name="dashboard_status_height">80dp</dimen>
+
+    <!-- Height of the service availability pager. -->
+    <dimen name="dashboard_service_pager_height">128dp</dimen>
+
+</resources>

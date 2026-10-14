@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="self"
+            type="com.github.kr328.clash.design.MainDesign" />
+
+        <import type="com.github.kr328.clash.design.MainDesign.Request" />
+    </data>
+
+    <com.github.kr328.clash.design.view.AppCard
+        style="@style/DashboardUnitCard"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{() -> self.request(Request.OpenProfiles)}">
+
+        <LinearLayout style="@style/DashboardCardBody">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/DashboardCardIcon"
+                    android:src="@drawable/ic_baseline_view_list" />
+
+                <TextView
+                    style="@style/DashboardCardTitle"
+                    android:text="@string/profile" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/profile_name"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/app_space_sm"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="bottom"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.App.MetricSmall" />
+
+            <TextView
+                android:id="@+id/profile_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/app_space_xs"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.App.Label" />
+        </LinearLayout>
+    </com.github.kr328.clash.design.view.AppCard>
+</layout>

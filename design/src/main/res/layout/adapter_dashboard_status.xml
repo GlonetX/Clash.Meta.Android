@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The status hero: the one card that toggles the core. It is deliberately the
+  only card on the page that is not `colorSurface` — when the core is running
+  it fills with `colorPrimary`, which is why the traffic chart's download
+  series must NOT also be drawn in `colorPrimary` (see TrafficChartView).
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="self"
+            type="com.github.kr328.clash.design.MainDesign" />
+
+        <import type="com.github.kr328.clash.design.MainDesign.Request" />
+    </data>
+
+    <com.github.kr328.clash.design.view.AppCard
+        android:id="@+id/status_card"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dashboard_status_height"
+        android:layout_margin="@dimen/dashboard_cell_margin"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{() -> self.request(Request.ToggleStatus)}">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/app_space_xl"
+            android:paddingVertical="@dimen/app_space_lg">
+
+            <ImageView
+                android:id="@+id/status_icon"
+                android:layout_width="@dimen/app_icon_glyph_size"
+                android:layout_height="@dimen/app_icon_glyph_size"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/app_space_lg"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/status_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.App.CardTitle" />
+
+                <TextView
+                    android:id="@+id/status_subtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/app_space_xs"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.App.Label" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.github.kr328.clash.design.view.AppCard>
+</layout>

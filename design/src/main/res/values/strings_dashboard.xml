@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Dashboard-only strings. `values/strings.xml` is shared with the other
+      overhaul worktrees and must not be edited; resource merging makes this
+      file equivalent. See OVERHAUL_WORKTREES.md.
+    -->
+
+    <string name="dashboard_node">Current Node</string>
+    <string name="dashboard_node_unavailable">No proxy selected</string>
+    <string name="dashboard_network_speed">Network Speed</string>
+    <string name="dashboard_traffic_total">Traffic Split</string>
+    <string name="dashboard_memory">Memory</string>
+    <string name="dashboard_uptime">Run Time</string>
+    <string name="dashboard_services">Service Availability</string>
+    <string name="dashboard_links">More</string>
+
+    <string name="dashboard_upload">Upload</string>
+    <string name="dashboard_download">Download</string>
+
+    <!-- Short outbound mode labels for the sliding pill -->
+    <string name="rule_mode_short">Rule</string>
+    <string name="global_mode_short">Global</string>
+    <string name="direct_mode_short">Direct</string>
+
+    <string name="dashboard_connections_count">Connections</string>
+    <string name="dashboard_requests_count">Requests</string>
+    <string name="dashboard_dns_count">DNS</string>
+
+    <!-- Traffic chart window selector -->
+    <string name="dashboard_window_1m">1 min</string>
+    <string name="dashboard_window_5m">5 min</string>
+    <string name="dashboard_window_30m">30 min</string>
+
+    <string name="dashboard_no_node">—</string>
+    <string name="dashboard_delay_unknown">--</string>
+
+    <!-- Card customisation -->
+    <string name="dashboard_add_widget">Add widget</string>
+    <string name="dashboard_edit_mode">Editing dashboard</string>
+    <string name="dashboard_edit_done">Done</string>
+    <string name="dashboard_added_widget">%1$s added</string>
+    <string name="dashboard_widget_already_placed">%1$s is already on the dashboard</string>
+    <string name="dashboard_remove_widget">Remove widget</string>
+    <string name="dashboard_widgets_empty">All widgets are on the dashboard</string>
+
+    <string name="dashboard_probe_latency">%1$d ms</string>
+    <string name="dashboard_refresh_services">Re-check</string>
+
+</resources>
