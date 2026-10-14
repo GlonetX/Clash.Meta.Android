@@ -88,6 +88,14 @@ class ClashManager(private val context: Context) : IClashManager,
         return Clash.queryIPInfo(proxy)
     }
 
+    override suspend fun queryIPQuality(ip: String): IPQuality? {
+        return Clash.queryIPQuality(ip)
+    }
+
+    override suspend fun testLatency(url: String): Long {
+        return Clash.testLatency(url)
+    }
+
     override fun setLogObserver(observer: ILogObserver?) {
         synchronized(this) {
             logReceiver?.apply {

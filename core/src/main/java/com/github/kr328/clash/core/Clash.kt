@@ -132,6 +132,19 @@ object Clash {
         }
     }
 
+    suspend fun queryIPQuality(ip: String = ""): IPQuality? {
+        return withContext(Dispatchers.IO) {
+            Bridge.nativeQueryIPQuality(ip)
+                ?.let { Json.Default.decodeFromString(IPQuality.serializer(), it) }
+        }
+    }
+
+    suspend fun testLatency(url: String): Long {
+        return withContext(Dispatchers.IO) {
+            Bridge.nativeTestLatency(url)
+        }
+    }
+
     fun healthCheck(name: String): CompletableDeferred<Unit> {
         return CompletableDeferred<Unit>().apply {
             Bridge.nativeHealthCheck(this, name)

@@ -65,6 +65,8 @@
     <dimen name="main_dashboard_padding_bottom">16dp</dimen>
     <dimen name="main_tun_row_padding_vertical">12dp</dimen>
     <dimen name="main_icon_button_size">40dp</dimen>
+    <dimen name="main_card_icon_size">24dp</dimen>
+    <dimen name="main_kv_row_padding_vertical">6dp</dimen>
     <dimen name="main_label_margin_vertical">2dp</dimen>
     <dimen name="main_padding_horizontal">30dp</dimen>
     <dimen name="main_logo_size">50dp</dimen>

@@ -126,3 +126,22 @@ func queryIPInfo(proxy C.c_string) *C.char {
 
 	return marshalString(response)
 }
+
+//export queryIPQuality
+func queryIPQuality(ip C.c_string) *C.char {
+	i := C.GoString(ip)
+
+	response, err := tunnel.QueryIPQuality(i)
+	if err != nil {
+		return nil
+	}
+
+	return marshalString(response)
+}
+
+//export testLatency
+func testLatency(url C.c_string) C.int64_t {
+	u := C.GoString(url)
+
+	return C.int64_t(tunnel.TestLatency(u))
+}

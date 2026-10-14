@@ -273,8 +273,14 @@
     <string name="download_speed">下載</string>
     <string name="dashboard">儀表盤</string>
     <string name="refresh">重新整理</string>
+    <string name="ip_quality">IP 品質</string>
+    <string name="latency_test">延遲測試</string>
+    <string name="risk_score">風險分數</string>
+    <string name="is_proxy">代理標記</string>
+    <string name="abuse_score">濫用分數</string>
+    <string name="usage_type">使用類型</string>
+    <string name="proxy_type">代理類型</string>
+    <string name="timeout">逾時</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">記憶體</string>
-    <string name="tun_mode">TUN（VPN）模式</string>
-    <string name="tun_mode_summary">透過虛擬網卡接管全部流量</string>
 </resources>

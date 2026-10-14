@@ -205,6 +205,31 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryIPInfo(JNIEnv *env, jo
     return new_string(response);
 }
 
+JNIEXPORT jstring JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryIPQuality(JNIEnv *env, jobject thiz,
+                                                                     jstring ip) {
+    TRACE_METHOD();
+
+    scoped_string _ip = get_string(ip);
+
+    scoped_string response = queryIPQuality(_ip);
+
+    if (response == NULL)
+        return NULL;
+
+    return new_string(response);
+}
+
+JNIEXPORT jlong JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeTestLatency(JNIEnv *env, jobject thiz,
+                                                                  jstring url) {
+    TRACE_METHOD();
+
+    scoped_string _url = get_string(url);
+
+    return (jlong) testLatency(_url);
+}
+
 JNIEXPORT void JNICALL
 Java_com_github_kr328_clash_core_bridge_Bridge_nativeHealthCheck(JNIEnv *env, jobject thiz,
                                                                  jobject completable,

@@ -114,18 +114,6 @@ class MainActivity : BaseActivity<MainDesign>() {
                             else
                                 design.startClash()
                         }
-                        MainDesign.Request.ToggleTun -> {
-                            val enabled = uiStore.enableVpn
-                            uiStore.enableVpn = !enabled
-
-                            design.setTunEnabled(!enabled)
-
-                            if (clashRunning) {
-                                stopClashService()
-
-                                design.postRestartClash()
-                            }
-                        }
                         MainDesign.Request.OpenProxy ->
                             design.showProxyPage()
                         MainDesign.Request.OpenProfiles ->
@@ -150,6 +138,10 @@ class MainActivity : BaseActivity<MainDesign>() {
 
                             design.fetchIPInfo(force = true)
                         }
+                        MainDesign.Request.OpenIPQuality ->
+                            startActivity(IPQualityActivity::class.intent)
+                        MainDesign.Request.OpenLatency ->
+                            startActivity(LatencyActivity::class.intent)
                         MainDesign.Request.PatchMode -> {
                             val mode = design.checkedOutboundMode()
 
@@ -253,7 +245,6 @@ class MainActivity : BaseActivity<MainDesign>() {
 
     private suspend fun MainDesign.fetch() {
         setClashRunning(clashRunning)
-        setTunEnabled(uiStore.enableVpn)
 
         val state = withClash {
             queryTunnelState()
@@ -340,18 +331,6 @@ class MainActivity : BaseActivity<MainDesign>() {
             else
                 setIPInfo(null, null)
         }
-    }
-
-    private suspend fun MainDesign.postRestartClash() {
-        // brief pause to let the service fully stop before restarting
-        withContext(Dispatchers.IO) {
-            Thread.sleep(1200)
-        }
-
-        if (clashRunning)
-            return
-
-        startClash()
     }
 
     private suspend fun MainDesign.startClash() {

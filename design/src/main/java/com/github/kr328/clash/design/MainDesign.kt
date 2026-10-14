@@ -25,7 +25,6 @@ import kotlinx.coroutines.withContext
 class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     enum class Request {
         ToggleStatus,
-        ToggleTun,
         OpenProxy,
         OpenProfiles,
         OpenProviders,
@@ -35,6 +34,8 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         OpenAbout,
         RefreshIP,
         PatchMode,
+        OpenIPQuality,
+        OpenLatency,
     }
 
     private val binding = DesignMainBinding
@@ -156,12 +157,6 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
     suspend fun setClashRunning(running: Boolean) {
         withContext(Dispatchers.Main) {
             binding.clashRunning = running
-        }
-    }
-
-    suspend fun setTunEnabled(enabled: Boolean) {
-        withContext(Dispatchers.Main) {
-            binding.tunEnabled = enabled
         }
     }
 

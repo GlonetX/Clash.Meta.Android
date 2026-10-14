@@ -56,9 +56,6 @@
         <variable
             name="profileSummary"
             type="String" />
-        <variable
-            name="tunEnabled"
-            type="boolean" />
 
         <import type="android.view.View" />
         <import type="com.github.kr328.clash.design.MainDesign.Request" />
@@ -148,8 +145,8 @@
                                 android:orientation="horizontal">
 
                                 <View
-                                    android:layout_width="@dimen/large_item_header_component_size"
-                                    android:layout_height="@dimen/large_item_header_component_size"
+                                    android:layout_width="@dimen/main_card_icon_size"
+                                    android:layout_height="@dimen/main_card_icon_size"
                                     android:background="@drawable/ic_baseline_stack" />
 
                                 <TextView
@@ -209,6 +206,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
+                        android:onClick="@{() -> self.request(Request.OpenLatency)}"
                         android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
 
                         <LinearLayout
@@ -224,8 +222,8 @@
                                 android:orientation="horizontal">
 
                                 <View
-                                    android:layout_width="@dimen/large_item_header_layout_size"
-                                    android:layout_height="@dimen/large_item_header_layout_size"
+                                    android:layout_width="@dimen/main_card_icon_size"
+                                    android:layout_height="@dimen/main_card_icon_size"
                                     android:background="@drawable/ic_baseline_speed" />
 
                                 <TextView
@@ -300,7 +298,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/main_card_margin_vertical"
-                        android:onClick="@{() -> self.request(Request.RefreshIP)}"
+                        android:onClick="@{() -> self.request(Request.OpenIPQuality)}"
                         android:visibility="@{clashRunning ? View.VISIBLE : View.GONE}">
 
                         <LinearLayout
@@ -316,8 +314,8 @@
                                 android:orientation="horizontal">
 
                                 <View
-                                    android:layout_width="@dimen/large_item_header_layout_size"
-                                    android:layout_height="@dimen/large_item_header_layout_size"
+                                    android:layout_width="@dimen/main_card_icon_size"
+                                    android:layout_height="@dimen/main_card_icon_size"
                                     android:background="@drawable/ic_baseline_public" />
 
                                 <TextView
@@ -333,6 +331,7 @@
                                     android:layout_height="@dimen/main_icon_button_size"
                                     android:background="?attr/selectableItemBackgroundBorderless"
                                     android:contentDescription="@string/refresh"
+                                    android:onClick="@{() -> self.request(Request.RefreshIP)}"
                                     android:scaleType="centerInside"
                                     android:src="@drawable/ic_baseline_refresh" />
                             </LinearLayout>
@@ -400,46 +399,6 @@
                         app:icon="@drawable/ic_baseline_view_list"
                         app:subtext="@{profileSummary ?? @string/not_selected}"
                         app:text="@string/profile" />
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginVertical="@dimen/main_card_margin_vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="@dimen/main_card_content_padding"
-                            android:paddingVertical="@dimen/main_tun_row_padding_vertical">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/tun_mode"
-                                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/tun_mode_summary"
-                                    android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
-                            </LinearLayout>
-
-                            <com.google.android.material.materialswitch.MaterialSwitch
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checked="@{tunEnabled}"
-                                android:onClick="@{() -> self.request(Request.ToggleTun)}" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
 
                     <com.github.kr328.clash.design.view.LargeActionLabel
                         android:layout_width="match_parent"

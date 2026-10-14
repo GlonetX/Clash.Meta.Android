@@ -138,6 +138,16 @@
             android:exported="false"
             android:label="@string/providers" />
         <activity
+            android:name=".IPQualityActivity"
+            android:configChanges="uiMode"
+            android:exported="false"
+            android:label="@string/ip_quality" />
+        <activity
+            android:name=".LatencyActivity"
+            android:configChanges="uiMode"
+            android:exported="false"
+            android:label="@string/latency_test" />
+        <activity
             android:name=".LogsActivity"
             android:configChanges="uiMode"
             android:exported="false"

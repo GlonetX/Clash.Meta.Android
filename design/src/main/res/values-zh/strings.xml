@@ -293,8 +293,14 @@
     <string name="download_speed">下载</string>
     <string name="dashboard">仪表盘</string>
     <string name="refresh">刷新</string>
+    <string name="ip_quality">IP 质量</string>
+    <string name="latency_test">延迟测试</string>
+    <string name="risk_score">风险分数</string>
+    <string name="is_proxy">代理标记</string>
+    <string name="abuse_score">滥用分数</string>
+    <string name="usage_type">使用类型</string>
+    <string name="proxy_type">代理类型</string>
+    <string name="timeout">超时</string>
     <string name="outbound_mode">出站模式</string>
     <string name="memory_usage">内存</string>
-    <string name="tun_mode">TUN（VPN）模式</string>
-    <string name="tun_mode_summary">通过虚拟网卡接管全部流量</string>
 </resources>
