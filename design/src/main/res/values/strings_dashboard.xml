@@ -7,8 +7,6 @@
       file equivalent. See OVERHAUL_WORKTREES.md.
     -->
 
-    <string name="dashboard_node">Current Node</string>
-    <string name="dashboard_node_unavailable">No proxy selected</string>
     <string name="dashboard_network_speed">Network Speed</string>
     <string name="dashboard_traffic_total">Traffic Split</string>
     <string name="dashboard_memory">Memory</string>
@@ -34,7 +32,6 @@
     <string name="dashboard_window_30m">30 min</string>
 
     <string name="dashboard_no_node">—</string>
-    <string name="dashboard_delay_unknown">--</string>
     <string name="dashboard_since_start">Since the core started</string>
     <string name="dashboard_not_running">Core is not running</string>
 
@@ -52,7 +49,6 @@
     <string name="dashboard_widgets_empty">All widgets are on the dashboard</string>
     <string name="dashboard_reorder_hint">Drag to reorder</string>
 
-    <string name="dashboard_probe_latency">%1$d ms</string>
     <string name="dashboard_refresh_services">Re-check</string>
 
     <!-- Service probe availability -->
@@ -63,4 +59,14 @@
     <string name="dashboard_status_failed">Failed</string>
     <string name="dashboard_status_checking">Checking…</string>
 
+    <string name="dashboard_status_starting">Starting…</string>
+    <string name="dashboard_status_waiting">Waiting for the service to report in</string>
+    <string name="dashboard_provider_proxy">Proxy collection</string>
+    <string name="dashboard_provider_rule">Rule collection</string>
+    <string name="dashboard_provider_more">+ %1$d more</string>
+    <string name="dashboard_provider_never">never updated</string>
+    <string name="dashboard_provider_just_now">updated just now</string>
+    <string name="dashboard_provider_minutes_ago">updated %1$d min ago</string>
+    <string name="dashboard_provider_hours_ago">updated %1$d h ago</string>
+    <string name="dashboard_provider_days_ago">updated %1$d d ago</string>
 </resources>

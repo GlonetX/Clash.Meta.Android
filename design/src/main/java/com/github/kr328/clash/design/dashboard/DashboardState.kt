@@ -20,6 +20,14 @@ data class DashboardState(
     /** Is the core running? Gates most widgets. */
     val clashRunning: Boolean = false,
 
+    /**
+     * The user's last toggle intent: true from the moment the start request
+     * is issued until the service actually reports running (or the request
+     * fails). Drives the hero card's `starting` state — the cross-process
+     * startup gap otherwise reads as "still stopped".
+     */
+    val coreStarted: Boolean = false,
+
     /** Human readable total traffic forwarded since the core started. */
     val forwarded: String = "",
 
@@ -31,6 +39,9 @@ data class DashboardState(
 
     /** Are there providers to show? Gates the Providers entry link. */
     val hasProviders: Boolean = false,
+
+    /** The providers themselves, for the dashboard providers card. */
+    val providers: List<com.github.kr328.clash.core.model.Provider> = emptyList(),
 
     /** Current outbound mode. */
     val mode: TunnelState.Mode = TunnelState.Mode.Rule,
@@ -74,14 +85,8 @@ data class DashboardState(
     /** Streaming service probe results, one entry per probed service. */
     val services: List<ServiceProbe> = emptyList(),
 
-    /** Name of the proxy group currently being inspected. */
-    val nodeGroupName: String? = null,
 
-    /** Name of the selected proxy inside [nodeGroupName]. */
-    val nodeName: String? = null,
 
-    /** Last known delay of [nodeName] in ms, or -1 when unknown. */
-    val nodeDelay: Int = -1,
 )
 
 /**

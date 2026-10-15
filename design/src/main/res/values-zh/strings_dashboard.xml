@@ -5,8 +5,6 @@
       仪表盘专用字符串，与 values/strings_dashboard.xml 对应。
     -->
 
-    <string name="dashboard_node">当前节点</string>
-    <string name="dashboard_node_unavailable">未选择代理</string>
     <string name="dashboard_network_speed">网络速度</string>
     <string name="dashboard_traffic_total">流量分布</string>
     <string name="dashboard_memory">内存</string>
@@ -32,7 +30,6 @@
     <string name="dashboard_window_30m">30 分钟</string>
 
     <string name="dashboard_no_node">—</string>
-    <string name="dashboard_delay_unknown">--</string>
     <string name="dashboard_since_start">自核心启动以来</string>
     <string name="dashboard_not_running">核心未运行</string>
 
@@ -50,7 +47,6 @@
     <string name="dashboard_widgets_empty">所有卡片均已添加到仪表盘</string>
     <string name="dashboard_reorder_hint">拖动以排序</string>
 
-    <string name="dashboard_probe_latency">%1$d ms</string>
     <string name="dashboard_refresh_services">重新检测</string>
 
     <!-- 服务探测可用性 -->
@@ -61,4 +57,14 @@
     <string name="dashboard_status_failed">失败</string>
     <string name="dashboard_status_checking">检测中…</string>
 
+    <string name="dashboard_status_starting">正在启动…</string>
+    <string name="dashboard_status_waiting">等待服务响应</string>
+    <string name="dashboard_provider_proxy">代理集合</string>
+    <string name="dashboard_provider_rule">规则集合</string>
+    <string name="dashboard_provider_more">还有 %1$d 个</string>
+    <string name="dashboard_provider_never">从未更新</string>
+    <string name="dashboard_provider_just_now">刚刚更新</string>
+    <string name="dashboard_provider_minutes_ago">%1$d 分钟前更新</string>
+    <string name="dashboard_provider_hours_ago">%1$d 小时前更新</string>
+    <string name="dashboard_provider_days_ago">%1$d 天前更新</string>
 </resources>

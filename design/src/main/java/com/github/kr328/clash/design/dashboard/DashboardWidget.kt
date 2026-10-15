@@ -46,17 +46,8 @@ enum class DashboardWidget(
         titleRes = R.string.outbound_mode,
         iconRes = R.drawable.ic_dashboard_outbound,
         layoutRes = R.layout.adapter_dashboard_outbound_mode,
-        span = 1,
+        span = 2,
         defaultOrder = 10,
-    ),
-
-    NODE(
-        key = "node",
-        titleRes = R.string.dashboard_node,
-        iconRes = R.drawable.ic_dashboard_node,
-        layoutRes = R.layout.adapter_dashboard_node,
-        span = 1,
-        defaultOrder = 20,
     ),
 
     TRAFFIC_CHART(
@@ -111,6 +102,15 @@ enum class DashboardWidget(
         layoutRes = R.layout.adapter_dashboard_services,
         span = 2,
         defaultOrder = 80,
+    ),
+
+    PROVIDERS(
+        key = "providers",
+        titleRes = R.string.providers,
+        iconRes = R.drawable.ic_baseline_swap_vertical_circle,
+        layoutRes = R.layout.adapter_dashboard_providers,
+        span = 2,
+        defaultOrder = 85,
     ),
 
     IP_INFO(

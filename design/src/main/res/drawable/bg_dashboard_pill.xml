@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="?attr/colorSecondaryContainer" />
+    <!-- Primary, not secondary-container: several theme families alias
+         colorSecondary* onto the primary roles at low contrast against
+         surfaceVariant tracks. The active mode is a selection — primary
+         with on-primary labels reads unambiguously on every theme,
+         including dynamic colour. -->
+    <solid android:color="?attr/colorPrimary" />
     <corners android:radius="@dimen/app_radius_sm" />
 </shape>

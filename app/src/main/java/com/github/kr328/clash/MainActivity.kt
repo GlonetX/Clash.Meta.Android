@@ -315,18 +315,18 @@ class MainActivity : BaseActivity<MainDesign>() {
         val profile = withProfile {
             queryActive()
         }
-        val node = fetchNode()
-
         pushState(
             dashboard.copy(
                 clashRunning = clashRunning,
+                // Reconcile the optimistic starting flag with reality: once
+                // the core reports running (or was never asked to start),
+                // `starting` is over.
+                coreStarted = clashRunning,
                 hasProviders = providers.isNotEmpty(),
+                providers = providers,
                 mode = tunnel.mode,
                 profileName = profile?.name,
                 profileSummary = profile?.summary(),
-                nodeGroupName = node?.first,
-                nodeName = node?.second,
-                nodeDelay = node?.third ?: -1,
             )
         )
 
@@ -334,22 +334,6 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     /** Group name, selected proxy and that proxy's last known delay. */
-    private suspend fun fetchNode(): Triple<String, String, Int>? {
-        if (!clashRunning)
-            return null
-
-        val name = withClash {
-            queryProxyGroupNames(uiStore.proxyExcludeNotSelectable)
-        }.firstOrNull() ?: return null
-
-        val group = withClash {
-            queryProxyGroup(name, uiStore.proxySort)
-        }
-
-        val delay = group.proxies.firstOrNull { it.name == group.now }?.delay ?: -1
-
-        return Triple(name, group.now, delay)
-    }
 
     /**
      * Probe the streaming services and fold the results into the state.
@@ -539,6 +523,12 @@ class MainActivity : BaseActivity<MainDesign>() {
             return
         }
 
+        // Optimistically flip the hero into its `starting` state the moment
+        // the tap lands — the VPN consent dialog + cross-process service
+        // start can otherwise leave "tap to start" on screen for seconds,
+        // which reads as a dead button and invites a double-tap.
+        pushState(dashboard.copy(coreStarted = true))
+
         val vpnRequest = startClashService()
 
         try {
@@ -550,8 +540,12 @@ class MainActivity : BaseActivity<MainDesign>() {
 
                 if (result.resultCode == RESULT_OK)
                     startClashService()
+                else
+                    pushState(dashboard.copy(coreStarted = false))
             }
         } catch (e: Exception) {
+            pushState(dashboard.copy(coreStarted = false))
+
             showToast(DesignR.string.unable_to_start_vpn, ToastDuration.Long)
         }
     }

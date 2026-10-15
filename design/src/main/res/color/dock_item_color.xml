@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="?attr/colorPrimary" android:state_checked="true" />
+    <!-- Selected: onPrimaryContainer on the pill's secondaryContainer
+         indicator (AppNavigationBar keeps the M3 default pill), which holds
+         contrast on every theme — including dynamic colour, where plain
+         colorPrimary text on a colorSurface dock could nearly vanish. -->
+    <item android:color="?attr/colorOnSecondaryContainer" android:state_checked="true" />
     <item android:color="?attr/colorOnSurfaceVariant" />
 </selector>

@@ -5,9 +5,12 @@ import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.github.kr328.clash.core.model.Provider
 import com.github.kr328.clash.core.model.TunnelState
 import com.github.kr328.clash.design.MainDesign
 import com.github.kr328.clash.design.R
@@ -15,8 +18,8 @@ import com.github.kr328.clash.design.databinding.AdapterDashboardConnectionsBind
 import com.github.kr328.clash.design.databinding.AdapterDashboardIpInfoBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardLinksBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardMemoryBinding
-import com.github.kr328.clash.design.databinding.AdapterDashboardNodeBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardOutboundModeBinding
+import com.github.kr328.clash.design.databinding.AdapterDashboardProvidersBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardProfileBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardServicesBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardStatusBinding
@@ -24,6 +27,7 @@ import com.github.kr328.clash.design.databinding.AdapterDashboardTrafficChartBin
 import com.github.kr328.clash.design.databinding.AdapterDashboardTrafficTotalBinding
 import com.github.kr328.clash.design.databinding.AdapterDashboardUptimeBinding
 import com.github.kr328.clash.design.util.resolveThemedColor
+import com.github.kr328.clash.design.view.AppRow
 import com.github.kr328.clash.design.util.toBytesString
 import com.google.android.material.R as MaterialR
 
@@ -73,8 +77,6 @@ class DashboardAdapter(
                 Holder.OutboundMode(
                     AdapterDashboardOutboundModeBinding.inflate(inflater, parent, false)
                 )
-            DashboardWidget.NODE ->
-                Holder.Node(AdapterDashboardNodeBinding.inflate(inflater, parent, false))
             DashboardWidget.TRAFFIC_CHART ->
                 Holder.TrafficChart(
                     AdapterDashboardTrafficChartBinding.inflate(inflater, parent, false)
@@ -93,6 +95,8 @@ class DashboardAdapter(
                 Holder.Uptime(AdapterDashboardUptimeBinding.inflate(inflater, parent, false))
             DashboardWidget.SERVICES ->
                 Holder.Services(AdapterDashboardServicesBinding.inflate(inflater, parent, false))
+            DashboardWidget.PROVIDERS ->
+                Holder.Providers(AdapterDashboardProvidersBinding.inflate(inflater, parent, false))
             DashboardWidget.IP_INFO ->
                 Holder.IpInfo(AdapterDashboardIpInfoBinding.inflate(inflater, parent, false))
             DashboardWidget.PROFILE ->
@@ -115,7 +119,6 @@ class DashboardAdapter(
             DashboardWidget.STATUS -> bindStatus((holder as Holder.Status).binding)
             DashboardWidget.OUTBOUND_MODE ->
                 bindOutboundMode((holder as Holder.OutboundMode).binding, holder)
-            DashboardWidget.NODE -> bindNode((holder as Holder.Node).binding)
             DashboardWidget.TRAFFIC_CHART ->
                 bindTrafficChart((holder as Holder.TrafficChart).binding)
             DashboardWidget.TRAFFIC_TOTAL ->
@@ -125,6 +128,8 @@ class DashboardAdapter(
                 bindConnections((holder as Holder.Connections).binding)
             DashboardWidget.UPTIME -> bindUptime((holder as Holder.Uptime).binding)
             DashboardWidget.SERVICES -> bindServices((holder as Holder.Services).binding)
+            DashboardWidget.PROVIDERS ->
+                bindProviders((holder as Holder.Providers).binding)
             DashboardWidget.IP_INFO -> bindIpInfo((holder as Holder.IpInfo).binding)
             DashboardWidget.PROFILE -> bindProfile((holder as Holder.Profile).binding)
             DashboardWidget.LINKS -> bindLinks((holder as Holder.Links).binding)
@@ -135,33 +140,75 @@ class DashboardAdapter(
 
     private fun bindStatus(binding: AdapterDashboardStatusBinding) {
         val running = state.clashRunning
+        // `starting` = the toggle was tapped but the service has not reported
+        // back yet. The core startup crosses processes and can take a moment;
+        // without this state the card sits on "Stopped / tap to start" for
+        // the whole gap and invites a double-tap.
+        val starting = running != state.coreStarted
 
         binding.statusCard.setOnClickListener { onRequest(MainDesign.Request.ToggleStatus) }
 
-        binding.statusCard.setCardBackgroundColor(
-            context.resolveThemedColor(
-                if (running) MaterialR.attr.colorPrimary else R.attr.colorClashStopped
-            )
-        )
+        when {
+            running -> {
+                binding.statusCard.setCardBackgroundColor(
+                    context.resolveThemedColor(MaterialR.attr.colorPrimary)
+                )
+                binding.statusCard.strokeWidth = 0
+            }
+            starting -> {
+                binding.statusCard.setCardBackgroundColor(
+                    context.resolveThemedColor(MaterialR.attr.colorSurface)
+                )
+                binding.statusCard.strokeColor = ColorStateList.valueOf(
+                    context.resolveThemedColor(MaterialR.attr.colorPrimary)
+                )
+                binding.statusCard.strokeWidth =
+                    context.resources.getDimensionPixelSize(R.dimen.app_space_xs)
+            }
+            else -> {
+                // Stopped must NOT be plain colorSurface — every other card on
+                // the page is colorSurface, so the hero would lose its status
+                // role entirely. surfaceVariant keeps it a distinct surface
+                // without pretending to be "on".
+                binding.statusCard.setCardBackgroundColor(
+                    context.resolveThemedColor(MaterialR.attr.colorSurfaceVariant)
+                )
+                binding.statusCard.strokeWidth = 0
+            }
+        }
 
         val foreground = context.resolveThemedColor(
-            if (running) MaterialR.attr.colorOnPrimary else MaterialR.attr.colorOnSurface
+            when {
+                running -> MaterialR.attr.colorOnPrimary
+                starting -> MaterialR.attr.colorPrimary
+                else -> MaterialR.attr.colorOnSurfaceVariant
+            }
         )
 
         binding.statusIcon.setImageResource(
-            if (running) R.drawable.ic_outline_check_circle
-            else R.drawable.ic_outline_not_interested
+            when {
+                running -> R.drawable.ic_outline_check_circle
+                starting -> R.drawable.ic_dashboard_status_starting
+                else -> R.drawable.ic_outline_not_interested
+            }
         )
         binding.statusIcon.imageTintList = ColorStateList.valueOf(foreground)
 
-        binding.statusTitle.text =
-            context.getString(if (running) R.string.running else R.string.stopped)
+        binding.statusTitle.text = context.getString(
+            when {
+                running -> R.string.running
+                starting -> R.string.dashboard_status_starting
+                else -> R.string.stopped
+            }
+        )
         binding.statusTitle.setTextColor(foreground)
 
-        binding.statusSubtext.text = if (running) {
-            context.getString(R.string.format_traffic_forwarded, state.forwarded)
-        } else {
-            context.getString(R.string.tap_to_start)
+        binding.statusSubtext.text = when {
+            running -> context.getString(
+                R.string.format_traffic_forwarded, state.forwarded
+            )
+            starting -> context.getString(R.string.dashboard_status_waiting)
+            else -> context.getString(R.string.tap_to_start)
         }
         binding.statusSubtext.setTextColor(foreground)
         binding.statusSubtext.alpha = 0.75f
@@ -206,6 +253,23 @@ class DashboardAdapter(
             place()
         else
             binding.modeStack.post { place() }
+
+        // The pill is colorPrimary, so the selected label must be onPrimary
+        // and the idle labels onSurfaceVariant — without this the active
+        // label is unreadable on the filled pill.
+        val onPrimary = ColorStateList.valueOf(
+            context.resolveThemedColor(MaterialR.attr.colorOnPrimary)
+        )
+        val idle = ColorStateList.valueOf(
+            context.resolveThemedColor(MaterialR.attr.colorOnSurfaceVariant)
+        )
+        listOf(
+            binding.modeRule to (index == 0),
+            binding.modeGlobal to (index == 1),
+            binding.modeDirect to (index == 2),
+        ).forEach { (label, selected) ->
+            label.setTextColor(if (selected) onPrimary else idle)
+        }
     }
 
     private fun modeIndex(mode: TunnelState.Mode): Int = when (mode) {
@@ -214,19 +278,89 @@ class DashboardAdapter(
         else -> 0
     }
 
-    // ------------------------------------------------------------------ node
+    // ------------------------------------------------------------- providers
 
-    private fun bindNode(binding: AdapterDashboardNodeBinding) {
-        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenProxy) }
+    private fun bindProviders(binding: AdapterDashboardProvidersBinding) {
+        val providers = state.providers
+            .filter { it.vehicleType != Provider.VehicleType.Inline }
 
-        binding.nodeName.text =
-            state.nodeName ?: context.getString(R.string.dashboard_node_unavailable)
+        // An empty card is noise; when there is nothing remote, the whole
+        // cell collapses and only the LINKS entry remains.
+        binding.root.visibility = if (providers.isEmpty()) View.GONE else View.VISIBLE
+        if (providers.isEmpty())
+            return
 
-        binding.nodeDetail.text = when {
-            state.nodeDelay >= 0 ->
-                context.getString(R.string.dashboard_probe_latency, state.nodeDelay)
-            !state.nodeGroupName.isNullOrEmpty() -> state.nodeGroupName
-            else -> context.getString(R.string.dashboard_delay_unknown)
+        binding.root.setOnClickListener { onRequest(MainDesign.Request.OpenProviders) }
+        binding.providersUpdateAll.setOnClickListener {
+            onRequest(MainDesign.Request.OpenProviders)
+        }
+
+        val list = binding.providersList
+        list.removeAllViews()
+
+        providers.take(MAX_PROVIDER_ROWS).forEachIndexed { index, provider ->
+            val row = AppRow(context).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                )
+
+                icon = context.getDrawable(R.drawable.ic_baseline_swap_vertical_circle)
+                iconContainerVisible = false
+
+                text = provider.name
+
+                subtext = context.getString(
+                    when (provider.type) {
+                        Provider.Type.Rule -> R.string.dashboard_provider_rule
+                        else -> R.string.dashboard_provider_proxy
+                    }
+                ) + " · " + formatUpdatedAt(provider.updatedAt)
+
+                setOnClickListener { onRequest(MainDesign.Request.OpenProviders) }
+            }
+
+            list.addView(row)
+
+            if (index < minOf(providers.size, MAX_PROVIDER_ROWS) - 1) {
+                val divider = View(context)
+                divider.setBackgroundColor(
+                    context.resolveThemedColor(MaterialR.attr.colorOutline)
+                )
+                divider.alpha = 0.2f
+                list.addView(
+                    divider,
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        context.resources.getDimensionPixelSize(R.dimen.divider_size),
+                    ),
+                )
+            }
+        }
+
+        if (providers.size > MAX_PROVIDER_ROWS) {
+            val more = TextView(context).apply {
+                text = context.getString(
+                    R.string.dashboard_provider_more, providers.size - MAX_PROVIDER_ROWS
+                )
+                setTextAppearance(R.style.TextAppearance_App_Label)
+                setPadding(0, context.resources.getDimensionPixelSize(R.dimen.app_space_sm), 0, 0)
+            }
+            list.addView(more)
+        }
+    }
+
+    private fun formatUpdatedAt(updatedAt: Long): String {
+        if (updatedAt <= 0)
+            return context.getString(R.string.dashboard_provider_never)
+
+        val delta = (System.currentTimeMillis() - updatedAt) / 1000L
+
+        return when {
+            delta < 60 -> context.getString(R.string.dashboard_provider_just_now)
+            delta < 3600 -> context.getString(R.string.dashboard_provider_minutes_ago, delta / 60)
+            delta < 86400 -> context.getString(R.string.dashboard_provider_hours_ago, delta / 3600)
+            else -> context.getString(R.string.dashboard_provider_days_ago, delta / 86400)
         }
     }
 
@@ -392,7 +526,8 @@ class DashboardAdapter(
             var pillPlaced = false
         }
 
-        class Node(val binding: AdapterDashboardNodeBinding) : Holder(binding.root)
+        class Providers(val binding: AdapterDashboardProvidersBinding) :
+            Holder(binding.root)
 
         class TrafficChart(val binding: AdapterDashboardTrafficChartBinding) :
             Holder(binding.root)
@@ -418,6 +553,9 @@ class DashboardAdapter(
 
     companion object {
         private const val MODES = 3
+
+        /** Rows shown on the dashboard providers card before "+N more". */
+        private const val MAX_PROVIDER_ROWS = 4
 
         private const val PAYLOAD_STATE = "state"
 
