@@ -511,9 +511,19 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     private suspend fun MainDesign.startClash() {
+        // Flip the hero into its `starting` state BEFORE anything suspendable
+        // runs. The profile query below is a cross-process binder round-trip
+        // (Room lives in the :background process) — on a cold path it can
+        // take hundreds of milliseconds, and during that gap the card still
+        // showed "tap to start", which reads as a dead button.
+        pushState(dashboard.copy(coreStarted = true))
+
         val active = withProfile { queryActive() }
 
         if (active == null || !active.imported) {
+            // No usable profile: the start is not happening after all.
+            pushState(dashboard.copy(coreStarted = false))
+
             showToast(DesignR.string.no_profile_selected, ToastDuration.Long) {
                 setAction(DesignR.string.profiles) {
                     startActivity(ProfilesActivity::class.intent)
@@ -522,12 +532,6 @@ class MainActivity : BaseActivity<MainDesign>() {
 
             return
         }
-
-        // Optimistically flip the hero into its `starting` state the moment
-        // the tap lands — the VPN consent dialog + cross-process service
-        // start can otherwise leave "tap to start" on screen for seconds,
-        // which reads as a dead button and invites a double-tap.
-        pushState(dashboard.copy(coreStarted = true))
 
         val vpnRequest = startClashService()
 
