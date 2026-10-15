@@ -127,7 +127,7 @@ enum class DashboardWidget(
         titleRes = R.string.profile,
         iconRes = R.drawable.ic_baseline_view_list,
         layoutRes = R.layout.adapter_dashboard_profile,
-        span = 1,
+        span = 2,
         defaultOrder = 100,
     ),
 

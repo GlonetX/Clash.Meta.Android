@@ -6,7 +6,8 @@
 
     <com.github.kr328.clash.design.view.AppCard
         style="@style/DashboardWideCard"
-        android:layout_marginTop="0dp"
+        android:layout_marginHorizontal="@dimen/dashboard_cell_margin"
+        android:layout_marginVertical="0dp"
         android:clickable="true"
         android:focusable="true">
 
