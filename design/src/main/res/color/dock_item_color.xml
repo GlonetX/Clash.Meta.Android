@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Selected: onSecondaryContainer over the M3 secondaryContainer pill
-         indicator — holds contrast on every theme including dynamic colour.
-         Unselected: onSurface (not onSurfaceVariant) because the dock
-         background itself is surfaceVariant now; a variant-on-variant pair
-         would be too quiet. -->
-    <item android:color="?attr/colorOnSecondaryContainer" android:state_checked="true" />
+    <!-- Selected: primary — readable on the light M3 pill in every theme
+         (the theme's onSecondaryContainer is hardcoded white, which
+         vanishes on the light container). -->
+    <item android:color="?attr/colorPrimary" android:state_checked="true" />
     <item android:color="?attr/colorOnSurfaceVariant" />
 </selector>
