@@ -127,7 +127,7 @@ class ClashService : BaseService() {
 
         ownsCore = false
 
-        Log.i("ClashService destroyed: ${reason ?: "successfully\"}")
+        Log.i("ClashService destroyed: ${reason ?: "successfully"}")
 
         super.onDestroy()
     }
