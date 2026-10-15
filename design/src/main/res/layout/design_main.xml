@@ -87,14 +87,14 @@
                 android:scrollbars="none" />
         </FrameLayout>
 
-        <com.github.kr328.clash.design.view.GlassDockView
+        <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             style="@style/AppNavigationBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/main_dock_margin_horizontal"
             android:layout_marginBottom="@dimen/main_dock_margin_bottom"
-            android:background="@drawable/bg_dock_glass"
+            android:background="@drawable/bg_dock"
             android:backgroundTint="@null"
             android:elevation="@dimen/main_dock_elevation"
             app:itemBackground="@null"
