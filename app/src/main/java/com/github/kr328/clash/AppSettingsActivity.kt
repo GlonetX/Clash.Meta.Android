@@ -12,6 +12,7 @@ import com.github.kr328.clash.design.model.Behavior
 import com.github.kr328.clash.design.settings.SettingsStore
 import com.github.kr328.clash.design.settings.SubscriptionInfo
 import com.github.kr328.clash.design.store.UiStore.Companion.mainActivityAlias
+import com.github.kr328.clash.design.store.ProfileUpdateStore
 import com.github.kr328.clash.service.store.ServiceStore
 import com.github.kr328.clash.util.ApplicationObserver
 import com.github.kr328.clash.util.withProfile
@@ -26,6 +27,7 @@ class AppSettingsActivity : BaseActivity<AppSettingsDesign>(), Behavior {
             uiStore,
             ServiceStore(this),
             SettingsStore(this),
+            ProfileUpdateStore(this),
             this,
             clashRunning,
             querySubscriptions(),

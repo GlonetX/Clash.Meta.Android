@@ -115,7 +115,7 @@ class MainActivity : BaseActivity<MainDesign>() {
     }
 
     override suspend fun main() {
-        val design = MainDesign(this, uiStore)
+        val design = MainDesign(this, uiStore, SettingsStore(this))
         val settingsDesign = SettingsDesign(
             this,
             uiStore,

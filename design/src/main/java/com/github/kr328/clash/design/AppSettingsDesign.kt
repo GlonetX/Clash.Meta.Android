@@ -32,6 +32,7 @@ import com.github.kr328.clash.design.settings.editSettingEntries
 import com.github.kr328.clash.design.settings.editSettingText
 import com.github.kr328.clash.design.settings.selectSetting
 import com.github.kr328.clash.design.store.UiStore
+import com.github.kr328.clash.design.store.ProfileUpdateStore
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.design.util.ValidatorHttpUrl
 import com.github.kr328.clash.design.util.applyFrom
@@ -56,6 +57,7 @@ class AppSettingsDesign(
     private val uiStore: UiStore,
     private val srvStore: ServiceStore,
     private val settings: SettingsStore,
+    private val profileUpdateStore: ProfileUpdateStore,
     private val behavior: Behavior,
     private val running: Boolean,
     private val subscriptions: List<SubscriptionInfo>,
@@ -373,9 +375,9 @@ class AppSettingsDesign(
                         R.string.settings_update_subscriptions_on_start_summary
                     ),
                     icon = R.drawable.ic_baseline_sync,
-                    checked = settings.updateSubscriptionsOnStart,
+                    checked = profileUpdateStore.updateOnLaunch,
                     onToggle = { checked ->
-                        settings.updateSubscriptionsOnStart = checked
+                        profileUpdateStore.updateOnLaunch = checked
 
                         refresh()
                     },

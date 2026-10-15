@@ -20,81 +20,88 @@
         <import type="com.github.kr328.clash.design.MainDesign.Request" />
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="@{self.surface.insets.bottom}">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/dashboard_header"
+            android:id="@+id/main_content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:minHeight="@dimen/main_top_banner_height"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/app_space_md"
-            android:paddingTop="@{self.surface.insets.top}">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/main_dock_content_clearance">
 
-            <FrameLayout
-                android:layout_width="@dimen/large_item_header_layout_size"
-                android:layout_height="@dimen/large_item_header_layout_size">
+            <LinearLayout
+                android:id="@+id/dashboard_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/main_top_banner_height"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/app_space_md"
+                android:paddingTop="@{self.surface.insets.top}">
+
+                <FrameLayout
+                    android:layout_width="@dimen/large_item_header_layout_size"
+                    android:layout_height="@dimen/large_item_header_layout_size">
+
+                    <ImageView
+                        android:layout_width="@dimen/main_logo_size"
+                        android:layout_height="@dimen/main_logo_size"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_clash" />
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/application_name"
+                    android:textAppearance="@style/TextAppearance.App.ScreenTitle" />
 
                 <ImageView
-                    android:layout_width="@dimen/main_logo_size"
-                    android:layout_height="@dimen/main_logo_size"
-                    android:layout_gravity="center"
-                    android:contentDescription="@null"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_clash" />
+                    android:id="@+id/edit_cards_view"
+                    android:layout_width="@dimen/item_tailing_component_size"
+                    android:layout_height="@dimen/item_tailing_component_size"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:contentDescription="@string/edit_dashboard_cards"
+                    android:focusable="true"
+                    android:onClick="@{() -> self.request(Request.EditCards)}"
+                    android:padding="@dimen/toolbar_image_action_padding"
+                    android:src="@drawable/ic_baseline_edit" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/pages_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/dashboard_page"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="@dimen/dashboard_padding_horizontal"
+                    android:paddingBottom="@dimen/main_dashboard_padding_bottom"
+                    android:scrollbars="none" />
             </FrameLayout>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/application_name"
-                android:textAppearance="@style/TextAppearance.App.ScreenTitle" />
-
-            <ImageView
-                android:id="@+id/edit_cards_view"
-                android:layout_width="@dimen/item_tailing_component_size"
-                android:layout_height="@dimen/item_tailing_component_size"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="@string/edit_dashboard_cards"
-                android:focusable="true"
-                android:onClick="@{() -> self.request(Request.EditCards)}"
-                android:padding="@dimen/toolbar_image_action_padding"
-                android:src="@drawable/ic_baseline_edit" />
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/pages_container"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/dashboard_page"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingHorizontal="@dimen/dashboard_padding_horizontal"
-                android:paddingBottom="@dimen/main_dashboard_padding_bottom"
-                android:scrollbars="none" />
-        </FrameLayout>
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
+        <com.github.kr328.clash.design.view.GlassDockView
             android:id="@+id/bottom_navigation"
             style="@style/AppNavigationBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_marginHorizontal="@dimen/main_dock_margin_horizontal"
             android:layout_marginBottom="@dimen/main_dock_margin_bottom"
-            android:background="@drawable/bg_dock"
+            android:background="@drawable/bg_dock_glass"
             android:backgroundTint="@null"
             android:elevation="@dimen/main_dock_elevation"
             app:itemBackground="@null"
@@ -102,5 +109,5 @@
             app:itemTextColor="@color/dock_item_color"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_main_tabs" />
-    </LinearLayout>
+    </FrameLayout>
 </layout>
