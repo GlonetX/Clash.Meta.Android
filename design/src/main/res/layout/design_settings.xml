@@ -37,7 +37,7 @@
                 android:orientation="vertical"
                 android:paddingHorizontal="@dimen/settings_page_padding_horizontal"
                 android:paddingTop="@{(float) self.surface.insets.top + @dimen/toolbar_height}"
-                android:paddingBottom="@{(float) self.surface.insets.bottom + @dimen/main_dock_content_clearance}">
+                android:paddingBottom="@{self.surface.insets.bottom}">
 
                 <!-- Frequently used: three deep links with live summaries,
                      straight into the group inside the sub-page. -->

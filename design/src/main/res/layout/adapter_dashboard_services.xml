@@ -13,6 +13,7 @@
 
     <com.github.kr328.clash.design.view.AppCard
         style="@style/DashboardWideCard"
+        android:layout_marginBottom="0dp"
         android:clickable="true"
         android:focusable="true">
 

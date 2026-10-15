@@ -12,7 +12,6 @@ import com.github.kr328.clash.design.model.DarkMode
 import com.github.kr328.clash.design.model.ProbeServices
 import com.github.kr328.clash.design.settings.DashboardWidgets
 import com.github.kr328.clash.design.settings.NotificationStyle
-import com.github.kr328.clash.design.settings.NavigationBarStyle
 import com.github.kr328.clash.design.settings.SettingEntry
 import com.github.kr328.clash.design.settings.SettingGroup
 import com.github.kr328.clash.design.settings.SettingItem
@@ -242,13 +241,6 @@ class AppSettingsDesign(
 
                         requests.trySend(Request.ReCreateAllActivities)
                     },
-                ),
-                SettingRow.Action(
-                    id = "navigation_bar_style",
-                    title = R.string.settings_navigation_bar_style,
-                    icon = R.drawable.ic_baseline_apps,
-                    summary = context.getText(navigationBarText(settings.navigationBarStyle)),
-                    onClick = { anchor -> selectNavigationBarStyle(anchor) },
                 ),
                 SettingRow.Action(
                     id = "text_scale",
@@ -526,23 +518,6 @@ class AppSettingsDesign(
         ) { index ->
             if (index != values.indexOf(uiStore.darkMode)) {
                 uiStore.darkMode = values[index]
-
-                requests.trySend(Request.ReCreateAllActivities)
-            }
-        }
-    }
-
-    private fun selectNavigationBarStyle(anchor: View) {
-        val values = NavigationBarStyle.values()
-
-        choose(
-            anchor = anchor,
-            title = R.string.settings_navigation_bar_style,
-            labels = values.map { context.getText(navigationBarText(it)) },
-            selected = values.indexOf(settings.navigationBarStyle),
-        ) { index ->
-            if (index != values.indexOf(settings.navigationBarStyle)) {
-                settings.navigationBarStyle = values[index]
 
                 requests.trySend(Request.ReCreateAllActivities)
             }
@@ -887,11 +862,6 @@ class AppSettingsDesign(
     private fun updateChannelText(channel: UpdateChannel): Int = when (channel) {
         UpdateChannel.Stable -> R.string.settings_app_update_channel_stable
         UpdateChannel.Prerelease -> R.string.settings_app_update_channel_prerelease
-    }
-
-    private fun navigationBarText(style: NavigationBarStyle): Int = when (style) {
-        NavigationBarStyle.BottomBar -> R.string.settings_navigation_bar_bottom
-        NavigationBarStyle.FloatingDock -> R.string.settings_navigation_bar_dock
     }
 
     private fun darkModeText(mode: DarkMode): Int = when (mode) {

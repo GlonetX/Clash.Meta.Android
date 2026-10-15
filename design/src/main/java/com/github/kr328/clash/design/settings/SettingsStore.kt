@@ -10,8 +10,6 @@ enum class UpdateChannel { Stable, Prerelease }
 
 enum class NotificationStyle { Default, Compact, Minimal }
 
-enum class NavigationBarStyle { BottomBar, FloatingDock }
-
 /** What the core should do while connected to one of the named Wi-Fi networks. */
 enum class WifiNetworkAction { Disabled, Pause, Direct }
 
@@ -171,12 +169,6 @@ class SettingsStore(private val context: Context) {
         set(value) {
             DynamicColorsStore(context).enabled = value
         }
-
-    var navigationBarStyle: NavigationBarStyle by store.enum(
-        key = "navigation_bar_style",
-        defaultValue = NavigationBarStyle.FloatingDock,
-        values = NavigationBarStyle.values(),
-    )
 
     /** Percent, clamped to [TEXT_SCALE_MIN]..[TEXT_SCALE_MAX] on read. */
     var textScale: Int by store.int(

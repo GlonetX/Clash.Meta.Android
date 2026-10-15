@@ -1,7 +1,6 @@
 package com.github.kr328.clash.design
 
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -22,9 +21,6 @@ import com.github.kr328.clash.design.dashboard.TrafficHistory
 import com.github.kr328.clash.design.databinding.DesignAboutBinding
 import com.github.kr328.clash.design.databinding.DesignMainBinding
 import com.github.kr328.clash.design.store.UiStore
-import com.github.kr328.clash.design.settings.NavigationBarStyle
-import com.github.kr328.clash.design.settings.SettingsStore
-import com.github.kr328.clash.design.util.resolveThemedColor
 import com.github.kr328.clash.design.util.layoutInflater
 import com.github.kr328.clash.design.util.root
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -32,11 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MainDesign(
-    context: Context,
-    private val uiStore: UiStore,
-    private val settings: SettingsStore,
-) : Design<MainDesign.Request>(context) {
+class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDesign.Request>(context) {
     enum class Request {
         ToggleStatus,
         OpenProxy,
@@ -115,44 +107,7 @@ class MainDesign(
             true
         }
 
-        applyNavigationBarStyle()
-
         applyDashboardWidgets()
-    }
-
-    private fun applyNavigationBarStyle() {
-        val floating = settings.navigationBarStyle == NavigationBarStyle.FloatingDock
-        val navigation = binding.bottomNavigation
-        val params = navigation.layoutParams as FrameLayout.LayoutParams
-        val margin = context.resources.getDimensionPixelSize(R.dimen.main_dock_margin_horizontal)
-
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT
-        params.leftMargin = if (floating) margin else 0
-        params.rightMargin = if (floating) margin else 0
-        params.bottomMargin = if (floating) {
-            surface.insets.bottom + context.resources.getDimensionPixelSize(R.dimen.main_dock_margin_bottom)
-        } else {
-            0
-        }
-
-        navigation.background = if (floating) {
-            context.getDrawable(R.drawable.bg_dock_glass)
-        } else {
-            ColorDrawable(context.resolveThemedColor(com.google.android.material.R.attr.colorSurface))
-        }
-        navigation.elevation = if (floating) {
-            context.resources.getDimension(R.dimen.main_dock_elevation)
-        } else {
-            0f
-        }
-
-        binding.mainContent.setPadding(
-            binding.mainContent.paddingLeft,
-            binding.mainContent.paddingTop,
-            binding.mainContent.paddingRight,
-            if (floating) context.resources.getDimensionPixelSize(R.dimen.main_dock_content_clearance) else 0,
-        )
-        navigation.layoutParams = params
     }
 
     // ------------------------------------------------------------------ grid

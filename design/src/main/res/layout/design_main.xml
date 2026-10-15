@@ -20,16 +20,18 @@
         <import type="com.github.kr328.clash.design.MainDesign.Request" />
     </data>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@{self.surface.insets.bottom}">
 
         <LinearLayout
             android:id="@+id/main_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/main_dock_content_clearance">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/dashboard_header"
@@ -93,21 +95,18 @@
             </FrameLayout>
         </LinearLayout>
 
-        <com.github.kr328.clash.design.view.GlassDockView
+        <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             style="@style/AppNavigationBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginHorizontal="@dimen/main_dock_margin_horizontal"
-            android:layout_marginBottom="@dimen/main_dock_margin_bottom"
-            android:background="@drawable/bg_dock_glass"
+            android:background="?attr/colorSurface"
             android:backgroundTint="@null"
-            android:elevation="@dimen/main_dock_elevation"
-            app:itemBackground="@drawable/bg_dock_item"
+            android:elevation="0dp"
+            app:itemBackground="@null"
             app:itemIconTint="@color/dock_item_color"
             app:itemTextColor="@color/dock_item_color"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_main_tabs" />
-    </FrameLayout>
+    </LinearLayout>
 </layout>

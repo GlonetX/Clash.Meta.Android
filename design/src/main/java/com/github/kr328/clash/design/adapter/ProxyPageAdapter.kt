@@ -41,7 +41,7 @@ class ProxyPageAdapter(
 
     private val toolbarHeight = config.context.getPixels(R.dimen.toolbar_height)
     private val tabHeight = config.context.getPixels(R.dimen.tab_layout_height)
-    private val dockClearance = config.context.getPixels(R.dimen.main_dock_content_clearance)
+    private val dockClearance = 0
 
     val states = List(adapters.size) { ProxyPageState() }
 
