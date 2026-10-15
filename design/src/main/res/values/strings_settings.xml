@@ -162,8 +162,8 @@
     <string name="settings_summary_dynamic_off">brand palette</string>
     <string name="settings_summary_vpn_on">TUN routing</string>
     <string name="settings_summary_vpn_off">proxy only</string>
-    <string name="settings_appearance_title">Appearance & Theme</string>
-    <string name="settings_network_title">Outbound & Network</string>
+    <string name="settings_appearance_title">Appearance &amp; Theme</string>
+    <string name="settings_network_title">Outbound &amp; Network</string>
     <string name="settings_webdav_not_configured">not configured</string>
     <string name="settings_app_summary">Behaviour, dashboard, updates, language</string>
     <string name="settings_network_summary">VPN, core, logging, Wi-Fi actions</string>
