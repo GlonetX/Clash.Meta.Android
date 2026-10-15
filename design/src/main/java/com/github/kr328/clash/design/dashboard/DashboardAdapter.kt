@@ -159,8 +159,10 @@ class DashboardAdapter(
                 binding.statusCard.setCardBackgroundColor(
                     context.resolveThemedColor(MaterialR.attr.colorSurface)
                 )
-                binding.statusCard.strokeColor = ColorStateList.valueOf(
-                    context.resolveThemedColor(MaterialR.attr.colorPrimary)
+                binding.statusCard.setStrokeColor(
+                    ColorStateList.valueOf(
+                        context.resolveThemedColor(MaterialR.attr.colorPrimary)
+                    )
                 )
                 binding.statusCard.strokeWidth =
                     context.resources.getDimensionPixelSize(R.dimen.app_space_xs)
