@@ -17,6 +17,8 @@ import com.github.kr328.clash.core.bridge.ClashException
 import com.github.kr328.clash.design.Design
 import com.github.kr328.clash.design.model.DarkMode
 import com.github.kr328.clash.design.settings.applyLocaleAndTextScale
+import com.github.kr328.clash.design.settings.NavigationBarStyle
+import com.github.kr328.clash.design.settings.SettingsStore
 import com.github.kr328.clash.design.store.UiStore
 import com.github.kr328.clash.design.ui.DayNight
 import com.github.kr328.clash.design.util.resolveThemedBoolean
@@ -221,7 +223,18 @@ abstract class BaseActivity<D : Design<*>> : AppCompatActivity(),
         window.isSystemBarsTranslucentCompat = true
         
         window.statusBarColor = resolveThemedColor(android.R.attr.statusBarColor)
-        window.navigationBarColor = resolveThemedColor(android.R.attr.navigationBarColor)
+        val floatingDock = SettingsStore(this).navigationBarStyle == NavigationBarStyle.FloatingDock
+        window.navigationBarColor = if (floatingDock) {
+            android.graphics.Color.TRANSPARENT
+        } else {
+            resolveThemedColor(android.R.attr.navigationBarColor)
+        }
+
+        if (Build.VERSION.SDK_INT >= 28)
+            window.navigationBarDividerColor = android.graphics.Color.TRANSPARENT
+
+        if (Build.VERSION.SDK_INT >= 29)
+            window.isNavigationBarContrastEnforced = false
 
         if (Build.VERSION.SDK_INT >= 23) {
             window.isLightStatusBarsCompat = resolveThemedBoolean(android.R.attr.windowLightStatusBar)

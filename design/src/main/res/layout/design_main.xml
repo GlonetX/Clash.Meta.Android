@@ -51,7 +51,7 @@
                         android:layout_gravity="center"
                         android:contentDescription="@null"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_clash" />
+                        android:src="@drawable/ic_glonetx_mark" />
                 </FrameLayout>
 
                 <TextView
@@ -104,7 +104,7 @@
             android:background="@drawable/bg_dock_glass"
             android:backgroundTint="@null"
             android:elevation="@dimen/main_dock_elevation"
-            app:itemBackground="@null"
+            app:itemBackground="@drawable/bg_dock_item"
             app:itemIconTint="@color/dock_item_color"
             app:itemTextColor="@color/dock_item_color"
             app:labelVisibilityMode="labeled"

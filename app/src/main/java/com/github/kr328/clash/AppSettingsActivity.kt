@@ -55,9 +55,8 @@ class AppSettingsActivity : BaseActivity<AppSettingsDesign>(), Behavior {
                 design.requests.onReceive {
                     when (it) {
                         AppSettingsDesign.Request.ReCreateAllActivities ->
-                            ApplicationObserver.createdActivities.forEach {
-                                it.recreate()
-                            }
+                            ApplicationObserver.createdActivities.toList()
+                                .forEach { it.recreate() }
 
                         AppSettingsDesign.Request.OpenBatteryOptimizationSettings ->
                             openBatteryOptimizationSettings()

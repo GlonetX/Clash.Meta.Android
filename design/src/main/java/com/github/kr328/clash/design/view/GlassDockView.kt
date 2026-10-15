@@ -15,4 +15,11 @@ class GlassDockView @JvmOverloads constructor(
     attributeSet,
     defStyleAttr.takeIf { it != 0 }
         ?: com.google.android.material.R.attr.bottomNavigationStyle,
-)
+) {
+    init {
+        // The Material indicator is a small opaque pill. The dock supplies
+        // its own translucent checked background so the selected tab reads
+        // as part of the glass surface.
+        setItemActiveIndicatorEnabled(false)
+    }
+}

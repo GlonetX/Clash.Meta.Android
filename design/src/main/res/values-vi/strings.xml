@@ -4,7 +4,7 @@
     <string name="toast_profile_updated_complete">Cập nhật thành công %s</string>
     <string name="toast_profile_updated_failed">Cập nhật không thành công %1$s %2$s</string>
     <string name="press_to_import">Chạm để nhập...</string>
-    <string name="meta_features">Tính năng của Clash Meta</string>
+    <string name="meta_features">Tính năng của GlonetX</string>
     <string name="allow_ipv6">Cho phép Ipv6</string>
     <string name="allow_ipv6_summary">Cho phép lưu lượng ipv6 qua hệ thống Vpn</string>
     <string name="tun_stack_gvisor">Gvisor</string>
@@ -12,13 +12,13 @@
     <string name="tun_stack_mips">Mips</string>
     <string name="tun_stack_mode">Chế độ xếp chồng dữ liệu</string>
     <string name="tun_stack_system">Hệ thống</string>
-    <string name="application_name_alpha">Clash Meta</string>
-    <string name="application_name_meta">Clash Meta</string>
+    <string name="application_name_alpha">GlonetX</string>
+    <string name="application_name_meta">GlonetX</string>
     <string name="clash_meta_core">Clash Meta Core</string>
-    <string name="clash_meta_for_android">Clash Meta</string>
+    <string name="clash_meta_for_android">GlonetX</string>
     <string name="clash_meta_wiki">Clash Meta Wiki</string>
-    <string name="launch_name_alpha">Clash Meta</string>
-    <string name="launch_name_meta">Clash Meta</string>
+    <string name="launch_name_alpha">GlonetX</string>
+    <string name="launch_name_meta">GlonetX</string>
     <string name="_new">Mới</string>
     <string name="about">Thông tin</string>
     <string name="accept_http_content">Chỉ chấp nhận http(s)</string>
