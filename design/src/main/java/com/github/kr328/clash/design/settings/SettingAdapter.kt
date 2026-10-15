@@ -38,7 +38,8 @@ class SettingAdapter(private val context: Context) :
     class TipsHolder(val binding: AdapterSettingTipsBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    private var items: List<SettingItem> = emptyList()
+    var items: List<SettingItem> = emptyList()
+        private set
 
     /** Replace the whole page. Items are diffed by [SettingItem.contentKey]. */
     fun submitItems(newItems: List<SettingItem>) {

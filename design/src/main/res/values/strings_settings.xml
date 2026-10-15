@@ -158,4 +158,15 @@
     <string name="settings_invalid_url">Enter a http(s) URL</string>
     <string name="settings_invalid_not_blank">This cannot be empty</string>
 
+    <string name="settings_summary_dynamic_on">dynamic colour on</string>
+    <string name="settings_summary_dynamic_off">brand palette</string>
+    <string name="settings_summary_vpn_on">TUN routing</string>
+    <string name="settings_summary_vpn_off">proxy only</string>
+    <string name="settings_appearance_title">Appearance & Theme</string>
+    <string name="settings_network_title">Outbound & Network</string>
+    <string name="settings_webdav_not_configured">not configured</string>
+    <string name="settings_app_summary">Behaviour, dashboard, updates, language</string>
+    <string name="settings_network_summary">VPN, core, logging, Wi-Fi actions</string>
+    <string name="settings_override_summary">Ports, DNS, mode</string>
+    <string name="settings_meta_summary">Sniffer, geodata, age keys</string>
 </resources>

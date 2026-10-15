@@ -26,6 +26,7 @@ import com.github.kr328.clash.core.util.trafficTotal
 import com.github.kr328.clash.core.util.trafficUpload
 import com.github.kr328.clash.core.util.trafficUploadValue
 import com.github.kr328.clash.design.MainDesign
+import com.github.kr328.clash.service.store.ServiceStore
 import com.github.kr328.clash.design.ProxyDesign
 import com.github.kr328.clash.design.SettingsDesign
 import com.github.kr328.clash.design.dashboard.DashboardState
@@ -103,7 +104,12 @@ class MainActivity : BaseActivity<MainDesign>() {
 
     override suspend fun main() {
         val design = MainDesign(this, uiStore)
-        val settingsDesign = SettingsDesign(this)
+        val settingsDesign = SettingsDesign(
+            this,
+            uiStore,
+            ServiceStore(this),
+            SettingsStore(this),
+        )
 
         this.settingsDesign = settingsDesign
 
@@ -149,6 +155,11 @@ class MainActivity : BaseActivity<MainDesign>() {
 
                             design.fetch()
                             design.fetchProxyPage()
+
+                            // The settings root's summary lines (dynamic
+                            // colour, TUN stack, last WebDAV backup) can be
+                            // changed from any sub-page; re-read on return.
+                            settingsDesign.refresh()
 
                             if (clashRunning && System.currentTimeMillis() - lastIPRefresh > IP_REFRESH_INTERVAL) {
                                 lastIPRefresh = System.currentTimeMillis()
@@ -283,6 +294,27 @@ class MainActivity : BaseActivity<MainDesign>() {
                 }
                 settingsDesign.requests.onReceive {
                     when (it) {
+                        SettingsDesign.Request.OpenAppearance ->
+                            startActivity(
+                                AppSettingsActivity::class.intent.putExtra(
+                                    Intents.EXTRA_SCROLL_TO,
+                                    "group/" + DesignR.string.settings_group_appearance,
+                                )
+                            )
+                        SettingsDesign.Request.OpenNetwork ->
+                            startActivity(
+                                NetworkSettingsActivity::class.intent.putExtra(
+                                    Intents.EXTRA_SCROLL_TO,
+                                    "group/" + DesignR.string.settings_group_core,
+                                )
+                            )
+                        SettingsDesign.Request.OpenBackup ->
+                            startActivity(
+                                AppSettingsActivity::class.intent.putExtra(
+                                    Intents.EXTRA_SCROLL_TO,
+                                    "group/" + DesignR.string.settings_group_config,
+                                )
+                            )
                         SettingsDesign.Request.StartApp ->
                             startActivity(AppSettingsActivity::class.intent)
                         SettingsDesign.Request.StartNetwork ->

@@ -60,6 +60,7 @@ class AppSettingsDesign(
     private val running: Boolean,
     private val subscriptions: List<SubscriptionInfo>,
     private val onHideIconChange: (Boolean) -> Unit,
+    private val scrollToKey: String? = null,
 ) : Design<AppSettingsDesign.Request>(context) {
     enum class Request {
         ReCreateAllActivities,
@@ -86,7 +87,17 @@ class AppSettingsDesign(
     /** Re-reads every store and rebinds. Safe to call from the event loop. */
     fun refresh() {
         page.render(buildItems())
+
+        // Deep link from the settings root: land on the requested group,
+        // once — a later refresh (battery status, locale change) must not
+        // yank the user back to the top of that group.
+        if (pendingScrollKey != null) {
+            page.scrollTo(pendingScrollKey!!)
+            pendingScrollKey = null
+        }
     }
+
+    private var pendingScrollKey: String? = scrollToKey
 
     private fun buildItems(): List<SettingItem> = listOf(
         SettingGroup(

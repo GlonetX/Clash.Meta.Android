@@ -155,4 +155,15 @@
     <string name="settings_invalid_url">请输入 http(s) URL</string>
     <string name="settings_invalid_not_blank">此项不能为空</string>
 
+    <string name="settings_summary_dynamic_on">动态取色已开启</string>
+    <string name="settings_summary_dynamic_off">品牌配色</string>
+    <string name="settings_summary_vpn_on">TUN 路由</string>
+    <string name="settings_summary_vpn_off">仅代理</string>
+    <string name="settings_appearance_title">外观与主题</string>
+    <string name="settings_network_title">出站与网络</string>
+    <string name="settings_webdav_not_configured">未配置</string>
+    <string name="settings_app_summary">行为、仪表盘、更新、语言</string>
+    <string name="settings_network_summary">VPN、内核、日志、Wi-Fi 动作</string>
+    <string name="settings_override_summary">端口、DNS、模式</string>
+    <string name="settings_meta_summary">嗅探、地理数据、age 密钥</string>
 </resources>

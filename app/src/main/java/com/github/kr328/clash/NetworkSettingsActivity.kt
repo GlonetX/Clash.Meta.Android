@@ -24,6 +24,7 @@ class NetworkSettingsActivity : BaseActivity<NetworkSettingsDesign>() {
             ServiceStore(this),
             settingsStore,
             clashRunning,
+            intent.getStringExtra(Intents.EXTRA_SCROLL_TO),
         )
 
         setContentDesign(design)

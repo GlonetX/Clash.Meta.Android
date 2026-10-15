@@ -37,6 +37,7 @@ class NetworkSettingsDesign(
     private val srvStore: ServiceStore,
     private val settings: SettingsStore,
     private val running: Boolean,
+    private val scrollToKey: String? = null,
 ) : Design<NetworkSettingsDesign.Request>(context) {
     enum class Request {
         StartAccessControlList,
@@ -62,7 +63,14 @@ class NetworkSettingsDesign(
 
     fun refresh() {
         page.render(buildItems())
+
+        if (pendingScrollKey != null) {
+            page.scrollTo(pendingScrollKey!!)
+            pendingScrollKey = null
+        }
     }
+
+    private var pendingScrollKey: String? = scrollToKey
 
     /**
      * While the core is running the VpnService options are locked: changing

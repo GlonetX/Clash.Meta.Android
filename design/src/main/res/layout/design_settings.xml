@@ -6,6 +6,15 @@
         <variable
             name="self"
             type="com.github.kr328.clash.design.SettingsDesign" />
+        <variable
+            name="appearanceSummary"
+            type="CharSequence" />
+        <variable
+            name="networkSummary"
+            type="CharSequence" />
+        <variable
+            name="backupSummary"
+            type="CharSequence" />
 
         <import type="com.github.kr328.clash.design.SettingsDesign.Request" />
     </data>
@@ -30,6 +39,8 @@
                 android:paddingTop="@{(float) self.surface.insets.top + @dimen/toolbar_height}"
                 android:paddingBottom="@{(float) self.surface.insets.bottom + @dimen/main_dock_content_clearance}">
 
+                <!-- Frequently used: three deep links with live summaries,
+                     straight into the group inside the sub-page. -->
                 <com.github.kr328.clash.design.view.AppCard
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -37,13 +48,56 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/app_space_xs">
+
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.OpenAppearance)}"
+                            app:icon="@drawable/ic_settings_palette"
+                            app:subtext="@{appearanceSummary}"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/settings_appearance_title" />
+
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.OpenNetwork)}"
+                            app:icon="@drawable/ic_baseline_dns"
+                            app:subtext="@{networkSummary}"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/settings_network_title" />
+
+                        <com.github.kr328.clash.design.view.AppRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{() -> self.request(Request.OpenBackup)}"
+                            app:icon="@drawable/ic_settings_backup"
+                            app:subtext="@{backupSummary}"
+                            app:trailingIcon="@drawable/ic_settings_chevron_right"
+                            app:text="@string/settings_webdav" />
+                    </LinearLayout>
+                </com.github.kr328.clash.design.view.AppCard>
+
+                <!-- Everything else, in full-page depth. -->
+                <com.github.kr328.clash.design.view.AppCard
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/app_space_md">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingVertical="@dimen/app_space_xs">
 
                         <com.github.kr328.clash.design.view.AppRow
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:onClick="@{() -> self.request(Request.StartApp)}"
                             app:icon="@drawable/ic_baseline_settings"
+                            app:subtext="@string/settings_app_summary"
                             app:trailingIcon="@drawable/ic_settings_chevron_right"
                             app:text="@string/app" />
 
@@ -52,6 +106,7 @@
                             android:layout_height="wrap_content"
                             android:onClick="@{() -> self.request(Request.StartNetwork)}"
                             app:icon="@drawable/ic_baseline_dns"
+                            app:subtext="@string/settings_network_summary"
                             app:trailingIcon="@drawable/ic_settings_chevron_right"
                             app:text="@string/network" />
 
@@ -60,6 +115,7 @@
                             android:layout_height="wrap_content"
                             android:onClick="@{() -> self.request(Request.StartOverride)}"
                             app:icon="@drawable/ic_baseline_extension"
+                            app:subtext="@string/settings_override_summary"
                             app:trailingIcon="@drawable/ic_settings_chevron_right"
                             app:text="@string/override" />
 
@@ -68,6 +124,7 @@
                             android:layout_height="wrap_content"
                             android:onClick="@{() -> self.request(Request.StartMetaFeature)}"
                             app:icon="@drawable/ic_baseline_meta"
+                            app:subtext="@string/settings_meta_summary"
                             app:trailingIcon="@drawable/ic_settings_chevron_right"
                             app:text="@string/meta_features" />
                     </LinearLayout>

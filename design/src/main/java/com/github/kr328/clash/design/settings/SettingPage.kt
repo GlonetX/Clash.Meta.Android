@@ -16,7 +16,7 @@ import java.util.Locale
  * whenever a persisted value changes.
  */
 class SettingPage(
-    recyclerView: RecyclerView,
+    private val recyclerView: RecyclerView,
     activityBar: ActivityBarLayout,
 ) {
     private val adapter = SettingAdapter(recyclerView.context)
@@ -30,6 +30,19 @@ class SettingPage(
 
     fun render(items: List<SettingItem>) {
         adapter.submitItems(items)
+    }
+
+    /**
+     * Scroll the page so the row whose [SettingItem.identityKey] matches
+     * [key] is at the top — the settings root's quick links deep-link into
+     * a group this way instead of making the user hunt for it.
+     */
+    fun scrollTo(key: String) {
+        val index = adapter.items.indexOfFirst { it.identityKey == key }
+
+        if (index >= 0)
+            (recyclerView.layoutManager as? LinearLayoutManager)
+                ?.scrollToPositionWithOffset(index, 0)
     }
 }
 

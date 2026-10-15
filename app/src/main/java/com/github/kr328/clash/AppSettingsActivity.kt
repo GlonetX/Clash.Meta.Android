@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.github.kr328.clash.common.constants.Intents
 import com.github.kr328.clash.common.util.componentName
 import com.github.kr328.clash.design.AppSettingsDesign
 import com.github.kr328.clash.design.model.Behavior
@@ -29,6 +30,7 @@ class AppSettingsActivity : BaseActivity<AppSettingsDesign>(), Behavior {
             clashRunning,
             querySubscriptions(),
             ::onHideIconChange,
+            intent.getStringExtra(Intents.EXTRA_SCROLL_TO),
         )
 
         setContentDesign(design)
