@@ -201,8 +201,12 @@
         <item name="colorOnTertiary">@android:color/white</item>
         <item name="delayGood">#FF2E7D32</item>
         <item name="delayMedium">#FFEF6C00</item>
-        <!-- Follows colorSurface (white here, the dynamic surface on API 31+). -->
-        <item name="colorDockBackground">?attr/colorSurface</item>
+        <!-- The dock floats OVER the page background (#FAFAFA). A plain
+             colorSurface (#FFFFFF) differs from it by 5/255 — invisible, so
+             the rounded floating shape reads as an ordinary edge-to-edge
+             bottom bar. surfaceVariant is one tonal step up and stays
+             distinct under dynamic colour too. -->
+        <item name="colorDockBackground">?attr/colorSurfaceVariant</item>
         <item name="colorGroupBackground">#FFF2EEF6</item>
         <item name="colorGroupIconBackground">#FFDCE4F5</item>
         <item name="colorSurface">@android:color/white</item>
@@ -247,9 +251,10 @@
         <item name="colorOnTertiary">#FF003309</item>
         <item name="delayGood">#FF81C995</item>
         <item name="delayMedium">#FFFFB74D</item>
-        <!-- Follows colorSurface (#FF202020 here, the dynamic surface on
-             API 31+). -->
-        <item name="colorDockBackground">?attr/colorSurface</item>
+        <!-- Same rationale as light: #FF202020 on a #FF121212 page is a
+             14/255 difference — the dock needs surfaceVariant (#FF49454F
+             here, dynamic neutral_variant30) to visibly float. -->
+        <item name="colorDockBackground">?attr/colorSurfaceVariant</item>
         <item name="colorGroupBackground">#FF262626</item>
         <item name="colorGroupIconBackground">#FF33465F</item>
         <item name="colorSurface">@color/color_dark_surface</item>
