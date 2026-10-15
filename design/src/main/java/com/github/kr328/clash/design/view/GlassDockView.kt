@@ -25,4 +25,9 @@ class GlassDockView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
-) : BottomNavigationView(context, attributeSet, defStyleAttr)
+) : BottomNavigationView(
+    context,
+    attributeSet,
+    defStyleAttr.takeIf { it != 0 }
+        ?: com.google.android.material.R.attr.bottomNavigationStyle,
+)
