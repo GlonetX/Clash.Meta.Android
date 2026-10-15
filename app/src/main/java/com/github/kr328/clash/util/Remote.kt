@@ -15,9 +15,15 @@ suspend fun <T> withClash(
 ): T {
     while (true) {
         val remote = Remote.service.remote.get()
-        val client = remote.clash()
 
         try {
+            // `clash()` is a synchronous binder transaction, so it runs on
+            // the caller's thread — Dispatchers.Main for the dashboard's
+            // select loop. Keep it (and the retry) on the given dispatcher.
+            val client = withContext(context) {
+                remote.clash()
+            }
+
             return withContext(context) { client.block() }
         } catch (e: DeadObjectException) {
             Log.w("Remote services panic")
@@ -33,9 +39,12 @@ suspend fun <T> withProfile(
 ): T {
     while (true) {
         val remote = Remote.service.remote.get()
-        val client = remote.profile()
 
         try {
+            val client = withContext(context) {
+                remote.profile()
+            }
+
             return withContext(context) { client.block() }
         } catch (e: DeadObjectException) {
             Log.w("Remote services panic")

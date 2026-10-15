@@ -99,6 +99,8 @@ class Broadcasts(private val context: Application) {
                 addAction(Intents.ACTION_PROFILE_LOADED)
             })
 
+            registered = true
+
             clashRunning = StatusClient(context).currentProfile() != null
         } catch (e: Exception) {
             Log.w("Register global receiver: $e", e)
@@ -109,12 +111,16 @@ class Broadcasts(private val context: Application) {
         if (!registered)
             return
 
+        // Clear the flag first: a receiver that fails to unregister must not
+        // wedge this object into a state where register() is a no-op too.
+        registered = false
+
         try {
             context.unregisterReceiver(broadcastReceiver)
-
-            clashRunning = false
         } catch (e: Exception) {
             Log.w("Unregister global receiver: $e", e)
         }
+
+        clashRunning = false
     }
 }

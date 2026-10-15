@@ -43,7 +43,9 @@ import com.github.kr328.clash.util.startClashService
 import com.github.kr328.clash.util.stopClashService
 import com.github.kr328.clash.util.withClash
 import com.github.kr328.clash.util.withProfile
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
@@ -87,6 +89,16 @@ class MainActivity : BaseActivity<MainDesign>() {
 
     /** `SystemClock.elapsedRealtime()` of the last service probe burst. */
     private var lastServiceProbeAt = 0L
+
+    /**
+     * In-flight service-probe burst. The dashboard's `select` loop is the
+     * only consumer of taps, events and the traffic ticker, so probes run
+     * here instead of inline; a newer burst supersedes the previous one.
+     */
+    private var probeJob: Job? = null
+
+    /** In-flight exit/direct IP lookup, superseded by the next one. */
+    private var ipInfoJob: Job? = null
 
     override fun onDestroy() {
         settingsDesign?.cancel()
@@ -372,17 +384,28 @@ class MainActivity : BaseActivity<MainDesign>() {
      *
      * The list and its classification come from the shared
      * [ProbeServices] catalog, honouring the probe-services settings.
-     * Results are collected before the state is published so concurrent
-     * probes cannot interleave partial updates.
+     *
+     * A probe is a network request with a multi-second timeout, and there
+     * are seven of them, so the burst never runs inside the dashboard's
+     * `select` loop: that loop is the only consumer of taps, events and the
+     * traffic ticker, and awaiting the burst inline froze all of them for
+     * as long as the slowest probe took. The burst runs in its own coroutine
+     * and publishes when it finishes; a newer burst cancels the previous
+     * one so results cannot land out of order.
      */
-    private suspend fun MainDesign.probeServices(force: Boolean = false) {
+    private fun MainDesign.probeServices(force: Boolean = false) {
         if (!clashRunning) {
             // Results are stale the moment the core stops; forget the gate
             // so the next start probes immediately.
             lastServiceProbeAt = 0L
 
+            probeJob?.cancel()
+            probeJob = null
+
             if (dashboard.services.isNotEmpty())
-                pushState(dashboard.copy(services = emptyList()))
+                this@MainActivity.launch {
+                    pushState(dashboard.copy(services = emptyList()))
+                }
 
             return
         }
@@ -401,23 +424,44 @@ class MainActivity : BaseActivity<MainDesign>() {
 
         lastServiceProbeAt = SystemClock.elapsedRealtime()
 
-        val results = coroutineScope {
-            services.map { service ->
-                async { withClash { probeUrl(service.url) } }
-            }.awaitAll()
-        }
+        probeJob?.cancel()
 
-        pushState(
-            dashboard.copy(
-                services = services.mapIndexed { index, service ->
-                    ServiceProbe(
-                        name = service.name,
-                        availability = ProbeServices.classify(service, results[index]),
-                        latencyMillis = results[index]?.latency ?: -1,
-                    )
+        probeJob = this@MainActivity.launch {
+            val results = withContext(Dispatchers.IO) {
+                coroutineScope {
+                    services.map { service ->
+                        async {
+                            try {
+                                withClash { probeUrl(service.url) }
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                // A probe that fails (dead binder mid-teardown)
+                                // must not take the whole burst down with it.
+                                null
+                            }
+                        }
+                    }.awaitAll()
                 }
+            }
+
+            // The core may have stopped while the burst was in flight: the
+            // services card is hidden then, and stale rows would flash back.
+            if (!clashRunning)
+                return@launch
+
+            pushState(
+                dashboard.copy(
+                    services = services.mapIndexed { index, service ->
+                        ServiceProbe(
+                            name = service.name,
+                            availability = ProbeServices.classify(service, results[index]),
+                            latencyMillis = results[index]?.latency ?: -1,
+                        )
+                    }
+                )
             )
-        )
+        }
     }
 
     private suspend fun MainDesign.pushState(state: DashboardState) {
@@ -494,44 +538,21 @@ class MainActivity : BaseActivity<MainDesign>() {
         )
     }
 
-    private suspend fun MainDesign.fetchIPInfo(force: Boolean) {
-        pushState(
-            dashboard.copy(
-                ipStatus = getString(DesignR.string.ip_querying),
-                exitIP = null,
-                exitIPDisplay = null,
-                exitIPISP = null,
-                directIP = null,
-                directIPDisplay = null,
-            )
-        )
+    /**
+     * Refresh the exit/direct IP card.
+     *
+     * Two lookups through the core, each with a multi-second timeout, so —
+     * like the service probes — this runs in its own coroutine: awaiting it
+     * inline stalled the dashboard's `select` loop, and with it every tap
+     * and the traffic ticker. A newer lookup supersedes the previous one.
+     */
+    private fun MainDesign.fetchIPInfo(force: Boolean) {
+        ipInfoJob?.cancel()
 
-        try {
-            val (exit, direct) = coroutineScope {
-                val e = async { withClash { queryIPInfo("") } }
-                val d = async { withClash { queryIPInfo("DIRECT") } }
-
-                e.await() to d.await()
-            }
-
+        ipInfoJob = this@MainActivity.launch {
             pushState(
                 dashboard.copy(
-                    ipStatus = null,
-                    exitIP = exit?.ip,
-                    exitIPDisplay = exit?.toDisplayString(),
-                    exitIPISP = exit?.isp?.takeIf { it.isNotBlank() },
-                    directIP = direct?.ip,
-                    directIPDisplay = direct?.toDisplayString(),
-                )
-            )
-        } catch (e: Exception) {
-            pushState(
-                dashboard.copy(
-                    ipStatus = if (force) {
-                        getString(DesignR.string.ip_query_failed)
-                    } else {
-                        null
-                    },
+                    ipStatus = getString(DesignR.string.ip_querying),
                     exitIP = null,
                     exitIPDisplay = null,
                     exitIPISP = null,
@@ -539,6 +560,45 @@ class MainActivity : BaseActivity<MainDesign>() {
                     directIPDisplay = null,
                 )
             )
+
+            try {
+                val (exit, direct) = withContext(Dispatchers.IO) {
+                    coroutineScope {
+                        val e = async { withClash { queryIPInfo("") } }
+                        val d = async { withClash { queryIPInfo("DIRECT") } }
+
+                        e.await() to d.await()
+                    }
+                }
+
+                pushState(
+                    dashboard.copy(
+                        ipStatus = null,
+                        exitIP = exit?.ip,
+                        exitIPDisplay = exit?.toDisplayString(),
+                        exitIPISP = exit?.isp?.takeIf { it.isNotBlank() },
+                        directIP = direct?.ip,
+                        directIPDisplay = direct?.toDisplayString(),
+                    )
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pushState(
+                    dashboard.copy(
+                        ipStatus = if (force) {
+                            getString(DesignR.string.ip_query_failed)
+                        } else {
+                            null
+                        },
+                        exitIP = null,
+                        exitIPDisplay = null,
+                        exitIPISP = null,
+                        directIP = null,
+                        directIPDisplay = null,
+                    )
+                )
+            }
         }
     }
 
