@@ -61,6 +61,11 @@ class ServiceStore(context: Context) {
         defaultValue = "mips"
     )
 
+    var tunMtu: Int by store.int(
+        key = "tun_mtu",
+        defaultValue = 9000
+    )
+
     var dynamicNotification by store.boolean(
         key = "dynamic_notification",
         defaultValue = true

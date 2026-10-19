@@ -109,7 +109,7 @@ class LogcatActivity : BaseActivity<LogcatDesign>() {
         startForegroundServiceCompat(LogcatService::class.intent)
 
         val logcat = bindLogcatService()
-        val ticker = ticker(300)
+        val ticker = ticker(500)
 
         var initial = true
 

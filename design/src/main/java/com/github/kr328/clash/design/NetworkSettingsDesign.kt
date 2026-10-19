@@ -194,6 +194,19 @@ class NetworkSettingsDesign(
 
         rows.add(
             SettingRow.Action(
+                id = "tun_mtu",
+                title = R.string.tun_mtu,
+                summary = if (locked)
+                    context.getText(R.string.settings_disabled_while_running)
+                else
+                    context.getString(R.string.tun_mtu_value, srvStore.tunMtu),
+                enabled = dependent,
+                onClick = { anchor -> selectTunMtu(anchor) },
+            )
+        )
+
+        rows.add(
+            SettingRow.Action(
                 id = "access_control_mode",
                 title = R.string.access_control_mode,
                 summary = if (locked)
@@ -557,6 +570,30 @@ class NetworkSettingsDesign(
 
             if (index != current) {
                 srvStore.tunStackMode = values[index]
+
+                refresh()
+            }
+        }
+    }
+
+    private fun selectTunMtu(anchor: View) {
+        val values = intArrayOf(1500, 9000)
+        val labels = listOf(
+            R.string.tun_mtu_1500,
+            R.string.tun_mtu_9000,
+        )
+
+        val current = values.indexOf(srvStore.tunMtu).coerceAtLeast(0)
+
+        launch(Dispatchers.Main) {
+            val index = context.selectSetting(
+                anchor = anchor,
+                texts = labels.map { context.getText(it) },
+                selected = current,
+            )
+
+            if (index != current) {
+                srvStore.tunMtu = values[index]
 
                 refresh()
             }

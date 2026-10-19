@@ -14,8 +14,12 @@ import (
 	"github.com/metacubex/mihomo/tunnel"
 )
 
-func Start(fd int, stack, gateway, portal, dns string) (io.Closer, error) {
-	log.Debugln("TUN: fd = %d, stack = %s, gateway = %s, portal = %s, dns = %s", fd, stack, gateway, portal, dns)
+func Start(fd int, stack, gateway, portal, dns string, mtu int) (io.Closer, error) {
+	if mtu <= 0 {
+		mtu = 9000
+	}
+
+	log.Debugln("TUN: fd = %d, stack = %s, gateway = %s, portal = %s, dns = %s, mtu = %d", fd, stack, gateway, portal, dns, mtu)
 
 	tunStack, ok := C.StackTypeMapping[strings.ToLower(stack)]
 	if !ok {
@@ -60,7 +64,7 @@ func Start(fd int, stack, gateway, portal, dns string) (io.Closer, error) {
 		AutoDetectInterface: false, // implements by VpnService::protect
 		Inet4Address:        prefix4,
 		Inet6Address:        prefix6,
-		MTU:                 9000, // private const val TUN_MTU = 9000 in TunService.kt
+		MTU:                 uint32(mtu),
 		FileDescriptor:      fd,
 	}
 

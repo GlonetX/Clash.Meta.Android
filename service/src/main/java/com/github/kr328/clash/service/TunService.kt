@@ -156,6 +156,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
 
     private fun TunModule.open() {
         val store = ServiceStore(self)
+        val mtu = store.tunMtu.coerceIn(1280, 9000)
 
         val device = with(Builder()) {
             // Interface address
@@ -214,7 +215,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
             setBlocking(false)
 
             // Mtu
-            setMtu(TUN_MTU)
+            setMtu(mtu)
 
             // Session Name
             setSession("Clash")
@@ -264,6 +265,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
                 gateway = "$TUN_GATEWAY/$TUN_SUBNET_PREFIX" + if (store.allowIpv6) ",$TUN_GATEWAY6/$TUN_SUBNET_PREFIX6" else "",
                 portal = TUN_PORTAL + if (store.allowIpv6) ",$TUN_PORTAL6" else "",
                 dns = if (store.dnsHijacking) NET_ANY else (TUN_DNS + if (store.allowIpv6) ",$TUN_DNS6" else ""),
+                mtu = mtu,
             )
         }
 
@@ -271,7 +273,6 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
     }
 
     companion object {
-        private const val TUN_MTU = 9000
         private const val TUN_SUBNET_PREFIX = 30
         private const val TUN_GATEWAY = "172.19.0.1"
         private const val TUN_SUBNET_PREFIX6 = 126

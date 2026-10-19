@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "bridge_helper.h"
@@ -123,6 +124,7 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeStartTun(JNIEnv *env, jobje
                                                               jstring gateway,
                                                               jstring portal,
                                                               jstring dns,
+                                                              jint mtu,
                                                               jobject cb) {
     TRACE_METHOD();
 
@@ -132,7 +134,7 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeStartTun(JNIEnv *env, jobje
     scoped_string _dns = get_string(dns);
     jobject _interface = new_global(cb);
 
-    startTun(fd, _stack, _gateway, _portal, _dns, _interface);
+    startTun(fd, _stack, _gateway, _portal, _dns, mtu, _interface);
 }
 
 JNIEXPORT void JNICALL
@@ -603,11 +605,13 @@ static int open_content_impl(const char *url, char *error, int error_length) {
         );
 
         if (message == NULL) {
-            strncpy(error, "unknown", error_length - 1);
+            if (error_length > 0)
+                snprintf(error, (size_t) error_length, "unknown");
         } else {
             scoped_string _message = get_string(message);
 
-            strncpy(error, _message, error_length - 1);
+            if (error_length > 0)
+                snprintf(error, (size_t) error_length, "%s", _message);
         }
 
         return -1;

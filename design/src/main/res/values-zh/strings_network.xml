@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================ -->
+    <!-- 网络设置页字符串，与 values/strings_network.xml 对应。        -->
+    <!-- ============================================================ -->
+
+    <!-- TUN MTU -->
+    <string name="tun_mtu">TUN MTU</string>
+    <string name="tun_mtu_1500">1500（兼容热点/移动网络）</string>
+    <string name="tun_mtu_9000">9000（更高吞吐）</string>
+    <string name="tun_mtu_value">当前：%1$d</string>
+
+</resources>

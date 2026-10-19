@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================ -->
+    <!-- Network settings page strings.                               -->
+    <!-- Mirrors values-zh/strings_network.xml.                        -->
+    <!-- ============================================================ -->
+
+    <!-- TUN MTU -->
+    <string name="tun_mtu">TUN MTU</string>
+    <string name="tun_mtu_1500">1500 (compatible with hotspot/mobile networks)</string>
+    <string name="tun_mtu_9000">9000 (higher throughput)</string>
+    <string name="tun_mtu_value">Current: %1$d</string>
+
+</resources>
