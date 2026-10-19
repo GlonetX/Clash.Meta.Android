@@ -22,6 +22,7 @@ interface IClashManager {
     suspend fun queryIPInfo(proxy: String): ExternalIP?
     suspend fun queryIPQuality(ip: String): IPQuality?
     suspend fun queryConnections(): ConnectionList
+    suspend fun queryConnectionStats(): ConnectionStats
     fun closeConnection(id: String)
     suspend fun probeUrl(url: String): ProbeResult?
     suspend fun testLatency(url: String): Long

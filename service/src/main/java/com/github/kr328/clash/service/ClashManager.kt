@@ -13,6 +13,9 @@ import com.github.kr328.clash.service.util.sendOverrideChanged
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 
+/** Connection types the dashboard counts as "requests". */
+private val REQUEST_TYPES = setOf("HTTP", "TLS", "QUIC")
+
 class ClashManager(private val context: Context) : IClashManager,
     CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val store = ServiceStore(context)
@@ -94,6 +97,16 @@ class ClashManager(private val context: Context) : IClashManager,
 
     override suspend fun queryConnections(): ConnectionList {
         return Clash.queryConnections()
+    }
+
+    override suspend fun queryConnectionStats(): ConnectionStats {
+        val connections = Clash.queryConnections()
+
+        return ConnectionStats(
+            total = connections.size,
+            requests = connections.count { it.type in REQUEST_TYPES },
+            dns = connections.count { it.type == "DNS" },
+        )
     }
 
     override fun closeConnection(id: String) {

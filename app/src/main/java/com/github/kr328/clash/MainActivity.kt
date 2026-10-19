@@ -61,12 +61,6 @@ import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R as DesignR
 
 
-/**
- * Connection metadata types that represent an HTTP-shaped request.
- * Everything else in `QueryConnections()` is a transport or a lookup.
- */
-private val REQUEST_TYPES = setOf("HTTP", "TLS", "QUIC")
-
 class MainActivity : BaseActivity<MainDesign>() {
     companion object {
         private const val IP_REFRESH_INTERVAL = 5 * 60 * 1000L
@@ -518,9 +512,9 @@ class MainActivity : BaseActivity<MainDesign>() {
         val memory = withClash {
             queryMemory()
         }
-        val connections = if (includeConnections) {
+        val stats = if (includeConnections) {
             withClash {
-                queryConnections()
+                queryConnectionStats()
             }
         } else {
             null
@@ -536,9 +530,9 @@ class MainActivity : BaseActivity<MainDesign>() {
                 memoryBytes = memory,
                 trafficTotalUp = total.trafficUploadValue(),
                 trafficTotalDown = total.trafficDownloadValue(),
-                connectionCount = connections?.size ?: dashboard.connectionCount,
-                requestCount = connections?.count { it.type in REQUEST_TYPES } ?: dashboard.requestCount,
-                dnsCount = connections?.count { it.type == "DNS" } ?: dashboard.dnsCount,
+                connectionCount = stats?.total ?: dashboard.connectionCount,
+                requestCount = stats?.requests ?: dashboard.requestCount,
+                dnsCount = stats?.dns ?: dashboard.dnsCount,
                 uptimeMillis = if (coreStartedAt > 0L) {
                     SystemClock.elapsedRealtime() - coreStartedAt
                 } else {
