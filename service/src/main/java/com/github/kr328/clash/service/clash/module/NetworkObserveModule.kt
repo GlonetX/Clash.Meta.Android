@@ -3,6 +3,8 @@ package com.github.kr328.clash.service.clash.module
 import android.app.Service
 import android.net.*
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.core.content.getSystemService
 import com.github.kr328.clash.common.log.Log
 import com.github.kr328.clash.core.Clash
@@ -37,6 +39,12 @@ class NetworkObserveModule(service: Service) : Module<Network>(service) {
 
     @Volatile
     private var curDnsList = emptyList<String>()
+
+    // DNS updates touch the Go core, so keep them off both the
+    // ConnectivityManager callback thread and the service main thread.
+    private val dnsThread = HandlerThread("clash-dns").apply { start() }
+    private val dnsHandler = Handler(dnsThread.looper)
+    private val dnsNotify = Runnable { doNotifyDnsChange() }
 
     private val callback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
@@ -117,10 +125,17 @@ class NetworkObserveModule(service: Service) : Module<Network>(service) {
     }
 
     private fun notifyDnsChange() {
+        // Trailing debounce: collapsing bursts of link-property callbacks into a
+        // single notify avoids rebuilding the DNS config on every update.
+        dnsHandler.removeCallbacks(dnsNotify)
+        dnsHandler.postDelayed(dnsNotify, 300L)
+    }
+
+    private fun doNotifyDnsChange() {
         val dnsList = (networkInfos.asSequence().minByOrNull { networkToInt(it) }?.value?.dnsList
             ?: emptyList()).map { x -> x.asSocketAddressText(53) }
         val prevDnsList = curDnsList
-        if (dnsList.isNotEmpty() && prevDnsList != dnsList) {
+        if (prevDnsList != dnsList) {
             Log.i("notifyDnsChange $prevDnsList -> $dnsList")
             curDnsList = dnsList
             Clash.notifyDnsChanged(dnsList)
@@ -144,6 +159,9 @@ class NetworkObserveModule(service: Service) : Module<Network>(service) {
                 }
             }
         } finally {
+            dnsHandler.removeCallbacks(dnsNotify)
+            dnsThread.quitSafely()
+
             withContext(NonCancellable) {
                 unregister()
 

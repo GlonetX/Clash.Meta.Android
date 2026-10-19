@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Security hardening: exported control surface and update checks. -->
+    <string name="settings_external_control">External control</string>
+    <string name="settings_external_control_summary">Allow other apps and clash:// links to start, stop or toggle the VPN and import profiles. Off by default.</string>
+    <string name="external_control_disabled">External control is disabled. Enable it in Settings → App.</string>
+    <string name="external_control_invalid_url">Refusing to import an unsafe profile URL.</string>
+
+</resources>

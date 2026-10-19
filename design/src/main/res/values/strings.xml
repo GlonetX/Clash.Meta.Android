@@ -142,7 +142,7 @@
     <string name="allow_bypass">Allow Bypass</string>
     <string name="allow_bypass_summary">Allows all apps to bypass this VPN connection</string>
     <string name="allow_ipv6">Allow Ipv6</string>
-    <string name="allow_ipv6_summary">Allows ipv6 traffic via VpnService</string>
+    <string name="allow_ipv6_summary">Proxy IPv6 through VpnService. When off, IPv6 falls through to the underlying network and is not proxied.</string>
     <string name="system_proxy">System Proxy</string>
     <string name="system_proxy_summary">Attach http proxy to VpnService</string>
     <string name="access_control_mode">Access Control Mode</string>

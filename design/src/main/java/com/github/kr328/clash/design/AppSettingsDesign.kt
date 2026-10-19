@@ -146,6 +146,18 @@ class AppSettingsDesign(
                     },
                 ),
                 SettingRow.Switch(
+                    id = "external_control",
+                    title = R.string.settings_external_control,
+                    summary = context.getText(R.string.settings_external_control_summary),
+                    icon = R.drawable.ic_baseline_settings,
+                    checked = settings.externalControlEnabled,
+                    onToggle = { checked ->
+                        settings.externalControlEnabled = checked
+
+                        refresh()
+                    },
+                ),
+                SettingRow.Switch(
                     id = "hide_app_icon",
                     title = R.string.hide_app_icon_title,
                     summary = context.getText(R.string.hide_app_icon_desc),

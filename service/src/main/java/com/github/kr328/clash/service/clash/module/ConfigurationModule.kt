@@ -10,6 +10,7 @@ import com.github.kr328.clash.service.data.SelectionDao
 import com.github.kr328.clash.service.store.ServiceStore
 import com.github.kr328.clash.service.util.importedDir
 import com.github.kr328.clash.service.util.sendProfileLoaded
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.selects.select
 import java.util.*
@@ -19,6 +20,9 @@ class ConfigurationModule(service: Service) : Module<ConfigurationModule.LoadExc
 
     private val store = ServiceStore(service)
     private val reload = Channel<Unit>(Channel.CONFLATED)
+
+    /** Completes after the first successful Clash.load(); fails on a load error. */
+    val firstLoad = CompletableDeferred<Unit>()
 
     override suspend fun run() {
         val broadcasts = receiveBroadcast {
@@ -69,8 +73,12 @@ class ConfigurationModule(service: Service) : Module<ConfigurationModule.LoadExc
 
                 service.sendProfileLoaded(current)
 
+                if (!firstLoad.isCompleted) firstLoad.complete(Unit)
+
                 Log.d("Profile ${active.name} loaded")
             } catch (e: Exception) {
+                if (!firstLoad.isCompleted) firstLoad.completeExceptionally(e)
+
                 return enqueueEvent(LoadException(e.message ?: "Unknown"))
             }
         }

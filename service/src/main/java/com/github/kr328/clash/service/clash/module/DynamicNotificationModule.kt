@@ -43,6 +43,9 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
 
     private val notificationManager = NotificationManagerCompat.from(service)
 
+    /** Text of the last posted notification, used to skip no-op updates. */
+    private var lastSignature: String? = null
+
     private fun update() {
         val now = Clash.queryTrafficNow()
         val total = Clash.queryTrafficTotal()
@@ -51,6 +54,11 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
         val downloading = now.trafficDownload()
         val uploaded = total.trafficUpload()
         val downloaded = total.trafficDownload()
+
+        val signature = "$uploading|$downloading|$uploaded|$downloaded"
+
+        if (signature == lastSignature)
+            return
 
         val notification = builder
             .setContentText(
@@ -68,6 +76,8 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
             .build()
 
         notificationManager.notify(R.id.nf_clash_status, notification)
+
+        lastSignature = signature
     }
 
     override suspend fun run() = coroutineScope {
@@ -82,7 +92,7 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
             addAction(Intents.ACTION_PROFILE_LOADED)
         }
 
-        val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
+        val ticker = ticker(TimeUnit.SECONDS.toMillis(2))
 
         while (true) {
             select<Unit> {
@@ -96,6 +106,10 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
                 }
                 profileLoaded.onReceive {
                     builder.setContentTitle(StatusProvider.currentProfile ?: "Not selected")
+
+                    // The title is part of the posted notification; force the
+                    // next tick to publish it even if the traffic is unchanged.
+                    lastSignature = null
                 }
                 if (shouldUpdate) {
                     ticker.onReceive {

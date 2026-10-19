@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.github.kr328.clash.common.store.Store
 import com.github.kr328.clash.common.store.asStoreProvider
 import com.github.kr328.clash.design.store.DynamicColorsStore
+import java.security.SecureRandom
 
 enum class UpdateChannel { Stable, Prerelease }
 
@@ -127,6 +128,44 @@ class SettingsStore(private val context: Context) {
     )
 
     // ------------------------------------------------------------- behaviour
+
+    /**
+     * Allow other apps / browser deep links to start, stop or toggle the VPN and
+     * to import a profile via `clash://install-config`. Off by default: an
+     * exported control surface must be opt-in.
+     */
+    var externalControlEnabled: Boolean by store.boolean(
+        key = "external_control_enabled",
+        defaultValue = false,
+    )
+
+    /**
+     * Random per-install token embedded in the app's own dynamic shortcuts so
+     * they keep working while the external control surface is disabled. It
+     * lives in this app-private preference file, so other apps cannot read it.
+     */
+    var externalControlToken: String by store.string(
+        key = "external_control_token",
+        defaultValue = "",
+    )
+
+    /** Returns the existing shortcut token, creating one on first use. */
+    fun ensureExternalControlToken(): String {
+        val current = externalControlToken
+
+        if (current.isNotBlank())
+            return current
+
+        val bytes = ByteArray(16)
+
+        SecureRandom().nextBytes(bytes)
+
+        val token = bytes.joinToString("") { "%02x".format(it) }
+
+        externalControlToken = token
+
+        return token
+    }
 
     var appUpdateAutoCheck: Boolean by store.boolean(
         key = "app_update_auto_check",

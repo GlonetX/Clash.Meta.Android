@@ -23,8 +23,10 @@ class ConnectionsActivity : BaseActivity<ConnectionsDesign>() {
             select<Unit> {
                 events.onReceive {
                 }
-                ticker.onReceive {
-                    design.fetch()
+                if (activityStarted) {
+                    ticker.onReceive {
+                        design.fetch()
+                    }
                 }
                 design.requests.onReceive {
                     when (it) {

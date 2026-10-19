@@ -25,18 +25,23 @@ fun CoroutineScope.clashRuntime(block: suspend ClashRuntimeScope.() -> Unit): Cl
                 globalLock.withLock {
                     Log.d("ClashRuntime: initialize")
 
-                    try {
-                        val modules = mutableListOf<Module<*>>()
+                    val supervisor = SupervisorJob()
+                    val moduleScope = CoroutineScope(coroutineContext + supervisor + Dispatchers.IO)
 
+                    try {
                         Clash.reset()
                         Clash.clearOverride(Clash.OverrideSlot.Session)
 
                         val scope = object : ClashRuntimeScope {
                             override fun <E, T : Module<E>> install(module: T): T {
-                                launch {
-                                    modules.add(module)
-
-                                    module.execute()
+                                moduleScope.launch {
+                                    try {
+                                        module.execute()
+                                    } catch (e: CancellationException) {
+                                        throw e
+                                    } catch (e: Throwable) {
+                                        Log.e("$module failed", e)
+                                    }
                                 }
 
                                 return module
@@ -45,8 +50,12 @@ fun CoroutineScope.clashRuntime(block: suspend ClashRuntimeScope.() -> Unit): Cl
 
                         scope.block()
 
+                        supervisor.cancel()
                         cancel()
                     } finally {
+                        // Cancel module coroutines on the exceptional path as well.
+                        supervisor.cancel()
+
                         withContext(NonCancellable) {
                             Clash.reset()
                             Clash.clearOverride(Clash.OverrideSlot.Session)

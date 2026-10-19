@@ -2,6 +2,9 @@ package com.github.kr328.clash.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.content.pm.Signature
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
@@ -100,15 +103,31 @@ object AppUpdate {
                     it.optString("name").endsWith(".apk") && it.optString("name").contains(preferred)
                 } ?: return@withContext null
 
+                val apkUrl = asset.optString("browser_download_url")
+
+                if (!apkUrl.startsWith("https://")) {
+                    Log.w("Refusing to download update from a non-HTTPS URL: $apkUrl")
+
+                    return@withContext null
+                }
+
                 // The release workflows attach a `<apk>.sha256` file next to
-                // each APK. Releases published before that carry no checksum.
-                val apkSha256 = assets.firstAsset { it.optString("name") == "${asset.optString("name")}.sha256" }
+                // each APK. Fail closed when the checksum is missing: an
+                // unverifiable download must never be installed.
+                val apkSha256 = assets
+                    .firstAsset { it.optString("name") == "${asset.optString("name")}.sha256" }
                     ?.let { fetchSha256(it.optString("browser_download_url")) }
+
+                if (apkSha256 == null) {
+                    Log.w("No published checksum for ${versionName}; refusing the update")
+
+                    return@withContext null
+                }
 
                 Release(
                     tagName = tagName,
                     versionName = versionName,
-                    apkUrl = asset.optString("browser_download_url"),
+                    apkUrl = apkUrl,
                     apkSize = asset.optLong("size"),
                     notes = release.optString("body"),
                     apkSha256 = apkSha256,
@@ -181,6 +200,12 @@ object AppUpdate {
 
     /** Hex digest from a `sha256sum`-style asset: `<hex>  <filename>`. */
     private fun fetchSha256(url: String): String? {
+        if (!url.startsWith("https://")) {
+            Log.w("Refusing to fetch an update checksum over a non-HTTPS URL: $url")
+
+            return null
+        }
+
         val hex = fetchBody(url)?.trim()?.split(Regex("\\s+"))?.firstOrNull()
 
         if (hex == null || !hex.matches(Regex("[0-9a-fA-F]{64}"))) {
@@ -205,7 +230,16 @@ object AppUpdate {
                     if (connection.responseCode != 200)
                         return@withContext null
 
-                    val file = File(context.cacheDir, "update-${release.versionName}.apk")
+                    val safeVersion = release.versionName.replace(Regex("[^A-Za-z0-9._-]"), "_")
+
+                    val cacheRoot = context.cacheDir.canonicalFile
+                    val file = File(context.cacheDir, "update-$safeVersion.apk").canonicalFile
+
+                    if (!file.path.startsWith(cacheRoot.path + File.separator)) {
+                        Log.w("Refusing to download an update outside the cache directory: ${file.path}")
+
+                        return@withContext null
+                    }
 
                     // Hash while copying — no second pass over the file.
                     val digest = MessageDigest.getInstance("SHA-256")
@@ -236,19 +270,21 @@ object AppUpdate {
                     val expected = release.apkSha256
 
                     if (expected == null) {
-                        // Releases published before checksums were attached;
-                        // keep the install but make the skip visible.
-                        Log.i("No published checksum for ${release.versionName}; skipping APK verification")
-                    } else {
-                        val actual = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+                        Log.w("No published checksum for ${release.versionName}; refusing the download")
 
-                        if (!actual.equals(expected, ignoreCase = true)) {
-                            Log.w("APK checksum mismatch for ${release.versionName}: expected $expected, got $actual")
+                        file.delete()
 
-                            file.delete()
+                        return@withContext null
+                    }
 
-                            return@withContext null
-                        }
+                    val actual = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+
+                    if (!actual.equals(expected, ignoreCase = true)) {
+                        Log.w("APK checksum mismatch for ${release.versionName}: expected $expected, got $actual")
+
+                        file.delete()
+
+                        return@withContext null
                     }
 
                     file
@@ -263,7 +299,116 @@ object AppUpdate {
         }
     }
 
+    /**
+     * Verifies that the downloaded archive is a newer build of this very app,
+     * signed by the same certificate(s) as the installed package. Without this
+     * an attacker who can replace the cached file between the checksum check
+     * and the install prompt could hand us an arbitrary APK.
+     */
+    private fun verifyDownloadedApk(context: Context, file: File): Boolean {
+        return try {
+            if (!file.isFile) {
+                Log.w("Refusing to install a missing update file: ${file.path}")
+
+                return false
+            }
+
+            val pm = context.packageManager
+            val flags = if (Build.VERSION.SDK_INT >= 28)
+                PackageManager.GET_SIGNING_CERTIFICATES
+            else
+                PackageManager.GET_SIGNATURES
+
+            val archive = packageArchiveInfo(pm, file.absolutePath, flags)
+
+            if (archive == null) {
+                Log.w("Unable to read the downloaded APK: ${file.path}")
+
+                return false
+            }
+
+            if (archive.packageName != context.packageName) {
+                Log.w("Update package name mismatch: ${archive.packageName}")
+
+                return false
+            }
+
+            val installed = installedPackageInfo(pm, context.packageName, flags)
+
+            if (installed == null) {
+                Log.w("Unable to read the installed package info")
+
+                return false
+            }
+
+            if (versionCodeOf(archive) < versionCodeOf(installed)) {
+                Log.w("Update version ${versionCodeOf(archive)} is older than the installed ${versionCodeOf(installed)}")
+
+                return false
+            }
+
+            val archiveSigners = signerDigests(archive)
+            val installedSigners = signerDigests(installed)
+
+            if (archiveSigners.isEmpty() || archiveSigners != installedSigners) {
+                Log.w("Update signer mismatch: $archiveSigners != $installedSigners")
+
+                return false
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.w("Verify downloaded APK failed: ${e.message}")
+
+            false
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun packageArchiveInfo(pm: PackageManager, path: String, flags: Int): PackageInfo? =
+        if (Build.VERSION.SDK_INT >= 33)
+            pm.getPackageArchiveInfo(path, PackageManager.PackageInfoFlags.of(flags.toLong()))
+        else
+            pm.getPackageArchiveInfo(path, flags)
+
+    @Suppress("DEPRECATION")
+    private fun installedPackageInfo(pm: PackageManager, packageName: String, flags: Int): PackageInfo? =
+        if (Build.VERSION.SDK_INT >= 33)
+            pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags.toLong()))
+        else
+            pm.getPackageInfo(packageName, flags)
+
+    @Suppress("DEPRECATION")
+    private fun versionCodeOf(info: PackageInfo): Long =
+        if (Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
+
+    /**
+     * SHA-256 of every signer certificate. API 28+ exposes the full signer set
+     * through [android.content.pm.SigningInfo], so multi-signed builds compare
+     * correctly; older platforms only ever have one signature.
+     */
+    @Suppress("DEPRECATION")
+    private fun signerDigests(info: PackageInfo): Set<String> {
+        val signatures: List<Signature> = if (Build.VERSION.SDK_INT >= 28) {
+            info.signingInfo?.apkContentsSigners?.toList().orEmpty()
+        } else {
+            info.signatures?.toList().orEmpty()
+        }
+
+        return signatures.map { signature ->
+            MessageDigest.getInstance("SHA-256")
+                .digest(signature.toByteArray())
+                .joinToString("") { byte -> "%02x".format(byte) }
+        }.toSet()
+    }
+
     fun installApk(context: Context, file: File): Boolean {
+        if (!verifyDownloadedApk(context, file)) {
+            Log.w("Refusing to install an unverified update: ${file.path}")
+
+            return false
+        }
+
         return try {
             val uri: Uri = if (Build.VERSION.SDK_INT >= 24) {
                 FileProvider.getUriForFile(context, context.packageName + ".update.provider", file)

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 安全加固：对外控制入口与更新校验。 -->
+    <string name="settings_external_control">外部控制</string>
+    <string name="settings_external_control_summary">允许其他应用和 clash:// 链接启动、停止或切换 VPN 以及导入配置。默认关闭。</string>
+    <string name="external_control_disabled">外部控制已关闭。请在「设置 → 应用」中开启。</string>
+    <string name="external_control_invalid_url">已拒绝导入不安全的配置 URL。</string>
+
+</resources>

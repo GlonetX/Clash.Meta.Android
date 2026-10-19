@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.ProxyInfo
 import android.net.VpnService
 import android.os.Build
+import android.system.OsConstants
 import com.github.kr328.clash.common.compat.pendingIntentFlags
 import com.github.kr328.clash.common.constants.Components
 import com.github.kr328.clash.common.log.Log
@@ -49,6 +50,9 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
         install(SuspendModule(self))
 
         try {
+            if (withTimeoutOrNull(30_000) { config.firstLoad.await() } == null)
+                Log.w("Configuration load timed out; starting TUN with the current core state")
+
             tun.open()
 
             while (isActive) {
@@ -160,6 +164,13 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
                 addAddress(TUN_GATEWAY6, TUN_SUBNET_PREFIX6)
             }
 
+            // When IPv6 is not proxied, let it fall through to the underlying network
+            // instead of having VpnService silently block the whole address family.
+            if (!store.allowIpv6) {
+                runCatching { allowFamily(OsConstants.AF_INET6) }
+                    .onFailure { Log.w("allowFamily(AF_INET6) rejected", it) }
+            }
+
             // Route
             if (store.bypassPrivateNetwork) {
                 resources.getStringArray(R.array.bypass_private_route).map(::parseCIDR).forEach {
@@ -173,6 +184,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
 
                 // Route of virtual DNS
                 addRoute(TUN_DNS, 32)
+                addRoute(TUN_GATEWAY, 32)
                 if (store.allowIpv6) {
                     addRoute(TUN_DNS6, 128)
                 }
@@ -280,7 +292,6 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
             "172.17.*",
             "172.18.*",
             "172.19.*",
-            "172.2*",
             "172.30.*",
             "172.31.*",
             "192.168.*"

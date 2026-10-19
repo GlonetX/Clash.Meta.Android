@@ -55,32 +55,79 @@ object SettingsBackup {
     }
 
     suspend fun restore(context: Context, archive: ByteArray) = withContext(Dispatchers.IO) {
-        val target = context.filesDir
+        // `clash/...` lives under filesDir, `shared_prefs/...` next to it in
+        // the data dir. Anything else in the archive is not ours to write.
+        val filesRoot = context.filesDir.canonicalFile
+        val dataRoot = File(context.applicationInfo.dataDir).canonicalFile
 
+        var entries = 0
         var written = 0
+        var totalBytes = 0L
 
         ZipInputStream(ByteArrayInputStream(archive)).use { zip ->
             while (true) {
                 val entry = zip.nextEntry ?: break
 
-                val name = entry.name
+                if (++entries > MAX_ENTRIES)
+                    throw BackupException("Refusing to restore more than $MAX_ENTRIES entries")
 
-                if (!entry.isDirectory) {
-                    // zip-slip guard: every entry must stay inside filesDir
-                    val destination = File(target, name).canonicalFile
+                val name = entry.name.replace('\\', '/')
 
-                    if (!destination.path.startsWith(target.canonicalPath + File.separator)) {
-                        throw BackupException("Refusing to restore outside the app directory: $name")
-                    }
-
-                    destination.parentFile?.mkdirs()
-
-                    destination.outputStream().use { out ->
-                        zip.copyTo(out)
-                    }
-
-                    written++
+                if (entry.isDirectory) {
+                    zip.closeEntry()
+                    continue
                 }
+
+                val root = when {
+                    name.startsWith("clash/") -> filesRoot
+                    name.startsWith("shared_prefs/") -> dataRoot
+                    else -> throw BackupException("Refusing to restore unexpected entry: $name")
+                }
+
+                // Reject empty, current and parent segments outright.
+                val segments = name.split('/')
+
+                if (segments.any { it.isEmpty() || it == "." || it == ".." })
+                    throw BackupException("Refusing to restore unsafe path: $name")
+
+                // zip-slip guard: every entry must stay inside its root
+                val destination = File(root, name).canonicalFile
+
+                if (!destination.path.startsWith(root.path + File.separator))
+                    throw BackupException("Refusing to restore outside the app directory: $name")
+
+                destination.parentFile?.mkdirs()
+
+                try {
+                    destination.outputStream().use { out ->
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+
+                        while (true) {
+                            val read = zip.read(buffer)
+
+                            if (read < 0)
+                                break
+
+                            totalBytes += read
+
+                            if (totalBytes > MAX_TOTAL_BYTES) {
+                                throw BackupException(
+                                    "Refusing to restore more than " +
+                                        "${MAX_TOTAL_BYTES / 1024 / 1024} MiB"
+                                )
+                            }
+
+                            out.write(buffer, 0, read)
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Never leave a half-written file behind for the core to read.
+                    destination.delete()
+
+                    throw e
+                }
+
+                written++
 
                 zip.closeEntry()
             }
@@ -101,4 +148,7 @@ object SettingsBackup {
 
     private fun prefsDir(context: Context): File =
         File(context.applicationInfo.dataDir).resolve("shared_prefs")
+
+    private const val MAX_ENTRIES = 4096
+    private const val MAX_TOTAL_BYTES = 64L * 1024 * 1024
 }

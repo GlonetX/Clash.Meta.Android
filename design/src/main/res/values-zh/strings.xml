@@ -238,7 +238,7 @@
     <string name="allow_bypass">允许应用绕过</string>
     <string name="allow_bypass_summary">允许其他应用绕过 VPN</string>
     <string name="allow_ipv6">允许 Ipv6</string>
-    <string name="allow_ipv6_summary">通过 VpnService 代理 Ipv6 流量</string>
+    <string name="allow_ipv6_summary">通过 VpnService 代理 IPv6 流量；关闭时 IPv6 直连底层网络，不经过代理。</string>
     <string name="clash_meta_wiki">Clash Meta Wiki</string>
     <string name="meta_features">Meta 特性</string>
     <string name="unified_delay">统一延迟</string>

@@ -149,6 +149,10 @@ class MainActivity : BaseActivity<MainDesign>() {
 
         var lastIPRefresh = 0L
 
+        // Traffic/memory refresh every tick, but the (much heavier) connection
+        // list only every fifth tick.
+        var connectionTick = 0
+
         while (isActive) {
             select<Unit> {
                 events.onReceive {
@@ -337,9 +341,11 @@ class MainActivity : BaseActivity<MainDesign>() {
                             startActivity(MetaFeatureSettingsActivity::class.intent)
                     }
                 }
-                if (clashRunning) {
+                if (activityStarted && clashRunning) {
                     ticker.onReceive {
-                        design.fetchTraffic()
+                        connectionTick++
+
+                        design.fetchTraffic(includeConnections = connectionTick % 5 == 1)
                     }
                 }
             }
@@ -502,7 +508,7 @@ class MainActivity : BaseActivity<MainDesign>() {
         newDesign.requests.trySend(ProxyDesign.Request.ReloadAll)
     }
 
-    private suspend fun MainDesign.fetchTraffic() {
+    private suspend fun MainDesign.fetchTraffic(includeConnections: Boolean = true) {
         val total = withClash {
             queryTrafficTotal()
         }
@@ -512,8 +518,12 @@ class MainActivity : BaseActivity<MainDesign>() {
         val memory = withClash {
             queryMemory()
         }
-        val connections = withClash {
-            queryConnections()
+        val connections = if (includeConnections) {
+            withClash {
+                queryConnections()
+            }
+        } else {
+            null
         }
 
         trafficSamples.push(traffic.trafficUploadValue(), traffic.trafficDownloadValue())
@@ -526,9 +536,9 @@ class MainActivity : BaseActivity<MainDesign>() {
                 memoryBytes = memory,
                 trafficTotalUp = total.trafficUploadValue(),
                 trafficTotalDown = total.trafficDownloadValue(),
-                connectionCount = connections.size,
-                requestCount = connections.count { it.type in REQUEST_TYPES },
-                dnsCount = connections.count { it.type == "DNS" },
+                connectionCount = connections?.size ?: dashboard.connectionCount,
+                requestCount = connections?.count { it.type in REQUEST_TYPES } ?: dashboard.requestCount,
+                dnsCount = connections?.count { it.type == "DNS" } ?: dashboard.dnsCount,
                 uptimeMillis = if (coreStartedAt > 0L) {
                     SystemClock.elapsedRealtime() - coreStartedAt
                 } else {
@@ -761,6 +771,11 @@ class MainActivity : BaseActivity<MainDesign>() {
         // Skip dynamic shortcut setup when the app icon is hidden.
         if (uiStore.hideAppIcon) return
 
+        // Shortcut intents are launched by the system launcher (a different
+        // UID), so they carry this private token to pass the external-control
+        // gate that otherwise blocks third-party callers.
+        val controlToken = SettingsStore(this).ensureExternalControlToken()
+
         val flags = Intent.FLAG_ACTIVITY_NEW_TASK or
             Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or
             Intent.FLAG_ACTIVITY_NO_ANIMATION
@@ -772,6 +787,7 @@ class MainActivity : BaseActivity<MainDesign>() {
             .setIntent(
                 Intent(Intents.ACTION_TOGGLE_CLASH)
                     .setClassName(this, ExternalControlActivity::class.java.name)
+                    .putExtra(ExternalControlActivity.EXTRA_CONTROL_TOKEN, controlToken)
                     .addFlags(flags)
             )
             .setRank(0)
@@ -784,6 +800,7 @@ class MainActivity : BaseActivity<MainDesign>() {
             .setIntent(
                 Intent(Intents.ACTION_START_CLASH)
                     .setClassName(this, ExternalControlActivity::class.java.name)
+                    .putExtra(ExternalControlActivity.EXTRA_CONTROL_TOKEN, controlToken)
                     .addFlags(flags)
             )
             .setRank(1)
@@ -796,6 +813,7 @@ class MainActivity : BaseActivity<MainDesign>() {
             .setIntent(
                 Intent(Intents.ACTION_STOP_CLASH)
                     .setClassName(this, ExternalControlActivity::class.java.name)
+                    .putExtra(ExternalControlActivity.EXTRA_CONTROL_TOKEN, controlToken)
                     .addFlags(flags)
             )
             .setRank(2)
