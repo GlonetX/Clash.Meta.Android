@@ -2,6 +2,7 @@ package com.github.kr328.clash.service
 
 import android.content.Context
 import com.github.kr328.clash.service.data.Database
+import com.github.kr328.clash.service.data.Imported
 import com.github.kr328.clash.service.data.ImportedDao
 import com.github.kr328.clash.service.data.Pending
 import com.github.kr328.clash.service.data.PendingDao
@@ -154,11 +155,15 @@ class ProfileManager(private val context: Context) : IProfileManager,
     }
 
     override suspend fun queryAll(): List<Profile> {
-        val uuids = withContext(Dispatchers.IO) {
-            (ImportedDao().queryAllUUIDs() + PendingDao().queryAllUUIDs()).distinct()
-        }
+        return withContext(Dispatchers.IO) {
+            val importedMap = ImportedDao().queryAll().associateBy { it.uuid }
+            val pendingMap = PendingDao().queryAll().associateBy { it.uuid }
+            val uuids = (ImportedDao().queryAllUUIDs() + PendingDao().queryAllUUIDs()).distinct()
 
-        return uuids.mapNotNull { resolveProfile(it) }
+            uuids.mapNotNull { uuid ->
+                buildProfile(uuid, importedMap[uuid], pendingMap[uuid])
+            }
+        }
     }
 
     override suspend fun queryActive(): Profile? {
@@ -179,6 +184,10 @@ class ProfileManager(private val context: Context) : IProfileManager,
         val imported = ImportedDao().queryByUUID(uuid)
         val pending = PendingDao().queryByUUID(uuid)
 
+        return buildProfile(uuid, imported, pending)
+    }
+
+    private fun buildProfile(uuid: UUID, imported: Imported?, pending: Pending?): Profile? {
         val active = store.activeProfile
         val name = pending?.name ?: imported?.name ?: return null
         val type = pending?.type ?: imported?.type ?: return null

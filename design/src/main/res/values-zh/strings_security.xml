@@ -7,4 +7,8 @@
     <string name="external_control_disabled">外部控制已关闭。请在「设置 → 应用」中开启。</string>
     <string name="external_control_invalid_url">已拒绝导入不安全的配置 URL。</string>
 
+    <!-- 在局域网上暴露无认证代理前的警告。 -->
+    <string name="allow_lan_warning_title">要在局域网中暴露代理吗？</string>
+    <string name="allow_lan_warning_message">已开启「允许局域网连接」但未配置认证。同一 Wi-Fi 或热点下的任何人都可以使用此代理，并通过你的设备转发流量。除非你信任网络中的每一台设备，否则请先添加认证信息。</string>
+
 </resources>

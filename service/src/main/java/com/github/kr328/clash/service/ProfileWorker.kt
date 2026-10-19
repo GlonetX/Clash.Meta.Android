@@ -16,6 +16,7 @@ import com.github.kr328.clash.common.id.UndefinedIds
 import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.uuid
 import com.github.kr328.clash.service.data.ImportedDao
+import com.github.kr328.clash.service.util.redactUrls
 import com.github.kr328.clash.service.util.sendProfileUpdateCompleted
 import com.github.kr328.clash.service.util.sendProfileUpdateFailed
 import kotlinx.coroutines.*
@@ -91,7 +92,7 @@ class ProfileWorker : BaseService() {
 
             ProfileReceiver.scheduleNext(this, imported)
         } catch (e: Exception) {
-            failed(imported.uuid, imported.name, e.message ?: "Unknown")
+            failed(imported.uuid, imported.name, (e.message ?: "Unknown").redactUrls())
         }
     }
 

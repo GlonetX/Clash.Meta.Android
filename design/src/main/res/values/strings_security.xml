@@ -7,4 +7,8 @@
     <string name="external_control_disabled">External control is disabled. Enable it in Settings → App.</string>
     <string name="external_control_invalid_url">Refusing to import an unsafe profile URL.</string>
 
+    <!-- Warn before exposing an unauthenticated proxy on the local network. -->
+    <string name="allow_lan_warning_title">Expose the proxy to the LAN?</string>
+    <string name="allow_lan_warning_message">Allow LAN is enabled without authentication. Anyone on the same Wi-Fi or hotspot can use this proxy and relay traffic through your device. Add an authentication entry first unless you trust every device on the network.</string>
+
 </resources>

@@ -12,6 +12,7 @@ import com.github.kr328.clash.design.settings.SettingItem
 import com.github.kr328.clash.design.settings.SettingPage
 import com.github.kr328.clash.design.settings.SettingRow
 import com.github.kr328.clash.design.settings.TextAdapter
+import com.github.kr328.clash.design.settings.confirmSetting
 import com.github.kr328.clash.design.settings.editSettingText
 import com.github.kr328.clash.design.settings.editSettingTextList
 import com.github.kr328.clash.design.settings.editSettingTextMap
@@ -108,6 +109,16 @@ class OverrideSettingsDesign(
             id = "allow_lan",
             title = R.string.allow_lan,
             value = configuration.allowLan,
+            beforeApply = { picked ->
+                if (picked == true && configuration.authentication.isNullOrEmpty()) {
+                    context.confirmSetting(
+                        title = context.getText(R.string.allow_lan_warning_title),
+                        message = context.getText(R.string.allow_lan_warning_message),
+                    )
+                } else {
+                    true
+                }
+            },
         ) { configuration.allowLan = it },
 
         triState(
@@ -430,6 +441,7 @@ class OverrideSettingsDesign(
         title: Int,
         value: Boolean?,
         enabled: Boolean = true,
+        beforeApply: (suspend (Boolean?) -> Boolean)? = null,
         apply: (Boolean?) -> Unit,
     ): SettingRow.Action {
         return SettingRow.Action(
@@ -454,6 +466,9 @@ class OverrideSettingsDesign(
                     values = listOf<Boolean?>(null, true, false),
                     current = value,
                 ) { picked ->
+                    if (beforeApply != null && !beforeApply(picked))
+                        return@choose
+
                     apply(picked)
 
                     refresh()
@@ -602,7 +617,7 @@ class OverrideSettingsDesign(
         labels: List<CharSequence>,
         values: List<T>,
         current: T?,
-        apply: (T?) -> Unit,
+        apply: suspend (T?) -> Unit,
     ) {
         val selected = values.indexOf(current).coerceAtLeast(0)
 
