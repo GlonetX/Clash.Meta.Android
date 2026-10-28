@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The selected icon is drawn ON the active-indicator pill, so it must
+         pair with the pill's container colour, not with colorPrimary. Both
+         happen to be the same navy in the light theme, which is why the
+         selected tab used to render as an empty pill: a navy icon on a navy
+         background. colorOnSecondaryContainer is the M3 pair for the
+         indicator in every theme, dynamic colour included. -->
+    <item android:color="?attr/colorOnSecondaryContainer" android:state_checked="true" />
+    <item android:color="?attr/colorOnSurfaceVariant" />
+</selector>
