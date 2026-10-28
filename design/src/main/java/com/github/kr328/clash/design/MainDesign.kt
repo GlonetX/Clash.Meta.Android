@@ -83,8 +83,13 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 val widget = dashboardAdapter.currentList.getOrNull(position) ?: return 1
+                val columns = spanCount()
 
-                return widget.span.coerceIn(1, spanCount())
+                // `span` is logical, not literal columns: 2 means "the full
+                // row", 1 means "half a row". Hard-coding 2 broke wide cards
+                // on tablets, where they filled 2 of 3 or 2 of 4 columns and
+                // left a blank strip beside every one of them.
+                return if (widget.span >= 2) columns else (columns / 2).coerceAtLeast(1)
             }
         }
 
@@ -183,6 +188,10 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
         val visible = placedWidgets()
             .filter { it.key !in hidden }
             .filter { !it.requiresRunning || state.clashRunning }
+            // An empty card is noise, and RecyclerView still reserves the
+            // height of a GONE item — hiding the root left a blank strip
+            // between the services and IP cards. Drop the widget instead.
+            .filter { it != DashboardWidget.PROVIDERS || state.hasRemoteProviders }
 
         // Fixed widgets bracket the user-ordered block: the status hero pins
         // to the top and the links card to the bottom. `sortedBy` is stable,
@@ -203,10 +212,12 @@ class MainDesign(context: Context, private val uiStore: UiStore) : Design<MainDe
             // state explicitly — the bare name is shadowed by the parameter.
             val runningChanged =
                 this@MainDesign.state.clashRunning != state.clashRunning
+            val providersChanged =
+                this@MainDesign.state.hasRemoteProviders != state.hasRemoteProviders
 
             this@MainDesign.state = state
 
-            if (runningChanged)
+            if (runningChanged || providersChanged)
                 applyDashboardWidgets()
 
             dashboardAdapter.setState(state)

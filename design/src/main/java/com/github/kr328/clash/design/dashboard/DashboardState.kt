@@ -84,10 +84,19 @@ data class DashboardState(
 
     /** Streaming service probe results, one entry per probed service. */
     val services: List<ServiceProbe> = emptyList(),
-
-
-
-)
+) {
+    /**
+     * True when the providers card has anything to show.
+     *
+     * Inline providers are filtered out by the card, so an all-inline list
+     * still renders as an empty card. The dashboard drops the widget
+     * entirely instead of leaving a blank cell behind.
+     */
+    val hasRemoteProviders: Boolean
+        get() = providers.any {
+            it.vehicleType != com.github.kr328.clash.core.model.Provider.VehicleType.Inline
+        }
+}
 
 /**
  * An immutable result of one service probe.

@@ -286,9 +286,11 @@ class DashboardAdapter(
         val providers = state.providers
             .filter { it.vehicleType != Provider.VehicleType.Inline }
 
-        // An empty card is noise; when there is nothing remote, the whole
-        // cell collapses and only the LINKS entry remains.
-        binding.root.visibility = if (providers.isEmpty()) View.GONE else View.VISIBLE
+        // [MainDesign] drops this widget when there is nothing remote, so a
+        // GONE root here would only be a transient during a state swap —
+        // and a GONE item still occupies its measured height in a
+        // RecyclerView, which is what used to leave a blank gap on the page.
+        binding.root.visibility = View.VISIBLE
         if (providers.isEmpty())
             return
 
