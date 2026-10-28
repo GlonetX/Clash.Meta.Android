@@ -129,6 +129,10 @@ enum class DashboardWidget(
         layoutRes = R.layout.adapter_dashboard_profile,
         span = 2,
         defaultOrder = 100,
+        // Must stay visible while the core is stopped: this card is the only
+        // entry point to the profiles screen, and without it a first-run
+        // install has no way to pick a profile and therefore no way to start.
+        requiresRunning = false,
     ),
 
     LINKS(
