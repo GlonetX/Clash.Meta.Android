@@ -104,7 +104,7 @@
             android:backgroundTint="@null"
             android:elevation="0dp"
             app:itemBackground="@null"
-            app:itemIconTint="@color/dock_item_color"
+            app:itemIconTint="@color/dock_item_icon_color"
             app:itemTextColor="@color/dock_item_color"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_main_tabs" />
