@@ -47,7 +47,8 @@ subprojects {
         defaultConfig {
             if (isApp) {
                 val customApplicationId = queryConfigProperty("custom.application.id") as? String?
-                applicationId = customApplicationId.takeIf { it?.isNotBlank() == true } ?: "com.github.metacubex.clash"
+                applicationId = customApplicationId.takeIf { it?.isNotBlank() == true }
+                    ?: "io.github.glonetx.android"
             }
 
             project.name.let { name ->
@@ -58,8 +59,8 @@ subprojects {
             minSdk = 21
             targetSdk = 35
 
-            versionName = "12.12.0.3"
-            versionCode = 121200003
+            versionName = "12.12.1"
+            versionCode = 121200101
 
             resValue("string", "release_name", "v$versionName")
             resValue("integer", "release_code", "$versionCode")
@@ -77,7 +78,7 @@ subprojects {
             if (!isApp) {
                 consumerProguardFiles("consumer-rules.pro")
             } else {
-                setProperty("archivesBaseName", "cmfa-$versionName")
+                setProperty("archivesBaseName", "glonetx-$versionName")
             }
         }
 
@@ -119,18 +120,14 @@ subprojects {
             create("meta") {
 
                 dimension = flavorDimensionList[0]
-                if (!removeSuffix) {
-                    versionNameSuffix = ".Meta"
-                }
 
                 buildConfigField("boolean", "PREMIUM", "Boolean.parseBoolean(\"false\")")
 
                 resValue("string", "launch_name", "@string/launch_name_meta")
                 resValue("string", "application_name", "@string/application_name_meta")
 
-                if (isApp && !removeSuffix) {
-                    applicationIdSuffix = ".meta"
-                }
+                // No id or version suffix: this flavor is the stable release and
+                // ships as io.github.glonetx.android, versionName 12.12.1.
             }
         }
 

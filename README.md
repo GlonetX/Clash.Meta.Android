@@ -1,20 +1,20 @@
-## Clash Meta for Android
+## GlonetX for Android
 
-A Graphical user interface of [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta) for Android
-
-### Feature
-
-Feature of [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta)
-
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/com.github.metacubex.clash.meta/)
+A rule-based tunnel for Android, built on the [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta)
+core with a redesigned interface.
 
 ### Requirement
 
 - Android 5.0+ (minimum)
 - Android 7.0+ (recommend)
 - `armeabi-v7a` , `arm64-v8a`, `x86` or `x86_64` Architecture
+
+### Download
+
+Stable releases are published on the
+[releases page](https://github.com/GlonetX/glonetx-android/releases/latest).
+The app checks for updates itself; pick **Stable** or **Prerelease** under
+Settings → App → Update Channel.
 
 ### Build
 
@@ -35,10 +35,11 @@ Feature of [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta)
 4. (Optional) Custom app package name. Add the following configuration to `local.properties`.
 
    ```properties
-   # config your ownn applicationId, or it will be 'com.github.metacubex.clash'
+   # config your own applicationId, or it will be 'io.github.glonetx.android'
    custom.application.id=com.my.compile.clash
-   # remove application id suffix, or the applicaion id will be 'com.github.metacubex.clash.alpha'
+   # drop the '.alpha' suffix, so both flavors share one applicationId
    remove.suffix=true
+   ```
 
 5. Create `signing.properties` in project root with
 
@@ -57,16 +58,20 @@ Feature of [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta)
 
 ### Automation
 
-APP package name is `com.github.metacubex.clash.meta`
+Stable (`meta`) builds ship as `io.github.glonetx.android`, alpha builds as
+`io.github.glonetx.android.alpha`.
 
-- Toggle Clash.Meta service status
-  - Send intent to activity `com.github.kr328.clash.ExternalControlActivity` with action `com.github.metacubex.clash.meta.action.TOGGLE_CLASH`
-- Start Clash.Meta service
-  - Send intent to activity `com.github.kr328.clash.ExternalControlActivity` with action `com.github.metacubex.clash.meta.action.START_CLASH`
-- Stop Clash.Meta service
-  - Send intent to activity `com.github.kr328.clash.ExternalControlActivity` with action `com.github.metacubex.clash.meta.action.STOP_CLASH`
+- Toggle the service
+  - Send intent to activity `com.github.kr328.clash.ExternalControlActivity` with action `com.glonetx.clash.action.TOGGLE_CLASH`
+- Start the service
+  - Send intent to activity `com.github.kr328.clash.ExternalControlActivity` with action `com.glonetx.clash.action.START_CLASH`
+- Stop the service
+  - Send intent to activity `com.github.kr328.clash.ExternalControlActivity` with action `com.glonetx.clash.action.STOP_CLASH`
 - Import a profile
   - URL Scheme `clash://install-config?url=<encoded URI>` or `clashmeta://install-config?url=<encoded URI>`
+
+External control is off by default; enable it in Settings → App before relying
+on these intents.
 
 ### Contribution and Project Maintenance
 

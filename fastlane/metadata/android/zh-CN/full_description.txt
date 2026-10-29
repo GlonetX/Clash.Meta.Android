@@ -1,4 +1,4 @@
-Clash.Meta 的 Android 图形界面。
+GlonetX for Android —— 基于 Clash.Meta 核心的规则代理客户端。
 
 <h3>功能</h3>
 <ul>

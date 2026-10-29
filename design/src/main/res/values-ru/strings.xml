@@ -205,7 +205,7 @@
     <string name="import_from_clipboard">Импорт из буфера обмена</string>
     <string name="export_to_clipboard">Экспорт в буфер обмена</string>
 
-    <string name="clash_meta_for_android">Clash Meta для Android</string>
+    <string name="clash_meta_for_android">GlonetX</string>
 
     <string name="document">Документ</string>
     <string name="feedback">Обратная связь</string>
@@ -214,10 +214,10 @@
     <string name="clash_wiki">Clash Wiki</string>
     <string name="github_issues">Сообщения об ошибках на GitHub</string>
     <string name="google_play">Google Play</string>
-    <string name="clash_meta_core">Ядро Clash Meta</string>
+    <string name="clash_meta_core">GlonetX Core</string>
 
     <string name="tips_properties"><![CDATA[Принимается только <strong>конфиг Clash</strong> (включая <strong>Прокси</strong>/<strong>Правила</strong>)]]></string>
-    <string name="tips_help"><![CDATA[Clash Meta для Android — <strong>бесплатен</strong> и мы <strong>НЕ</strong> предоставляем по нему поддержку]]></string>
+    <string name="tips_help"><![CDATA[GlonetX — <strong>бесплатен</strong> и мы <strong>НЕ</strong> предоставляем по нему поддержку]]></string>
 
     <string name="app">Приложение</string>
     <string name="service">Сервис</string>
@@ -312,8 +312,8 @@
     <string name="toast_profile_updated_complete">Update profile %s completed</string>
     <string name="toast_profile_updated_failed">Update profile %1$s failed: %2$s</string>
     <string name="external_control_activity">External Control</string>
-    <string name="external_control_started">Clash.Meta service started</string>
-    <string name="external_control_stopped">Clash.Meta service stopped</string>
+    <string name="external_control_started">GlonetX service started</string>
+    <string name="external_control_stopped">GlonetX service stopped</string>
     <string name="force_dns_mapping">Force DNS Mapping</string>
     <string name="parse_pure_ip">Parse Pure IP</string>
     <string name="override_destination">Override Destination</string>
