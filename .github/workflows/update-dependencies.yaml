@@ -7,6 +7,14 @@ on:
     types:
       - core-updated
   workflow_dispatch:
+  # Fallback: the core repo's dispatch needs an app token that may not be
+  # configured, so poll weekly and open the update PR regardless.
+  schedule:
+    - cron: '0 3 * * 1'
+
+concurrency:
+  group: update-dependencies
+  cancel-in-progress: false
 
 jobs:
   update-dependencies:
