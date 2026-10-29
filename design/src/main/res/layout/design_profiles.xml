@@ -20,6 +20,19 @@
             layout="@layout/common_recycler_list"
             app:insets="@{self.surface.insets}" />
 
+        <!-- Shown when the user has no subscriptions at all, so the empty
+             list does not read as a loading state. -->
+        <TextView
+            android:id="@+id/empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/app_space_xl"
+            android:text="@string/profiles_empty"
+            android:textAppearance="@style/TextAppearance.App.Body"
+            android:visibility="gone" />
+
         <com.github.kr328.clash.design.view.ActivityBarLayout
             android:id="@+id/activity_bar_layout"
             android:layout_width="match_parent"

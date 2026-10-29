@@ -22,4 +22,14 @@
     <string name="update_profiles_on_launch">Update profiles on launch</string>
     <string name="profile_update_interval_hours">Auto-updates every %dh</string>
     <string name="profile_update_interval_minutes">Auto-updates every %dm</string>
+
+    <string name="profiles_empty">No profiles yet</string>
+
+    <!-- QR / link sharing -->
+    <string name="profiles_share">Share link</string>
+    <string name="profiles_share_via">Send the subscription link to another app</string>
+    <string name="profiles_copy_link">Copy link</string>
+    <string name="profiles_copy_link_summary">Copy the subscription URL to the clipboard</string>
+    <string name="profiles_link_copied">Subscription link copied</string>
+    <string name="profiles_share_qr_unavailable">This profile has no shareable link</string>
 </resources>

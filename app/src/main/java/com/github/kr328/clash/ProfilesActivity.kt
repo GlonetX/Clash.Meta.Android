@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit
 import com.github.kr328.clash.design.R
 
 class ProfilesActivity : BaseActivity<ProfilesDesign>() {
+    private var startupUpdateRunning = false
+
     override suspend fun main() {
         val design = ProfilesDesign(this)
 
@@ -39,6 +41,10 @@ class ProfilesActivity : BaseActivity<ProfilesDesign>() {
                     when (it) {
                         Event.ActivityStart, Event.ProfileChanged -> {
                             design.fetch()
+
+                            if (it == Event.ActivityStart) {
+                                requestStartupUpdate(design)
+                            }
                         }
                         else -> Unit
                     }
@@ -98,6 +104,54 @@ class ProfilesActivity : BaseActivity<ProfilesDesign>() {
     private suspend fun ProfilesDesign.fetch() {
         withProfile {
             patchProfiles(queryAll())
+        }
+    }
+
+    /**
+     * Launch-time subscription refresh.
+     *
+     * The app shipped per-card updates and a `ProfileReceiver` alarm for
+     * profiles with a cadence, but nothing ran when the app itself opened: a
+     * subscription with no interval, or one whose interval had elapsed while
+     * the device was off, stayed stale until the user noticed.
+     *
+     * Honours [ProfileUpdateStore.updateOnLaunch] and each profile's own
+     * interval, and skips anything the service would refuse to schedule.
+     * `update()` is fire-and-forget - it hands the UUID to `ProfileWorker` - so
+     * this returns immediately and the "updated / failed" toasts come from the
+     * existing callbacks.
+     */
+    private suspend fun requestStartupUpdate(design: ProfilesDesign) {
+        if (!ProfileUpdateStore(this).updateOnLaunch || startupUpdateRunning)
+            return
+
+        val now = System.currentTimeMillis()
+
+        val candidates = withProfile {
+            queryAll().filter {
+                it.imported &&
+                        it.type != Profile.Type.File &&
+                        it.interval >= MINIMUM_AUTO_UPDATE_INTERVAL &&
+                        now - it.updatedAt >= it.interval
+            }
+        }
+
+        if (candidates.isEmpty())
+            return
+
+        startupUpdateRunning = true
+        design.setUpdateAllRunning(true)
+
+        try {
+            withProfile {
+                candidates.forEach { update(it.uuid) }
+            }
+        } finally {
+            startupUpdateRunning = false
+
+            withContext(Dispatchers.Main) {
+                design.setUpdateAllRunning(false)
+            }
         }
     }
 
@@ -163,5 +217,14 @@ class ProfilesActivity : BaseActivity<ProfilesDesign>() {
                 }
             }
         }
+    }
+
+    companion object {
+        /**
+         * `ProfileReceiver.scheduleNext` refuses to arm an alarm sooner than
+         * this, so a launch-time refresh has to use the same floor or it would
+         * fight the service's own scheduling.
+         */
+        private val MINIMUM_AUTO_UPDATE_INTERVAL = TimeUnit.MINUTES.toMillis(15)
     }
 }

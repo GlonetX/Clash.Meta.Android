@@ -2,6 +2,7 @@ package com.github.kr328.clash.design
 
 import android.app.Dialog
 import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.core.content.FileProvider
+import androidx.core.content.getSystemService
 import com.github.kr328.clash.design.adapter.ProfileAdapter
 import com.github.kr328.clash.design.databinding.DesignProfilesBinding
 import com.github.kr328.clash.design.databinding.DialogProfilesMenuBinding
@@ -73,6 +75,7 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
 
         withContext(Dispatchers.Main) {
             binding.updateView.visibility = if (updatable) View.VISIBLE else View.GONE
+            binding.emptyView.visibility = if (profiles.isEmpty()) View.VISIBLE else View.GONE
         }
     }
 
@@ -117,6 +120,15 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
         allUpdating = true;
         changeUpdateAllButtonStatus()
         requests.trySend(Request.UpdateAll)
+    }
+
+    /**
+     * Spins the refresh glyph without issuing [Request.UpdateAll]. Used by the
+     * launch-time refresh, which has already decided what to update.
+     */
+    fun setUpdateAllRunning(running: Boolean) {
+        allUpdating = running;
+        changeUpdateAllButtonStatus()
     }
 
     fun finishUpdateAll() {
@@ -167,7 +179,10 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
     }
 
     suspend fun showProfileQrCode(profile: Profile) {
-        if (profile.type != Profile.Type.Url || profile.source.isBlank()) return
+        if (profile.type != Profile.Type.Url || profile.source.isBlank()) {
+            showToast(R.string.profiles_share_qr_unavailable, ToastDuration.Long)
+            return
+        }
 
         val bitmap = try {
             withContext(Dispatchers.Default) {
@@ -188,6 +203,32 @@ class ProfilesDesign(context: Context) : Design<ProfilesDesign.Request>(context)
         withContext(Dispatchers.Main) {
             val binding = DialogProfileQrCodeBinding.inflate(context.layoutInflater)
             binding.qrCode.setImageBitmap(bitmap)
+
+            // Sharing the URL rather than the bitmap on purpose: the target app
+            // gets something it can actually use, and this avoids dragging a
+            // FileProvider authority (and its grant flags) into a dialog that
+            // only wanted to hand over a string.
+            binding.shareRow.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, profile.name)
+                    putExtra(Intent.EXTRA_TEXT, profile.source)
+                }
+
+                context.startActivity(
+                    Intent.createChooser(intent, context.getString(R.string.profiles_share_via))
+                )
+            }
+
+            binding.copyRow.setOnClickListener {
+                context.getSystemService<ClipboardManager>()?.setPrimaryClip(
+                    ClipData.newPlainText(profile.name, profile.source)
+                )
+
+                launch {
+                    showToast(R.string.profiles_link_copied, ToastDuration.Short)
+                }
+            }
 
             suspendCancellableCoroutine<Unit> { continuation ->
                 val dialog = MaterialAlertDialogBuilder(context)
