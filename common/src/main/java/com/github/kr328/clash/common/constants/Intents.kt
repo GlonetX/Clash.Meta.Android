@@ -3,11 +3,18 @@ package com.github.kr328.clash.common.constants
 import com.github.kr328.clash.common.util.packageName
 
 object Intents {
+    /**
+     * Public control surface. These strings are hardcoded on purpose: they are
+     * what Tasker/Shortcuts automations target, so they must not move when the
+     * applicationId or the flavor changes. See README "Automation".
+     */
+    private const val PUBLIC_PREFIX = "com.glonetx.clash.action"
+
     // Public
-    val ACTION_PROVIDE_URL = "$packageName.action.PROVIDE_URL"
-    val ACTION_START_CLASH = "$packageName.action.START_CLASH"
-    val ACTION_STOP_CLASH = "$packageName.action.STOP_CLASH"
-    val ACTION_TOGGLE_CLASH = "$packageName.action.TOGGLE_CLASH"
+    val ACTION_PROVIDE_URL = "$PUBLIC_PREFIX.PROVIDE_URL"
+    val ACTION_START_CLASH = "$PUBLIC_PREFIX.START_CLASH"
+    val ACTION_STOP_CLASH = "$PUBLIC_PREFIX.STOP_CLASH"
+    val ACTION_TOGGLE_CLASH = "$PUBLIC_PREFIX.TOGGLE_CLASH"
 
     const val EXTRA_NAME = "name"
 

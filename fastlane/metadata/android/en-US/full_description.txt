@@ -1,4 +1,4 @@
-A Graphical user interface of Clash.Meta for Android.
+GlonetX for Android — a rule-based tunnel built on the Clash.Meta core.
 
 <h3>Features</h3>
 <ul>
