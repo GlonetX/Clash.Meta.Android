@@ -21,7 +21,7 @@ import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 object AppUpdate {
-    private const val RELEASES_API = "https://api.github.com/repos/GlonetX/Clash.Meta.Android/releases"
+    private const val RELEASES_API = "https://api.github.com/repos/GlonetX/glonetx-android/releases"
     private const val LAST_CHECK_PREF = "app_update_last_check"
     private val CHECK_INTERVAL = TimeUnit.HOURS.toMillis(24)
 
