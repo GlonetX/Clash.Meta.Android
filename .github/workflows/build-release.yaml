@@ -115,13 +115,22 @@ jobs:
           gh release download Prerelease-alpha --repo "$GITHUB_REPOSITORY" \
             --pattern '*alpha-arm64-v8a-release.apk' --dir "$RUNNER_TEMP/previous-apk"
           apksigner="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
+          echo "Reference APKs:"
+          find "$RUNNER_TEMP/previous-apk" -maxdepth 1 -type f -name '*.apk' -print
+          echo "Built APKs:"
+          find app/build/outputs/apk -type f -name '*.apk' -print
           previous=("$RUNNER_TEMP"/previous-apk/*.apk)
           current=(app/build/outputs/apk/meta/release/*arm64-v8a-release.apk)
-          test "${#previous[@]}" -eq 1 && test -f "${previous[0]}"
-          test "${#current[@]}" -eq 1 && test -f "${current[0]}"
+          if [[ "${#previous[@]}" -ne 1 || ! -f "${previous[0]}" ]]; then
+            echo "Expected exactly one historical arm64 APK" >&2; exit 1
+          fi
+          if [[ "${#current[@]}" -ne 1 || ! -f "${current[0]}" ]]; then
+            echo "Expected exactly one newly built meta arm64 APK" >&2; exit 1
+          fi
+          [[ -x "$apksigner" ]] || { echo "Android apksigner is unavailable: $apksigner" >&2; exit 1; }
           fingerprint() { "$apksigner" verify --print-certs "$1" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p'; }
           expected="$(fingerprint "${previous[0]}")"
-          test -n "$expected"
+          [[ -n "$expected" ]] || { echo "Historical APK has no readable signing certificate" >&2; exit 1; }
           for apk in app/build/outputs/apk/meta/release/*.apk; do
             test "$(fingerprint "$apk")" = "$expected" || { echo "Signing certificate mismatch: $apk"; exit 1; }
           done
