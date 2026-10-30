@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_policy_paused">已按 Wi-Fi 规则暂停流量</string>
+    <string name="network_policy_direct">Wi-Fi 规则：直连</string>
+    <string name="network_policy_stop">停止</string>
+</resources>

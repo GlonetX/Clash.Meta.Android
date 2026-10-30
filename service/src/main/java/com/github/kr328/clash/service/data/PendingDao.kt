@@ -6,6 +6,12 @@ import java.util.*
 @Dao
 @TypeConverters(Converters::class)
 interface PendingDao {
+    @Query("DELETE FROM pending")
+    suspend fun clearAllRows()
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(rows: List<Pending>)
+
     @Query("SELECT * FROM pending WHERE uuid = :uuid")
     suspend fun queryByUUID(uuid: UUID): Pending?
 

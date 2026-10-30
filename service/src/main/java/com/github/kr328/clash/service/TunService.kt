@@ -2,6 +2,12 @@ package com.github.kr328.clash.service
 
 import android.annotation.TargetApi
 import android.app.PendingIntent
+import com.github.kr328.clash.service.settings.SettingsManager
+import com.github.kr328.clash.service.settings.Ipv6Mode
+import com.github.kr328.clash.service.settings.RuntimeSettings
+import com.github.kr328.clash.service.backup.DataMaintenanceCoordinator
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.CancellationException
 import android.content.Intent
 import android.net.ProxyInfo
 import android.net.VpnService
@@ -33,63 +39,49 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
     private var ownsCore = false
 
     private val runtime = clashRuntime {
-        val store = ServiceStore(self)
-
-        val close = install(CloseModule(self))
-        val tun = install(TunModule(self))
-        val config = install(ConfigurationModule(self))
-        val network = install(NetworkObserveModule(self))
-
-        if (store.dynamicNotification)
-            install(DynamicNotificationModule(self))
-        else
-            install(StaticNotificationModule(self))
-
-        install(AppListCacheModule(self))
-        install(TimeZoneModule(self))
-        install(SuspendModule(self))
-
+        val settings = SettingsManager.get(self)
+        var tunModule: TunModule? = null
         try {
-            if (withTimeoutOrNull(30_000) { config.firstLoad.await() } == null)
-                Log.w("Configuration load timed out; starting TUN with the current core state")
-
-            tun.open()
-
+            DataMaintenanceCoordinator.ensureReady(self)
+            val startup = settings.beginRuntime(serviceId.toLong())
+            val close = install(CloseModule(self))
+            val config = install(ConfigurationModule(self))
+            val network = install(NetworkObserveModule(self))
+            val policy = install(NetworkPolicyModule(self, serviceId.toLong()))
+            install(DynamicNotificationModule(self))
+            install(AppListCacheModule(self))
+            install(TimeZoneModule(self))
+            install(SuspendModule(self))
+            tunModule = install(TunModule(self))
+            withTimeout(60_000) { close.ready.await(); config.firstLoad.await(); policy.firstEvaluation.await() }
+            tunModule.open(startup)
+            StatusProvider.markRunning(serviceId)
+            settings.markRunning(serviceId.toLong())
+            sendClashStarted()
             while (isActive) {
                 val quit = select<Boolean> {
-                    close.onEvent {
-                        true
-                    }
-                    config.onEvent {
-                        reason = it.message
-
-                        true
-                    }
+                    close.onEvent { true }
+                    config.onEvent { reason = it.message; true }
+                    policy.onEvent { reason = it; true }
                     network.onEvent { n ->
-                        if (Build.VERSION.SDK_INT in 22..28) @TargetApi(22) {
-                            setUnderlyingNetworks(n?.let { arrayOf(it) })
+                        if (Build.VERSION.SDK_INT in 23..28) @TargetApi(23) {
+                            setUnderlyingNetworks(arrayOf(n))
                         }
-
                         false
                     }
                 }
-
                 if (quit) break
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            Log.e("Create clash runtime: ${e.message}", e)
-
-            reason = e.message
+            reason = e.message ?: "Failed to start service"
+            Log.e("Create clash runtime: $reason", e)
         } finally {
-            // Drop the duplicate-instance claim *before* stopSelf() is
-            // dispatched: a start arriving from here on finds no live owner
-            // and takes over, instead of being queued behind this instance's
-            // onDestroy.
+            settings.markStopping(serviceId.toLong())
             StatusProvider.abandonService(serviceId)
-
             withContext(NonCancellable) {
-                tun.close()
-
+                tunModule?.close()
                 stopSelf()
             }
         }
@@ -102,7 +94,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
         // (boot receiver, sticky redelivery) and must not create a second
         // core. An instance that is tearing down has already dropped its
         // claim, so a stop→start takes over instead of being swallowed.
-        if (StatusProvider.serviceAlive)
+        if (DataMaintenanceCoordinator.restoreInProgress || StatusProvider.serviceAlive)
             return stopSelf()
 
         serviceId = StatusProvider.claimService()
@@ -118,20 +110,21 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
         // onCreate bailed out above because another instance owns the core.
         // The framework may still deliver this start command, but there is no
         // runtime behind it, so claiming "running" would be a lie.
-        if (ownsCore)
-            sendClashStarted()
+        // Running is broadcast only after configuration and TUN are ready.
 
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
-        TunModule.requestStop()
+        if (ownsCore && StatusProvider.ownsService(serviceId)) TunModule.requestStop()
 
         // A newer instance may have taken over while this one was dying
         // (stop→start inside the teardown window): its state and its
         // "started" broadcast have to survive this instance's exit.
-        if (StatusProvider.releaseService(serviceId))
+        if (StatusProvider.releaseService(serviceId)) {
+            SettingsManager.get(this).markStopped(serviceId.toLong(), reason)
             sendClashStopped(reason)
+        }
 
         // Cancel without joining. The Go-core teardown (Clash.reset() in the
         // runtime's finally) still runs to completion on Dispatchers.Default,
@@ -154,20 +147,19 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
         runtime.requestGc()
     }
 
-    private fun TunModule.open() {
-        val store = ServiceStore(self)
+    private fun TunModule.open(store: RuntimeSettings) {
         val mtu = store.tunMtu.coerceIn(1280, 9000)
 
         val device = with(Builder()) {
             // Interface address
             addAddress(TUN_GATEWAY, TUN_SUBNET_PREFIX)
-            if (store.allowIpv6) {
+            if (store.ipv6Mode == Ipv6Mode.Proxy) {
                 addAddress(TUN_GATEWAY6, TUN_SUBNET_PREFIX6)
             }
 
-            // When IPv6 is not proxied, let it fall through to the underlying network
-            // instead of having VpnService silently block the whole address family.
-            if (!store.allowIpv6) {
+            // Only explicit Direct mode permits IPv6 to bypass the VPN. Block mode
+            // leaves the family unconfigured, which VpnService blocks by default.
+            if (store.ipv6Mode == Ipv6Mode.Direct) {
                 runCatching { allowFamily(OsConstants.AF_INET6) }
                     .onFailure { Log.w("allowFamily(AF_INET6) rejected", it) }
             }
@@ -177,7 +169,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
                 resources.getStringArray(R.array.bypass_private_route).map(::parseCIDR).forEach {
                     addRoute(it.ip, it.prefix)
                 }
-                if (store.allowIpv6) {
+                if (store.ipv6Mode == Ipv6Mode.Proxy) {
                     resources.getStringArray(R.array.bypass_private_route6).map(::parseCIDR).forEach {
                         addRoute(it.ip, it.prefix)
                     }
@@ -186,18 +178,18 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
                 // Route of virtual DNS
                 addRoute(TUN_DNS, 32)
                 addRoute(TUN_GATEWAY, 32)
-                if (store.allowIpv6) {
+                if (store.ipv6Mode == Ipv6Mode.Proxy) {
                     addRoute(TUN_DNS6, 128)
                 }
             } else {
                 addRoute(NET_ANY, 0)
-                if (store.allowIpv6) {
+                if (store.ipv6Mode == Ipv6Mode.Proxy) {
                     addRoute(NET_ANY6, 0)
                 }
             }
 
             // Access Control
-            when (store.accessControlMode) {
+            when (AccessControlMode.valueOf(store.accessControlMode)) {
                 AccessControlMode.AcceptAll -> Unit
                 AccessControlMode.AcceptSelected -> {
                     (store.accessControlPackages + packageName).forEach {
@@ -222,7 +214,7 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
 
             // Virtual Dns Server
             addDnsServer(TUN_DNS)
-            if (store.allowIpv6) {
+            if (store.ipv6Mode == Ipv6Mode.Proxy) {
                 addDnsServer(TUN_DNS6)
             }
 
@@ -262,9 +254,9 @@ class TunService : VpnService(), CoroutineScope by CoroutineScope(Dispatchers.De
                 fd = establish()?.detachFd()
                     ?: throw NullPointerException("Establish VPN rejected by system"),
                 stack = store.tunStackMode,
-                gateway = "$TUN_GATEWAY/$TUN_SUBNET_PREFIX" + if (store.allowIpv6) ",$TUN_GATEWAY6/$TUN_SUBNET_PREFIX6" else "",
-                portal = TUN_PORTAL + if (store.allowIpv6) ",$TUN_PORTAL6" else "",
-                dns = if (store.dnsHijacking) NET_ANY else (TUN_DNS + if (store.allowIpv6) ",$TUN_DNS6" else ""),
+                gateway = "$TUN_GATEWAY/$TUN_SUBNET_PREFIX" + if (store.ipv6Mode == Ipv6Mode.Proxy) ",$TUN_GATEWAY6/$TUN_SUBNET_PREFIX6" else "",
+                portal = TUN_PORTAL + if (store.ipv6Mode == Ipv6Mode.Proxy) ",$TUN_PORTAL6" else "",
+                dns = if (store.dnsHijacking) NET_ANY else (TUN_DNS + if (store.ipv6Mode == Ipv6Mode.Proxy) ",$TUN_DNS6" else ""),
                 mtu = mtu,
             )
         }

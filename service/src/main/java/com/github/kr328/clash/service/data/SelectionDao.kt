@@ -6,6 +6,15 @@ import java.util.*
 @Dao
 @TypeConverters(Converters::class)
 interface SelectionDao {
+    @Query("SELECT * FROM selections")
+    suspend fun queryAll(): List<Selection>
+
+    @Query("DELETE FROM selections")
+    suspend fun clearAllRows()
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(rows: List<Selection>)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun setSelected(selection: Selection)
 

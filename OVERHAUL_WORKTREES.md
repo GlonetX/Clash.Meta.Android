@@ -1,3 +1,5 @@
+> **Historical document:** The phases A–D contract below applied to the earlier XML-only overhaul. The current Compose migration explicitly supersedes its UI-only restrictions: backend, persistence, JNI and narrowly scoped core changes are in scope. Preserve the existing design assets and user data; coordinate shared API ownership and validate changes before removing legacy UI.
+
 # Worktree Contract (phases A–D)
 
 `feature/ui-overhaul` carries the frozen design system from phase 0

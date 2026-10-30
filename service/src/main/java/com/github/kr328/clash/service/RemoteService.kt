@@ -40,6 +40,12 @@ class RemoteService : BaseService(), IRemoteService {
         return clashBinder!!
     }
 
+    override fun settings(): com.github.kr328.clash.service.remote.ISettingsManager =
+        com.github.kr328.clash.service.settings.SettingsManager.get(this).wrap() as com.github.kr328.clash.service.remote.ISettingsManager
+
+    override fun backup(): com.github.kr328.clash.service.remote.IBackupManager =
+        com.github.kr328.clash.service.backup.BackupManager.get(this).wrap() as com.github.kr328.clash.service.remote.IBackupManager
+
     override fun profile(): IProfileManager {
         return profileBinder!!
     }

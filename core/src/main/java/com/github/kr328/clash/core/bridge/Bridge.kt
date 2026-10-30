@@ -13,6 +13,8 @@ object Bridge {
     external fun nativeReset()
     external fun nativeForceGc()
     external fun nativeSuspend(suspend: Boolean)
+    external fun nativeSetTrafficPolicy(policy: Int)
+    external fun nativeSetRuntimeSettings(settings: String)
     external fun nativeQueryTunnelState(): String
     external fun nativeQueryTrafficNow(): Long
     external fun nativeQueryTrafficTotal(): Long

@@ -1,6 +1,6 @@
-import android.databinding.tool.ext.capitalizeUS
 import com.github.kr328.golang.GolangBuildTask
 import com.github.kr328.golang.GolangPlugin
+import java.util.Locale
 
 plugins {
     kotlin("android")
@@ -70,8 +70,9 @@ androidComponents.onVariants { variant ->
     abis.forEach { (abi, goAbi) ->
         tasks.configureEach {
             if (name.startsWith("buildCMake$cmakeName[$abi]")) {
-                dependsOn("externalGolangBuild${variant.name.capitalizeUS()}$goAbi")
-                println("Set up dependency: $name -> externalGolangBuild${variant.name.capitalizeUS()}$goAbi")
+                val variantName = variant.name.replaceFirstChar { it.titlecase(Locale.US) }
+                dependsOn("externalGolangBuild${variantName}$goAbi")
+                println("Set up dependency: $name -> externalGolangBuild${variantName}$goAbi")
             }
         }
     }

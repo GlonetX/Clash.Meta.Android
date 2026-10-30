@@ -57,18 +57,28 @@ object AppUpdate {
      * Compares dotted version strings segment by segment, numerically.
      */
     fun isNewer(current: String, remote: String): Boolean {
-        val a = current.split('.').map { it.toIntOrNull() ?: 0 }
-        val b = remote.split('.').map { it.toIntOrNull() ?: 0 }
-
-        for (i in 0 until maxOf(a.size, b.size)) {
-            val x = a.getOrNull(i) ?: 0
-            val y = b.getOrNull(i) ?: 0
-
-            if (x != y)
-                return y > x
+        fun parts(value: String): List<Int>? {
+            val match = Regex("^v?(\\d+(?:\\.\\d+){2,3})(?:[.-](?:Alpha|debug))*$", RegexOption.IGNORE_CASE)
+                .matchEntire(value) ?: return null
+            return match.groupValues[1].split('.').map { it.toIntOrNull() ?: return null }
         }
-
+        val a = parts(current) ?: return false
+        val b = parts(remote) ?: return false
+        for (i in 0 until maxOf(a.size, b.size)) {
+            val x = a.getOrElse(i) { 0 }
+            val y = b.getOrElse(i) { 0 }
+            if (x != y) return y > x
+        }
         return false
+    }
+
+    /** Prereleases use a fixed tag, so their signed APK filename carries the version. */
+    internal fun releaseVersion(tag: String, assetName: String): String? {
+        val tagVersion = tag.removePrefix("v")
+        if (tagVersion.matches(Regex("\\d+(?:\\.\\d+){2,3}"))) return tagVersion
+        if (tag != "Prerelease-alpha") return null
+        return Regex("^.+?-(\\d+(?:\\.\\d+){2,3})-alpha-.+\\.apk$", RegexOption.IGNORE_CASE)
+            .matchEntire(assetName)?.groupValues?.get(1)
     }
 
     suspend fun checkUpdate(
@@ -87,10 +97,6 @@ object AppUpdate {
                     return@withContext null
 
                 val tagName = release.optString("tag_name")
-                val versionName = tagName.removePrefix("v")
-
-                if (versionName.isBlank() || !isNewer(currentVersionName(context), versionName))
-                    return@withContext null
 
                 val abi = if (Build.SUPPORTED_ABIS.isEmpty()) "arm64-v8a" else Build.SUPPORTED_ABIS[0]
                 val preferred = if (abi == "armeabi-v7a") "armeabi-v7a" else abi
@@ -100,8 +106,13 @@ object AppUpdate {
                 val asset = assets.firstAsset {
                     // exclude the `<apk>.sha256` sidecar assets — their names
                     // contain the ABI marker too
-                    it.optString("name").endsWith(".apk") && it.optString("name").contains(preferred)
+                    val name = it.optString("name")
+                    name.endsWith(".apk", ignoreCase = true) && name.contains(preferred) &&
+                        name.contains("-${com.github.kr328.clash.BuildConfig.FLAVOR}-", ignoreCase = true)
                 } ?: return@withContext null
+
+                val versionName = releaseVersion(tagName, asset.optString("name")) ?: return@withContext null
+                if (!isNewer(currentVersionName(context), versionName)) return@withContext null
 
                 val apkUrl = asset.optString("browser_download_url")
 
@@ -246,7 +257,7 @@ object AppUpdate {
 
                     connection.inputStream.use { input ->
                         file.outputStream().use { output ->
-                            val total = connection.contentLengthLong
+                            val total = connection.getHeaderField("Content-Length")?.toLongOrNull() ?: -1L
                             var copied = 0L
                             val buffer = ByteArray(64 * 1024)
 

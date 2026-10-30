@@ -17,6 +17,15 @@ class LogcatWriter(context: Context) : AutoCloseable {
     private var writer = openWriter(file)
     private var writtenBytes = 0L
     private var pendingMessages = 0
+    private var maxFileBytes = 20L * 1024 * 1024
+    private var retentionDays = 7
+
+    fun applyPolicy(days: Int, sizeMb: Int) {
+        val nextDays = days.coerceIn(1, 365)
+        val nextBytes = sizeMb.coerceIn(1, 1024).toLong() * 1024 * 1024
+        if (retentionDays != nextDays) { retentionDays = nextDays; pruneOldLogs() }
+        maxFileBytes = nextBytes
+    }
     private var lastFlushTime = System.currentTimeMillis()
 
     init {
@@ -49,7 +58,7 @@ class LogcatWriter(context: Context) : AutoCloseable {
             pendingMessages = 0
         }
 
-        if (writtenBytes >= MAX_FILE_BYTES) {
+        if (writtenBytes >= maxFileBytes) {
             rotate()
         }
     }
@@ -109,8 +118,10 @@ class LogcatWriter(context: Context) : AutoCloseable {
                         (child.name.endsWith(LOG_FILE_SUFFIX) || child.name.endsWith(ROTATED_SUFFIX))
             } ?: return@runCatching
 
-            files.sortedByDescending { it.lastModified() }
-                .drop(MAX_LOG_FILES)
+            val active = logsDir.resolve(file.fileName).absolutePath
+            val candidates = files.filter { it.absolutePath != active }.sortedByDescending { it.lastModified() }
+            val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
+            candidates.filterIndexed { index, stale -> index >= MAX_LOG_FILES - 1 || stale.lastModified() < cutoff }
                 .forEach { stale ->
                     if (!stale.delete()) {
                         Log.w("Fail to delete old log file ${stale.name}")

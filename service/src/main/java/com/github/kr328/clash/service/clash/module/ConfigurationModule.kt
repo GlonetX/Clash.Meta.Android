@@ -61,6 +61,14 @@ class ConfigurationModule(service: Service) : Module<ConfigurationModule.LoadExc
 
                 Clash.setAgeSecretKey(active.ageSecretKey?.takeIf { it.isNotBlank() })
 
+                if (active.sourceRestricted) {
+                    val overrideFile = java.io.File(service.filesDir, "clash/override.json")
+                    val override = if (overrideFile.isFile) overrideFile.readText() else "{}"
+                    com.github.kr328.clash.service.security.ExternalProfileDownload.validateProviders(
+                        service.importedDir.resolve(active.uuid.toString()).resolve("config.yaml"), active.ageSecretKey, override
+                    )
+                }
+
                 Clash.load(service.importedDir.resolve(active.uuid.toString())).await()
 
                 val remove = SelectionDao().querySelections(active.uuid)

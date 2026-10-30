@@ -48,6 +48,16 @@ Java_com_github_kr328_clash_core_bridge_Bridge_nativeSuspend(JNIEnv *env, jobjec
 }
 
 
+JNIEXPORT void JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeSetTrafficPolicy(JNIEnv *env, jobject thiz, jint policy) {
+    setTrafficPolicy((int) policy);
+}
+JNIEXPORT void JNICALL
+Java_com_github_kr328_clash_core_bridge_Bridge_nativeSetRuntimeSettings(JNIEnv *env, jobject thiz, jstring settings) {
+    scoped_string _settings = get_string(settings);
+    setRuntimeSettings(_settings);
+}
+
 JNIEXPORT jstring JNICALL
 Java_com_github_kr328_clash_core_bridge_Bridge_nativeQueryTunnelState(JNIEnv *env, jobject thiz) {
     TRACE_METHOD();

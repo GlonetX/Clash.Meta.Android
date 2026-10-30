@@ -8,6 +8,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ConfigurationOverride(
+    @SerialName("global-ua")
+    var globalUserAgent: String? = null,
+
+    @SerialName("disable-keep-alive")
+    var disableKeepAlive: Boolean? = null,
+
+    @SerialName("keep-alive-interval")
+    var keepAliveInterval: Int? = null,
+
+    @SerialName("keep-alive-idle")
+    var keepAliveIdle: Int? = null,
+
+    @SerialName("profile")
+    val profile: Profile = Profile(),
+
     @SerialName("port")
     var httpPort: Int? = null,
 
@@ -80,6 +95,11 @@ data class ConfigurationOverride(
     @SerialName("geox-url")
     val geoxurl: GeoXUrl = GeoXUrl(),
 ) : Parcelable {
+    @Serializable
+    data class Profile(
+        @SerialName("store-fake-ip") var storeFakeIp: Boolean? = null,
+    )
+
     @Serializable
     data class Dns(
         @SerialName("enable")

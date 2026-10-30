@@ -4,6 +4,7 @@ import android.content.Context
 import com.github.kr328.clash.common.log.Log
 import com.github.kr328.clash.core.Clash
 import com.github.kr328.clash.core.model.*
+import com.github.kr328.clash.service.backup.DataMaintenanceCoordinator
 import com.github.kr328.clash.service.data.Selection
 import com.github.kr328.clash.service.data.SelectionDao
 import com.github.kr328.clash.service.remote.IClashManager
@@ -58,7 +59,7 @@ class ClashManager(private val context: Context) : IClashManager,
     }
 
     override fun patchSelector(group: String, name: String): Boolean {
-        return Clash.patchSelector(group, name).also {
+        return runBlocking { DataMaintenanceCoordinator.exclusive(context) { Clash.patchSelector(group, name).also {
             val current = store.activeProfile ?: return@also
 
             if (it) {
@@ -66,17 +67,18 @@ class ClashManager(private val context: Context) : IClashManager,
             } else {
                 SelectionDao().removeSelected(current, group)
             }
-        }
+        } } }
     }
 
     override fun patchOverride(slot: Clash.OverrideSlot, configuration: ConfigurationOverride) {
-        Clash.patchOverride(slot, configuration)
-
-        context.sendOverrideChanged()
+        runBlocking { DataMaintenanceCoordinator.exclusive(context) {
+            Clash.patchOverride(slot, configuration)
+            context.sendOverrideChanged()
+        } }
     }
 
     override fun clearOverride(slot: Clash.OverrideSlot) {
-        Clash.clearOverride(slot)
+        runBlocking { DataMaintenanceCoordinator.exclusive(context) { Clash.clearOverride(slot) } }
     }
 
     override suspend fun healthCheck(group: String) {

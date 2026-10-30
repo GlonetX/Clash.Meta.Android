@@ -1,5 +1,8 @@
 package com.github.kr328.clash.service
 
+import com.github.kr328.clash.service.backup.DataMaintenanceCoordinator
+import android.os.Handler
+import android.os.Looper
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Build
@@ -50,6 +53,7 @@ class FilesProvider : DocumentsProvider() {
         val m = ParcelFileDescriptor.parseMode(mode)
 
         return runBlocking {
+            DataMaintenanceCoordinator.exclusive(context!!) {
             val path = Paths.resolve(documentId ?: "/")
 
             val document = picker.pick(path, mode?.requestWrite ?: true)
@@ -58,7 +62,16 @@ class FilesProvider : DocumentsProvider() {
                 throw FileNotFoundException("invalid path $documentId")
             }
 
-            ParcelFileDescriptor.open(document.file, m)
+            if (mode?.requestWrite != false) {
+                DataMaintenanceCoordinator.openedWriter()
+                try {
+                    ParcelFileDescriptor.open(document.file, m, Handler(Looper.getMainLooper())) {
+                        DataMaintenanceCoordinator.closedWriter()
+                    }
+                } catch (e: Throwable) { DataMaintenanceCoordinator.closedWriter(); throw e }
+            } else ParcelFileDescriptor.open(document.file, m)
+
+            }
         }
     }
 
@@ -66,6 +79,7 @@ class FilesProvider : DocumentsProvider() {
         val documentPath = documentId ?: "/"
 
         runBlocking {
+            DataMaintenanceCoordinator.exclusive(context!!) {
             val path = Paths.resolve(documentPath)
 
             if (path.relative == null)
@@ -78,6 +92,8 @@ class FilesProvider : DocumentsProvider() {
             }
 
             document.file.deleteRecursively()
+
+            }
         }
     }
 
@@ -88,6 +104,7 @@ class FilesProvider : DocumentsProvider() {
             throw IllegalArgumentException("invalid name $displayName")
 
         return runBlocking {
+            DataMaintenanceCoordinator.exclusive(context!!) {
             val path = Paths.resolve(documentId ?: "/")
 
             if (path.relative == null)
@@ -108,6 +125,8 @@ class FilesProvider : DocumentsProvider() {
             document.file.renameTo(parent.resolve(name))
 
             path.copy(relative = path.relative.dropLast(1) + name).toString()
+
+            }
         }
     }
 
@@ -117,6 +136,7 @@ class FilesProvider : DocumentsProvider() {
         sortOrder: String?
     ): Cursor {
         return runBlocking {
+            DataMaintenanceCoordinator.exclusive(context!!) {
             try {
                 val doc = parentDocumentId ?: "/"
                 val path = Paths.resolve(doc)
@@ -131,11 +151,14 @@ class FilesProvider : DocumentsProvider() {
             } catch (e: Exception) {
                 MatrixCursor(resolveDocumentProjection(projection))
             }
+
+            }
         }
     }
 
     override fun queryDocument(documentId: String?, projection: Array<out String>?): Cursor {
         return runBlocking {
+            DataMaintenanceCoordinator.exclusive(context!!) {
             try {
                 val doc = documentId ?: "/"
                 val path = Paths.resolve(doc)
@@ -146,6 +169,8 @@ class FilesProvider : DocumentsProvider() {
                 }
             } catch (e: Exception) {
                 MatrixCursor(resolveDocumentProjection(projection))
+            }
+
             }
         }
     }

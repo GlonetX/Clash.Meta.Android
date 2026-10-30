@@ -17,8 +17,9 @@ import (
 )
 
 var processors = []processor{
-	patchExternalController, // must before patchOverride, so we only apply ExternalController in Override settings
+	patchExternalController, // only allow external controllers from explicit overrides
 	patchOverride,
+	patchRuntimeSettings,
 	patchGeneral,
 	patchProfile,
 	patchDns,
@@ -60,7 +61,7 @@ func patchGeneral(cfg *config.RawConfig, profileDir string) error {
 
 func patchProfile(cfg *config.RawConfig, _ string) error {
 	cfg.Profile.StoreSelected = false
-	cfg.Profile.StoreFakeIP = true
+	// RuntimeSettings supplies the default and the explicit user choice.
 
 	return nil
 }

@@ -17,6 +17,7 @@ object Intents {
     val ACTION_TOGGLE_CLASH = "$PUBLIC_PREFIX.TOGGLE_CLASH"
 
     const val EXTRA_NAME = "name"
+    const val EXTRA_NAV_ROUTE = "com.glonetx.android.NAV_ROUTE"
 
     // Self
     val ACTION_SERVICE_RECREATED = "$packageName.intent.action.CLASH_RECREATED"

@@ -17,6 +17,11 @@ import com.github.kr328.clash.core.util.trafficDownload
 import com.github.kr328.clash.core.util.trafficUpload
 import com.github.kr328.clash.service.R
 import com.github.kr328.clash.service.StatusProvider
+import com.github.kr328.clash.service.settings.SettingsManager
+import com.github.kr328.clash.service.settings.NotificationStyle
+import com.github.kr328.clash.service.settings.TrafficPolicy
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.selects.select
@@ -29,7 +34,10 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
         .setColor(service.getColorCompat(R.color.color_clash))
         .setOnlyAlertOnce(true)
         .setShowWhen(false)
-        .setContentTitle("Not Selected")
+        .setContentTitle(service.getString(R.string.loading))
+        .addAction(0, service.getString(R.string.network_policy_stop), PendingIntent.getBroadcast(
+            service, R.id.nf_clash_status, Intent(Intents.ACTION_CLASH_REQUEST_STOP).setPackage(service.packageName),
+            pendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)))
         .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
         .setContentIntent(
             PendingIntent.getActivity(
@@ -41,42 +49,31 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
             )
         )
 
+    private val settingsManager = SettingsManager.get(service)
     private val notificationManager = NotificationManagerCompat.from(service)
 
     /** Text of the last posted notification, used to skip no-op updates. */
     private var lastSignature: String? = null
 
     private fun update() {
-        val now = Clash.queryTrafficNow()
-        val total = Clash.queryTrafficTotal()
-
-        val uploading = now.trafficUpload()
-        val downloading = now.trafficDownload()
-        val uploaded = total.trafficUpload()
-        val downloaded = total.trafficDownload()
-
-        val signature = "$uploading|$downloading|$uploaded|$downloaded"
-
-        if (signature == lastSignature)
-            return
-
-        val notification = builder
-            .setContentText(
-                service.getString(
-                    R.string.clash_notification_content,
-                    "$uploading/s", "$downloading/s"
-                )
-            )
-            .setSubText(
-                service.getString(
-                    R.string.clash_notification_content,
-                    uploaded, downloaded
-                )
-            )
-            .build()
-
-        notificationManager.notify(R.id.nf_clash_status, notification)
-
+        val state = settingsManager.current()
+        val settings = state.desired
+        val title = StatusProvider.currentProfile ?: service.getString(R.string.loading)
+        val dynamic = settings.dynamicNotification && settings.notificationStyle != NotificationStyle.Minimal
+        val now = if (dynamic) Clash.queryTrafficNow() else 0L
+        val total = if (dynamic && settings.notificationStyle == NotificationStyle.Default) Clash.queryTrafficTotal() else 0L
+        val text = when (state.trafficPolicy) {
+            TrafficPolicy.Paused -> service.getString(R.string.network_policy_paused)
+            TrafficPolicy.Direct -> service.getString(R.string.network_policy_direct)
+            else -> if (dynamic) service.getString(R.string.clash_notification_content,
+                "${now.trafficUpload()}/s", "${now.trafficDownload()}/s") else service.getString(R.string.running)
+        }
+        val subText = if (dynamic && settings.notificationStyle == NotificationStyle.Default)
+            service.getString(R.string.clash_notification_content, total.trafficUpload(), total.trafficDownload()) else null
+        val signature = "$title|$text|$subText|${settings.notificationStyle}"
+        if (signature == lastSignature) return
+        notificationManager.notify(R.id.nf_clash_status,
+            builder.setContentTitle(title).setContentText(text).setSubText(subText).build())
         lastSignature = signature
     }
 
@@ -92,10 +89,13 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
             addAction(Intents.ACTION_PROFILE_LOADED)
         }
 
+        val settingsChanged = Channel<Unit>(Channel.CONFLATED)
+        launch { settingsManager.state.collect { settingsChanged.trySend(Unit) } }
         val ticker = ticker(TimeUnit.SECONDS.toMillis(2))
 
         while (true) {
             select<Unit> {
+                settingsChanged.onReceive { update() }
                 screenToggle.onReceive {
                     when (it.action) {
                         Intent.ACTION_SCREEN_ON ->
@@ -110,6 +110,7 @@ class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
                     // The title is part of the posted notification; force the
                     // next tick to publish it even if the traffic is unchanged.
                     lastSignature = null
+                    update()
                 }
                 if (shouldUpdate) {
                     ticker.onReceive {

@@ -1,5 +1,6 @@
 package com.github.kr328.clash.service
 
+import com.github.kr328.clash.service.backup.DataMaintenanceCoordinator
 import android.content.Context
 import com.github.kr328.clash.service.data.Database
 import com.github.kr328.clash.service.data.Imported
@@ -28,6 +29,7 @@ class ProfileManager(private val context: Context) : IProfileManager,
 
     init {
         launch {
+            DataMaintenanceCoordinator.ensureReady(context)
             Database.database //.init
 
             ProfileReceiver.rescheduleAll(context)
@@ -35,6 +37,7 @@ class ProfileManager(private val context: Context) : IProfileManager,
     }
 
     override suspend fun create(type: Profile.Type, name: String, source: String, ageSecretKey: String?): UUID {
+        return DataMaintenanceCoordinator.exclusive(context) {
         val uuid = generateProfileUUID()
         val pending = Pending(
             uuid = uuid,
@@ -60,10 +63,13 @@ class ProfileManager(private val context: Context) : IProfileManager,
             resolve("providers").mkdir()
         }
 
-        return uuid
+        return@exclusive uuid
+
+        }
     }
 
     override suspend fun clone(uuid: UUID): UUID {
+        return DataMaintenanceCoordinator.exclusive(context) {
         val newUUID = generateProfileUUID()
 
         val imported = ImportedDao().queryByUUID(uuid)
@@ -79,17 +85,21 @@ class ProfileManager(private val context: Context) : IProfileManager,
             total = imported.total,
             download = imported.download,
             expire = imported.expire,
-            ageSecretKey = imported.ageSecretKey
+            ageSecretKey = imported.ageSecretKey,
+            sourceRestricted = imported.sourceRestricted
         )
 
         cloneImportedFiles(uuid, newUUID)
 
         PendingDao().insert(pending)
 
-        return newUUID
+        return@exclusive newUUID
+
+        }
     }
 
     override suspend fun patch(uuid: UUID, name: String, source: String, interval: Long, ageSecretKey: String?) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         val pending = PendingDao().queryByUUID(uuid)
 
         if (pending == null) {
@@ -110,6 +120,7 @@ class ProfileManager(private val context: Context) : IProfileManager,
                     download = 0,
                     expire = 0,
                     ageSecretKey = ageSecretKey,
+                    sourceRestricted = imported.sourceRestricted,
                 )
             )
         } else {
@@ -126,36 +137,54 @@ class ProfileManager(private val context: Context) : IProfileManager,
 
             PendingDao().update(newPending)
         }
+
+        }
     }
 
     override suspend fun update(uuid: UUID) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         scheduleUpdate(uuid, true)
+
+        }
     }
 
     override suspend fun commit(uuid: UUID, callback: IFetchObserver?) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         ProfileProcessor.apply(context, uuid, callback)
 
         scheduleUpdate(uuid, false)
+
+        }
     }
 
     override suspend fun release(uuid: UUID) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         ProfileProcessor.release(context, uuid)
+
+        }
     }
 
     override suspend fun delete(uuid: UUID) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         ImportedDao().queryByUUID(uuid)?.also {
             ProfileReceiver.cancelNext(context, it)
         }
 
         ProfileProcessor.delete(context, uuid)
+
+        }
     }
 
     override suspend fun queryByUUID(uuid: UUID): Profile? {
-        return resolveProfile(uuid)
+        return DataMaintenanceCoordinator.exclusive(context) {
+        return@exclusive resolveProfile(uuid)
+
+        }
     }
 
     override suspend fun queryAll(): List<Profile> {
-        return withContext(Dispatchers.IO) {
+        return DataMaintenanceCoordinator.exclusive(context) {
+        return@exclusive withContext(Dispatchers.IO) {
             val importedMap = ImportedDao().queryAll().associateBy { it.uuid }
             val pendingMap = PendingDao().queryAll().associateBy { it.uuid }
             val uuids = (ImportedDao().queryAllUUIDs() + PendingDao().queryAllUUIDs()).distinct()
@@ -164,20 +193,46 @@ class ProfileManager(private val context: Context) : IProfileManager,
                 buildProfile(uuid, importedMap[uuid], pendingMap[uuid])
             }
         }
+
+        }
     }
 
     override suspend fun queryActive(): Profile? {
-        val active = store.activeProfile ?: return null
+        return DataMaintenanceCoordinator.exclusive(context) {
+        val active = store.activeProfile ?: return@exclusive null
 
-        return if (ImportedDao().exists(active)) {
+        return@exclusive if (ImportedDao().exists(active)) {
             resolveProfile(active)
         } else {
             null
         }
+
+        }
     }
 
     override suspend fun setActive(profile: Profile) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         ProfileProcessor.active(context, profile.uuid)
+
+        }
+    }
+
+
+    override suspend fun createRestricted(name: String, source: String): UUID = DataMaintenanceCoordinator.exclusive(context) {
+        val id = create(Profile.Type.Url, name, source)
+        val pending = PendingDao().queryByUUID(id) ?: error("Missing pending profile")
+        PendingDao().update(pending.copy(sourceRestricted = true))
+        id
+    }
+
+    override suspend fun updateOnLaunch() = DataMaintenanceCoordinator.exclusive(context) {
+        if (!com.github.kr328.clash.service.settings.SettingsManager.get(context).getSnapshot().desired.updateSubscriptionsOnStart)
+            return@exclusive
+        val now = System.currentTimeMillis()
+        ImportedDao().queryAll().filter { it.type != Profile.Type.File && it.interval >= 15 * 60_000L }.forEach { row ->
+            val last = context.importedDir.resolve(row.uuid.toString()).resolve("config.yaml").lastModified()
+            if (last > 0 && now - last >= row.interval) ProfileReceiver.schedule(context, row)
+        }
     }
 
     private suspend fun resolveProfile(uuid: UUID): Profile? {
@@ -213,6 +268,7 @@ class ProfileManager(private val context: Context) : IProfileManager,
             imported = imported != null,
             pending = pending != null,
             ageSecretKey = if (pending != null) pending.ageSecretKey else imported?.ageSecretKey,
+            sourceRestricted = pending?.sourceRestricted ?: imported?.sourceRestricted ?: false,
         )
     }
 

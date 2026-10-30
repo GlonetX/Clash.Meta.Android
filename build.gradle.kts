@@ -15,6 +15,7 @@ buildscript {
         classpath(libs.build.android)
         classpath(libs.build.kotlin.common)
         classpath(libs.build.kotlin.serialization)
+        classpath("org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.1.0")
         classpath(libs.build.ksp)
         classpath(libs.build.golang)
     }
@@ -56,11 +57,11 @@ subprojects {
                 else "com.github.kr328.clash.$name"
             }
 
-            minSdk = 21
+            minSdk = 23
             targetSdk = 35
 
-            versionName = "12.12.1"
-            versionCode = 121200101
+            versionName = "12.12.2"
+            versionCode = 121200201
 
             resValue("string", "release_name", "v$versionName")
             resValue("integer", "release_code", "$versionCode")
@@ -127,7 +128,7 @@ subprojects {
                 resValue("string", "application_name", "@string/application_name_meta")
 
                 // No id or version suffix: this flavor is the stable release and
-                // ships as io.github.glonetx.android, versionName 12.12.1.
+                // ships as io.github.glonetx.android, versionName 12.12.2.
             }
         }
 
@@ -160,7 +161,7 @@ subprojects {
             named("release") {
                 isMinifyEnabled = isApp
                 isShrinkResources = isApp
-                signingConfig = signingConfigs.findByName("release") ?: signingConfigs["debug"]
+                signingConfig = signingConfigs.findByName("release")
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
@@ -168,12 +169,6 @@ subprojects {
             }
             named("debug") {
                 versionNameSuffix = ".debug"
-            }
-        }
-
-        buildFeatures.apply {
-            dataBinding {
-                isEnabled = name != "hideapi"
             }
         }
 
@@ -210,5 +205,13 @@ tasks.wrapper {
 
         file("gradle/wrapper/gradle-wrapper.properties")
             .appendText("distributionSha256Sum=$sha256")
+    }
+}
+// Release artifacts must never silently fall back to the public debug key.
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.path.startsWith(":app:") &&
+            (it.name.startsWith("assemble") || it.name.startsWith("bundle")) &&
+            it.name.contains("Release") } && !rootProject.file("signing.properties").isFile) {
+        throw GradleException("Release signing is not configured: signing.properties is required")
     }
 }

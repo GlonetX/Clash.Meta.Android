@@ -96,11 +96,17 @@ class StatusProvider : ContentProvider() {
 
             currentServiceId = id
             serviceAlive = true
-            serviceRunning = true
+            serviceRunning = false
 
             shouldStartClashOnBoot = true
 
             return id
+        }
+
+        fun ownsService(id: Int): Boolean = id != 0 && currentServiceId == id
+
+        fun markRunning(id: Int) {
+            if (currentServiceId == id && serviceAlive) serviceRunning = true
         }
 
         /**

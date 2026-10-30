@@ -1,7 +1,5 @@
 package com.github.kr328.clash.design.model
 
-import com.github.kr328.clash.core.model.ProbeResult
-import com.github.kr328.clash.design.settings.SettingsStore
 
 /**
  * The streaming-service probe list — the one source of truth for the
@@ -60,47 +58,4 @@ object ProbeServices {
 
     val names: List<String> = ALL.map { it.name }
 
-    private val byName: Map<String, Service> = ALL.associateBy { it.name }
-
-    /**
-     * The services to probe, in the configured order, honouring the
-     * `probe_service_order` / `probe_service_enabled` settings.
-     *
-     * Until the user has saved the probe-services editor at least once
-     * (the stored order is still empty), an empty enabled-set means
-     * "every service" — the behaviour before the setting existed — so a
-     * fresh install keeps probing all of them. Afterwards the set is
-     * literal and may be empty.
-     */
-    fun resolve(settings: SettingsStore): List<Service> {
-        val order = settings.probeServiceOrder(names)
-
-        val enabled = settings.probeServiceEnabled
-
-        val effective =
-            if (enabled.isEmpty() && settings.probeServiceOrderRaw.isEmpty())
-                order
-            else
-                order.filter { it in enabled }
-
-        return effective.mapNotNull { byName[it] }
-    }
-
-    /**
-     * Fold a raw probe result into a display availability. The latency
-     * screen's classification is the reference; the dashboard shares it.
-     */
-    fun classify(service: Service, result: ProbeResult?): ServiceAvailability {
-        if (result == null)
-            return ServiceAvailability.FAILED
-
-        if (result.code < 0)
-            return ServiceAvailability.TIMEOUT
-
-        return when (result.code) {
-            in service.okCodes -> ServiceAvailability.OK
-            in service.restrictedCodes -> ServiceAvailability.RESTRICTED
-            else -> ServiceAvailability.BLOCKED
-        }
-    }
 }

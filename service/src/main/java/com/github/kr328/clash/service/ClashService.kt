@@ -1,5 +1,11 @@
 package com.github.kr328.clash.service
 
+import com.github.kr328.clash.service.settings.SettingsManager
+import com.github.kr328.clash.service.settings.Ipv6Mode
+import com.github.kr328.clash.service.settings.RuntimeSettings
+import com.github.kr328.clash.service.backup.DataMaintenanceCoordinator
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.CancellationException
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
@@ -28,50 +34,41 @@ class ClashService : BaseService() {
     private var ownsCore = false
 
     private val runtime = clashRuntime {
-        val store = ServiceStore(self)
-
-        val close = install(CloseModule(self))
-        val config = install(ConfigurationModule(self))
-        val network = install(NetworkObserveModule(self))
-
-        if (store.dynamicNotification)
-            install(DynamicNotificationModule(self))
-        else
-            install(StaticNotificationModule(self))
-
-        install(AppListCacheModule(self))
-        install(TimeZoneModule(self))
-        install(SuspendModule(self))
-
+        val settings = SettingsManager.get(self)
         try {
+            DataMaintenanceCoordinator.ensureReady(self)
+            val startup = settings.beginRuntime(serviceId.toLong())
+            val close = install(CloseModule(self))
+            val config = install(ConfigurationModule(self))
+            val network = install(NetworkObserveModule(self))
+            val policy = install(NetworkPolicyModule(self, serviceId.toLong()))
+            install(DynamicNotificationModule(self))
+            install(AppListCacheModule(self))
+            install(TimeZoneModule(self))
+            install(SuspendModule(self))
+            withTimeout(60_000) { close.ready.await(); config.firstLoad.await(); policy.firstEvaluation.await() }
+            StatusProvider.markRunning(serviceId)
+            settings.markRunning(serviceId.toLong())
+            sendClashStarted()
             while (isActive) {
                 val quit = select<Boolean> {
-                    close.onEvent {
-                        true
-                    }
-                    config.onEvent {
-                        reason = it.message
-
-                        true
-                    }
-                    network.onEvent {
+                    close.onEvent { true }
+                    config.onEvent { reason = it.message; true }
+                    policy.onEvent { reason = it; true }
+                    network.onEvent { n ->
                         false
                     }
                 }
-
                 if (quit) break
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            Log.e("Create clash runtime: ${e.message}", e)
-
-            reason = e.message
+            reason = e.message ?: "Failed to start service"
+            Log.e("Create clash runtime: $reason", e)
         } finally {
-            // Drop the duplicate-instance claim *before* stopSelf() is
-            // dispatched: a start arriving from here on finds no live owner
-            // and takes over, instead of being queued behind this instance's
-            // onDestroy.
+            settings.markStopping(serviceId.toLong())
             StatusProvider.abandonService(serviceId)
-
             withContext(NonCancellable) {
                 stopSelf()
             }
@@ -85,7 +82,7 @@ class ClashService : BaseService() {
         // (boot receiver, sticky redelivery) and must not create a second
         // core. An instance that is tearing down has already dropped its
         // claim, so a stop→start takes over instead of being swallowed.
-        if (StatusProvider.serviceAlive)
+        if (DataMaintenanceCoordinator.restoreInProgress || StatusProvider.serviceAlive)
             return stopSelf()
 
         serviceId = StatusProvider.claimService()
@@ -101,8 +98,7 @@ class ClashService : BaseService() {
         // onCreate bailed out above because another instance owns the core.
         // The framework may still deliver this start command, but there is no
         // runtime behind it, so claiming "running" would be a lie.
-        if (ownsCore)
-            sendClashStarted()
+        // Running is broadcast only after configuration and TUN are ready.
 
         return START_STICKY
     }
@@ -115,8 +111,10 @@ class ClashService : BaseService() {
         // A newer instance may have taken over while this one was dying
         // (stop→start inside the teardown window): its state and its
         // "started" broadcast have to survive this instance's exit.
-        if (StatusProvider.releaseService(serviceId))
+        if (StatusProvider.releaseService(serviceId)) {
+            SettingsManager.get(this).markStopped(serviceId.toLong(), reason)
             sendClashStopped(reason)
+        }
 
         // Cancel without joining. The Go-core teardown (Clash.reset() in the
         // runtime's finally) still runs to completion on Dispatchers.Default,

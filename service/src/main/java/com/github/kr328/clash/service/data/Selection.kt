@@ -1,3 +1,5 @@
+@file:kotlinx.serialization.UseSerializers(com.github.kr328.clash.service.util.UUIDSerializer::class)
+
 package com.github.kr328.clash.service.data
 
 import androidx.room.ColumnInfo
@@ -18,6 +20,7 @@ import java.util.*
     primaryKeys = ["uuid", "proxy"]
 )
 @TypeConverters(Converters::class)
+@kotlinx.serialization.Serializable
 data class Selection(
     @ColumnInfo(name = "uuid") val uuid: UUID,
     @ColumnInfo(name = "proxy") val proxy: String,

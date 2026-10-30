@@ -1,3 +1,5 @@
+> **Compose migration:** The previous View/XML component contract below is retained for migration reference. Compose screens use Material 3 and preserve GlonetX branding, accessible contrast, dynamic color, light, dark and pure-black modes. Legacy components are not the required implementation for new Compose screens.
+
 # Design System Contract
 
 Frozen on `feature/ui-overhaul`. Every page migration in this overhaul must

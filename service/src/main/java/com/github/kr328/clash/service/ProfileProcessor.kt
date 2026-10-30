@@ -1,5 +1,6 @@
 package com.github.kr328.clash.service
 
+import com.github.kr328.clash.service.backup.DataMaintenanceCoordinator
 import android.content.Context
 import android.net.Uri
 import com.github.kr328.clash.common.log.Log
@@ -28,6 +29,7 @@ object ProfileProcessor {
     private val processLock = Mutex()
 
     suspend fun apply(context: Context, uuid: UUID, callback: IFetchObserver? = null) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         withContext(NonCancellable) {
             processLock.withLock {
                 val snapshot = profileLock.withLock {
@@ -48,7 +50,7 @@ object ProfileProcessor {
                 Clash.setAgeSecretKey(snapshot.ageSecretKey?.takeIf { it.isNotBlank() })
 
                 val force = snapshot.type != Profile.Type.File
-                val subscriptionInfo = fetchProfile(context, snapshot.source, force, callback)
+                val subscriptionInfo = fetchProfile(context, snapshot.source, force, callback, snapshot.sourceRestricted, snapshot.ageSecretKey)
 
                 profileLock.withLock {
                     if (PendingDao().queryByUUID(snapshot.uuid) == snapshot) {
@@ -70,7 +72,8 @@ object ProfileProcessor {
                             subscriptionInfo?.subTotal ?: 0,
                             subscriptionInfo?.subExpire ?: 0,
                             old?.createdAt ?: System.currentTimeMillis(),
-                            ageSecretKey = snapshot.ageSecretKey
+                            ageSecretKey = snapshot.ageSecretKey,
+                            sourceRestricted = snapshot.sourceRestricted
                         )
                         if (old != null) {
                             ImportedDao().update(new)
@@ -87,9 +90,12 @@ object ProfileProcessor {
                 }
             }
         }
+
+        }
     }
 
     suspend fun update(context: Context, uuid: UUID, callback: IFetchObserver?) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         withContext(NonCancellable) {
             processLock.withLock {
                 val snapshot = profileLock.withLock {
@@ -107,7 +113,7 @@ object ProfileProcessor {
 
                 Clash.setAgeSecretKey(snapshot.ageSecretKey?.takeIf { it.isNotBlank() })
 
-                val subscriptionInfo = fetchProfile(context, snapshot.source, true, callback)
+                val subscriptionInfo = fetchProfile(context, snapshot.source, true, callback, snapshot.sourceRestricted, snapshot.ageSecretKey)
 
                 profileLock.withLock {
                     val imported = ImportedDao().queryByUUID(snapshot.uuid)
@@ -132,6 +138,8 @@ object ProfileProcessor {
                 }
             }
         }
+
+        }
     }
 
     private suspend fun fetchProfile(
@@ -139,11 +147,22 @@ object ProfileProcessor {
         source: String,
         force: Boolean,
         callback: IFetchObserver?,
+        restricted: Boolean = false,
+        secretKey: String? = null,
     ): FetchStatus? {
-        var subscriptionInfo: FetchStatus? = null
+        var subscriptionInfo: FetchStatus? = if (restricted && force)
+            com.github.kr328.clash.service.security.ExternalProfileDownload.download(context, source, context.processingDir.resolve("config.yaml"))
+        else null
+        if (restricted) {
+            val overrideFile = java.io.File(context.filesDir, "clash/override.json")
+            val override = if (overrideFile.isFile) overrideFile.readText() else "{}"
+            com.github.kr328.clash.service.security.ExternalProfileDownload.validateProviders(
+                context.processingDir.resolve("config.yaml"), secretKey, override
+            )
+        }
         var cb = callback
 
-        Clash.fetchAndValid(context.processingDir, source, force) {
+        Clash.fetchAndValid(context.processingDir, source, force && !restricted) {
             if (it.action == FetchStatus.Action.SubscriptionInfo) {
                 subscriptionInfo = it
                 return@fetchAndValid
@@ -162,10 +181,14 @@ object ProfileProcessor {
     }
 
     suspend fun delete(context: Context, uuid: UUID) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         withContext(NonCancellable) {
             profileLock.withLock {
                 ImportedDao().remove(uuid)
                 PendingDao().remove(uuid)
+
+                val store = ServiceStore(context)
+                if (store.activeProfile == uuid) store.activeProfile = null
 
                 val pending = context.pendingDir.resolve(uuid.toString())
                 val imported = context.importedDir.resolve(uuid.toString())
@@ -176,19 +199,25 @@ object ProfileProcessor {
                 context.sendProfileChanged(uuid)
             }
         }
+
+        }
     }
 
     suspend fun release(context: Context, uuid: UUID): Boolean {
-        return withContext(NonCancellable) {
+        return DataMaintenanceCoordinator.exclusive(context) {
+        return@exclusive withContext(NonCancellable) {
             profileLock.withLock {
                 PendingDao().remove(uuid)
 
                 context.pendingDir.resolve(uuid.toString()).deleteRecursively()
             }
         }
+
+        }
     }
 
     suspend fun active(context: Context, uuid: UUID) {
+        return DataMaintenanceCoordinator.exclusive(context) {
         withContext(NonCancellable) {
             profileLock.withLock {
                 if (ImportedDao().exists(uuid)) {
@@ -199,6 +228,8 @@ object ProfileProcessor {
                     context.sendProfileChanged(uuid)
                 }
             }
+        }
+
         }
     }
 

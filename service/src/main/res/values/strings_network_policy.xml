@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_policy_paused">Traffic paused by Wi-Fi rule</string>
+    <string name="network_policy_direct">Wi-Fi rule: direct connection</string>
+    <string name="network_policy_stop">Stop</string>
+</resources>

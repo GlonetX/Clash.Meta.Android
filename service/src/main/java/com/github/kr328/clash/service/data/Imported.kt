@@ -1,3 +1,5 @@
+@file:kotlinx.serialization.UseSerializers(com.github.kr328.clash.service.util.UUIDSerializer::class)
+
 package com.github.kr328.clash.service.data
 
 import androidx.room.ColumnInfo
@@ -8,6 +10,7 @@ import java.util.*
 
 @Entity(tableName = "imported", primaryKeys = ["uuid"])
 @TypeConverters(Converters::class)
+@kotlinx.serialization.Serializable
 data class Imported(
     @ColumnInfo(name = "uuid") val uuid: UUID,
     @ColumnInfo(name = "name") val name: String,
@@ -20,4 +23,5 @@ data class Imported(
     @ColumnInfo(name = "expire") val expire: Long,
     @ColumnInfo(name = "createdAt") val createdAt: Long,
     @ColumnInfo(name = "ageSecretKey") val ageSecretKey: String? = null,
+    @ColumnInfo(name = "sourceRestricted", defaultValue = "0") val sourceRestricted: Boolean = false,
 )

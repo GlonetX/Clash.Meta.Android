@@ -1,0 +1,5 @@
+<resources>
+    <string name="support_back">返回</string>
+    <string name="support_crash_description">后台服务意外停止。你可以检查诊断日志中的隐私信息后分享日志。</string>
+    <string name="support_share_logs">分享诊断日志</string>
+</resources>

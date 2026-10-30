@@ -68,3 +68,6 @@ google-services.json
 # signing keystore (now provided via CI secrets)
 release.keystore
 release.keystore.old
+
+# Kotlin compiler state
+.kotlin/

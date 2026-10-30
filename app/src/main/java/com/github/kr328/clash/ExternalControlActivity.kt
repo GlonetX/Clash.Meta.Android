@@ -4,13 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import com.github.kr328.clash.common.constants.Intents
-import com.github.kr328.clash.common.util.intent
-import com.github.kr328.clash.common.util.setUUID
-import com.github.kr328.clash.design.MainDesign
-import com.github.kr328.clash.design.settings.SettingsStore
-import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.remote.StatusClient
 import com.github.kr328.clash.service.model.Profile
 import com.github.kr328.clash.util.startClashService
@@ -19,6 +13,10 @@ import com.github.kr328.clash.util.withProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
+import com.github.kr328.clash.remote.Remote
 import java.net.InetAddress
 import java.net.URI
 import java.util.*
@@ -30,13 +28,19 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
         @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
 
-        val settings = SettingsStore(this)
+        launch { handleIntent() }
+    }
+
+    private suspend fun handleIntent() {
+        val manager = withContext(Dispatchers.IO) { Remote.service.remote.get().settings() }
+        val settings = withContext(Dispatchers.IO) { manager.getSnapshot() }
+        val controlToken = withContext(Dispatchers.IO) { manager.getControlToken() }
         // The app's own dynamic shortcuts carry a private token so they keep
         // working when external control is disabled. Other apps cannot read it.
-        val trustedShortcut = settings.externalControlToken.isNotBlank() &&
-                intent.getStringExtra(EXTRA_CONTROL_TOKEN) == settings.externalControlToken
+        val trustedShortcut = controlToken.isNotBlank() &&
+                intent.getStringExtra(EXTRA_CONTROL_TOKEN) == controlToken
 
-        if (!settings.externalControlEnabled && !trustedShortcut) {
+        if (!settings.desired.externalControlEnabled && !trustedShortcut) {
             Toast.makeText(this, R.string.external_control_disabled, Toast.LENGTH_LONG).show()
             finish()
             return
@@ -48,7 +52,7 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
                 val url = uri.getQueryParameter("url") ?: return finish()
 
                 launch {
-                    if (!isSafeProfileUrl(url)) {
+                    if (!withContext(Dispatchers.IO) { isSafeProfileUrl(url) }) {
                         Toast.makeText(
                             this@ExternalControlActivity,
                             R.string.external_control_invalid_url,
@@ -73,11 +77,13 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
                         val updateInterval = if (parsedInterval > 0) parsedInterval.coerceAtLeast(15L) else 0L
                         val intervalMs = java.util.concurrent.TimeUnit.MINUTES.toMillis(updateInterval)
 
-                        create(type, name).also {
+                        createRestricted(name, url).also {
                             patch(it, name, url, intervalMs, null)
                         }
                     }
-                    startActivity(PropertiesActivity::class.intent.setUUID(uuid))
+                    startActivity(Intent(this@ExternalControlActivity, MainActivity::class.java)
+                        .putExtra(MainActivity.EXTRA_NAV_ROUTE, "edit/$uuid")
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
                     finish()
                 }
                 return
@@ -118,7 +124,7 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
             val scheme = parsed.scheme?.lowercase(Locale.ROOT) ?: return false
 
             when (scheme) {
-                "content" -> return true
+                "content" -> return false
                 "http", "https" -> Unit
                 else -> return false
             }
@@ -142,7 +148,8 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
                 it.isLoopbackAddress ||
                     it.isLinkLocalAddress ||
                     it.isSiteLocalAddress ||
-                    it.isAnyLocalAddress
+                    it.isAnyLocalAddress ||
+                    (it.address.size == 16 && (it.address[0].toInt() and 0xfe) == 0xfc)
             }
         } catch (e: Exception) {
             false
@@ -174,6 +181,11 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
     private fun stopClash() {
         stopClashService()
         Toast.makeText(this, R.string.external_control_stopped, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        cancel()
+        super.onDestroy()
     }
 
     override fun finish() {

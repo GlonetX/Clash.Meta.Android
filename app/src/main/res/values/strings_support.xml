@@ -1,0 +1,5 @@
+<resources>
+    <string name="support_back">Back</string>
+    <string name="support_crash_description">The background service stopped unexpectedly. You can share the diagnostic log after reviewing it for private information.</string>
+    <string name="support_share_logs">Share diagnostic log</string>
+</resources>

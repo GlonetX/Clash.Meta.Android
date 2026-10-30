@@ -88,7 +88,15 @@ class LogcatService : Service(), CoroutineScope by CoroutineScope(Dispatchers.De
             return stopSelf()
 
         launch(Dispatchers.IO) {
-            val service = binder.unwrap(IRemoteService::class).clash()
+            val remote = binder.unwrap(IRemoteService::class)
+            val service = remote.clash()
+            val settings = remote.settings()
+            val policy = java.util.concurrent.atomic.AtomicReference(settings.getSnapshot().desired)
+            cache.setCapacity(policy.get().logRealtimeBuffer)
+            val settingsObserver = object : com.github.kr328.clash.service.remote.ISettingsObserver {
+                override fun onChanged(snapshot: com.github.kr328.clash.service.settings.SettingsSnapshot) { policy.set(snapshot.desired) }
+            }
+            settings.addObserver(settingsObserver)
             val channel = Channel<LogMessage>(CACHE_CAPACITY)
 
             try {
@@ -106,6 +114,9 @@ class LogcatService : Service(), CoroutineScope by CoroutineScope(Dispatchers.De
                     while (isActive) {
                         val msg = channel.receive()
 
+                        val currentPolicy = policy.get()
+                        it.applyPolicy(currentPolicy.logRetentionDays, currentPolicy.logMaxSizeMb)
+                        cache.setCapacity(currentPolicy.logRealtimeBuffer)
                         it.appendMessage(msg)
 
                         cache.append(msg)
@@ -116,6 +127,7 @@ class LogcatService : Service(), CoroutineScope by CoroutineScope(Dispatchers.De
             } finally {
                 withContext(NonCancellable) {
                     if (binder.isBinderAlive) {
+                        settings.removeObserver(settingsObserver)
                         service.setLogObserver(null)
                     }
 
@@ -146,7 +158,8 @@ class LogcatService : Service(), CoroutineScope by CoroutineScope(Dispatchers.De
                 PendingIntent.getActivity(
                     this,
                     R.id.nf_logcat_status,
-                    LogcatActivity::class.intent
+                    MainActivity::class.intent
+                        .putExtra(MainActivity.EXTRA_NAV_ROUTE, "log/live")
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
                     pendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)
                 )

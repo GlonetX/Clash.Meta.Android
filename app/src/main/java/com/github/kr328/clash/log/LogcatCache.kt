@@ -10,17 +10,24 @@ class LogcatCache {
 
     private val array = CircularArray<LogMessage>(CAPACITY)
     private val lock = Mutex()
+    private var capacity = 200
+
+    suspend fun setCapacity(value: Int) = lock.withLock {
+        capacity = value.coerceIn(0, 10000)
+        while (array.size() > capacity) { array.removeFromStart(1); removed++; appended = (appended - 1).coerceAtLeast(0) }
+    }
 
     private var removed: Int = 0
     private var appended: Int = 0
 
     suspend fun append(msg: LogMessage) {
         lock.withLock {
-            if (array.size() >= CAPACITY) {
+            if (capacity == 0) return@withLock
+            if (array.size() >= capacity) {
                 array.removeFromStart(1)
 
                 removed++
-                appended--
+                appended = (appended - 1).coerceAtLeast(0)
             }
 
             array.addLast(msg)

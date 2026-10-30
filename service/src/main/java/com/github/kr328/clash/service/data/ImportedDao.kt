@@ -6,6 +6,12 @@ import java.util.*
 @Dao
 @TypeConverters(Converters::class)
 interface ImportedDao {
+    @Query("DELETE FROM imported")
+    suspend fun clearAllRows()
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(rows: List<Imported>)
+
     @Query("SELECT * FROM imported WHERE uuid = :uuid")
     suspend fun queryByUUID(uuid: UUID): Imported?
 

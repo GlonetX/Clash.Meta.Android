@@ -72,3 +72,7 @@ fun CoroutineScope.clashRuntime(block: suspend ClashRuntimeScope.() -> Unit): Cl
         }
     }
 }
+/** Wait until the previous runtime's non-cancellable teardown releases the core. */
+suspend fun awaitClashRuntimeStopped() {
+    globalLock.withLock { }
+}

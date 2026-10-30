@@ -67,47 +67,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Convert and set version env
-        id: process-version
+      - name: Validate version and immutable tag
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag }}
         run: |
-          VERSION_TAG=${{ inputs.release-tag }}
-          VERSION_TAG=${VERSION_TAG#v}                              # remove the 'v' prefix
-          IFS='.' read -ra VERSION_PARTS <<< "$VERSION_TAG"         # split into array
-          ITERATION=${VERSION_PARTS[3]:-01}                          # our own iteration (4th segment, default 01)
-          VERSION_CODE=$(printf "%1d%02d%03d%02d" "${VERSION_PARTS[0]}" "${VERSION_PARTS[1]}" "${VERSION_PARTS[2]}" "${ITERATION}")
-
-          echo "versonName=$VERSION_TAG" >> $GITHUB_OUTPUT          # "1.2.3"
-          echo "versonCode=$VERSION_CODE" >> $GITHUB_OUTPUT         # "102003"
-
-      # Re-write version in build.gradle.kts
-      - name: Re-write version
-        uses: Devofure/advance-android-version-actions@v1.5
-        with:
-          gradlePath: build.gradle.kts
-          versionCode: ${{ steps.process-version.outputs.versonCode }}
-          versionName: ${{ steps.process-version.outputs.versonName }}
-
-      # If any change found, commit it and push it
-      - name: Commit and push if changes
-        run: |
-          changes=$(git diff --name-only origin/main | wc -l)
-          if [ $changes -gt 0 ]
-          then
-            newVersionName=${{ steps.process-version.outputs.versonName }}
-            newVersionCode=${{ steps.process-version.outputs.versonCode }}
-            git config --global user.name 'GitHub Action'
-            git config --global user.email 'action@github.com'
-            git add build.gradle.kts
-            git commit -am "Bump version to $newVersionName ($newVersionCode)"
-            git tag "v$newVersionName"
-            git push --follow-tags
-          fi
-
-      - name: Update CA
-        run: |
-          sudo apt-get update && sudo apt-get install ca-certificates
-          sudo update-ca-certificates
-          cp -f /etc/ssl/certs/ca-certificates.crt core/src/foss/golang/clash/component/ca/ca-certificates.crt
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || { echo "Invalid release tag"; exit 1; }
+          version="${RELEASE_TAG#v}"
+          IFS=. read -r major minor patch iteration <<< "$version"
+          iteration="${iteration:-1}"
+          (( 10#$minor <= 99 && 10#$patch <= 999 && 10#$iteration <= 99 )) || { echo "Version component out of range"; exit 1; }
+          expected_code="$(printf '%d%02d%03d%02d' "$((10#$major))" "$((10#$minor))" "$((10#$patch))" "$((10#$iteration))")"
+          grep -Fq "versionCode = $expected_code" build.gradle.kts || { echo "versionCode does not match tag"; exit 1; }
+          grep -Fq "versionName = \"$version\"" build.gradle.kts || { echo "Tag must match committed versionName"; exit 1; }
+          test -z "$(git status --porcelain -- build.gradle.kts)" || { echo "Version file must be committed"; exit 1; }
+          existing_tag="$(git ls-remote --tags origin "refs/tags/$RELEASE_TAG")"
+          test -z "$existing_tag" || { echo "Release tag already exists"; exit 1; }
 
       - name: Signing properties
         env:
@@ -120,9 +95,36 @@ jobs:
           echo key.alias="$SIGNING_KEY_ALIAS" >> signing.properties
           echo key.password="$SIGNING_KEY_PASSWORD" >> signing.properties
 
+      - name: Verify Android and Go tests
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --no-parallel --max-workers=1 :service:testMetaDebugUnitTest :app:testMetaDebugUnitTest :app:lintMetaDebug :app:lintAlphaDebug
+          (cd core/src/main/golang/native && go test ./backup/...)
+          (cd core/src/foss/golang/clash && go test -race ./component/trafficpolicy ./component/providerwrite)
+
       - name: Release Build
         if: success()
-        run: ./gradlew --no-daemon app:assembleMetaRelease
+        run: ./gradlew --no-daemon --no-parallel --max-workers=1 app:assembleMetaRelease
+
+      - name: Verify release signing certificate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/previous-apk"
+          gh release download Prerelease-alpha --repo "$GITHUB_REPOSITORY" \
+            --pattern '*alpha-arm64-v8a-release.apk' --dir "$RUNNER_TEMP/previous-apk"
+          apksigner="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
+          previous=("$RUNNER_TEMP"/previous-apk/*.apk)
+          current=(app/build/outputs/apk/meta/release/*arm64-v8a-release.apk)
+          test "${#previous[@]}" -eq 1 && test -f "${previous[0]}"
+          test "${#current[@]}" -eq 1 && test -f "${current[0]}"
+          fingerprint() { "$apksigner" verify --print-certs "$1" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p'; }
+          expected="$(fingerprint "${previous[0]}")"
+          test -n "$expected"
+          for apk in app/build/outputs/apk/meta/release/*.apk; do
+            test "$(fingerprint "$apk")" = "$expected" || { echo "Signing certificate mismatch: $apk"; exit 1; }
+          done
 
       # One `<apk>.sha256` file next to each APK, in `sha256sum` format.
       # The in-app updater downloads the matching file and refuses to
@@ -135,17 +137,18 @@ jobs:
             sha256sum "$apk" > "$apk.sha256"
           done
 
-      - name: Tag Repo
-        uses: richardsimko/update-tag@v3
-        with:
-          tag_name: ${{ inputs.release-tag }}
+      - name: Publish verified artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release-tag }}
+        run: |
+          set -euo pipefail
+          # The release tag points to the exact committed sources that were built.
+          cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
+          GlonetX 12.12.2 migrates the Android interface to Jetpack Compose and updates settings, network privacy, and encrypted backup handling.
 
-      - name: Upload Release
-        uses: softprops/action-gh-release@v3
-        if: ${{ success() }}
-        with:
-          tag_name: ${{ inputs.release-tag }}
-          files: app/build/outputs/apk/meta/release/*
-          generate_release_notes: true
+          Validation covered Android 6.0 and API 37 emulators, VPN startup and shutdown, credential migration, backup components, and simulated restore-journal recovery. Real process termination or power-loss recovery, dual-stack and Wi-Fi policy packet captures, uninterrupted VPN forwarding during backup, and the complete accessibility and large-data performance matrix remain unverified.
+          EOF
+          git tag "$RELEASE_TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$RELEASE_TAG"
+          gh release create "$RELEASE_TAG" app/build/outputs/apk/meta/release/*.apk app/build/outputs/apk/meta/release/*.sha256 --verify-tag --notes-file "$RUNNER_TEMP/release-notes.md" --generate-notes
